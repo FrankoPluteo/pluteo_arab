@@ -7,28 +7,31 @@ import styles from '@/styles/products.module.css';
 const ITEMS_PER_PAGE = 9;
 
 interface ProductsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     gender?: string;
     brand?: string;
     category?: string;
-  };
+  }>;
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const currentPage = parseInt(searchParams.page || '1');
+  // Await searchParams
+  const params = await searchParams;
+  
+  const currentPage = parseInt(params.page || '1');
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
   
   // Build where clause based on filters
   const where: any = {};
   
-  if (searchParams.gender) {
-    where.gender = searchParams.gender;
+  if (params.gender) {
+    where.gender = params.gender;
   }
   
-  if (searchParams.brand) {
+  if (params.brand) {
     where.brand = {
-      name: searchParams.brand,
+      name: params.brand,
     };
   }
   
@@ -64,7 +67,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                searchParams={searchParams}
+                searchParams={params}
               />
             )}
             

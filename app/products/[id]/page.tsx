@@ -56,6 +56,7 @@ export default function ProductDetailPage() {
 
       <div className={styles.productContainer}>
         <div className={styles.productLayout}>
+          {/* Image Section */}
           <div className={styles.imageSection}>
             <div className={styles.mainImage}>
               {hasImages && images[selectedImage] ? (
@@ -80,9 +81,21 @@ export default function ProductDetailPage() {
             )}
           </div>
 
+          {/* Details Section */}
           <div className={styles.detailsSection}>
             <div>
-              <p className={styles.brandName}>{product.brand?.name || 'Unknown Brand'}</p>
+              <div className={styles.brandHeader}>
+                {product.brand?.logoUrl && (
+                  <div className={styles.brandLogoContainer}>
+                    <img 
+                      src={product.brand.logoUrl} 
+                      alt={product.brand.name}
+                      className={styles.brandLogoImage}
+                    />
+                  </div>
+                )}
+                <p className={styles.brandName}>{product.brand?.name || 'Unknown Brand'}</p>
+              </div>
               <h1 className={styles.productName}>{product.name}</h1>
               <p className={styles.productMeta}>
                 {product.concentration} • {product.size}ml • {product.gender}

@@ -22,6 +22,13 @@ export default function ProductCard({ product }: ProductCardProps) {
           ) : (
             <div className={styles.noImage}>No image</div>
           )}
+          
+          {/* Brand logo overlay */}
+          {product.brand.logoUrl && (
+            <div className={styles.brandLogo}>
+              <img src={product.brand.logoUrl} alt={product.brand.name} />
+            </div>
+          )}
         </div>
 
         <div className={styles.productInfo}>

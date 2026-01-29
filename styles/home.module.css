@@ -9,6 +9,14 @@
   justify-content: center;
   gap: 40px;
   align-items: center;
+  overflow: hidden  ;
+}
+
+.wallpaperhome{
+  width: 100%;
+  filter: brightness(0.3);
+  opacity: 0.5;
+  position: absolute;
 }
 
 .logolongimg{
@@ -123,6 +131,12 @@
   background-color: var(--color-dark);
   color: var(--color-white);
   transform: scale(1.1);
+}
+
+.brandimage{
+  filter: brightness(0.5);
+  position: absolute;
+  width: 120%;
 }
 
 .productsSection {

@@ -4,6 +4,10 @@ import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import styles from '@/styles/home.module.css';
 import logolong from '../public/Pluteo Logo Long.svg';
+import lattafaimg from '../public/lattafa.jpg';
+import frenchavenueimg from '../public/frenchavenue.jpg';
+import armafimg from '../public/armaf.jpg';
+import wallapaperhome from '../public/wallpaperhome.jpg';
 
 export default async function HomePage() {
   const featuredProducts = await prisma.product.findMany({
@@ -23,6 +27,7 @@ export default async function HomePage() {
       <Navbar />
 
       <div className={styles.homeBackground}>
+        <img className={styles.wallpaperhome} src={wallapaperhome.src} alt="Pluteo logo" />
         <img className={styles.logolongimg} src={logolong.src} alt="Pluteo logo" />
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
 
@@ -38,6 +43,7 @@ export default async function HomePage() {
 
       <div className={styles.home2}>
         <div className={styles.brandBox}>
+          <img className={styles.brandimage} src={lattafaimg.src} alt="Pluteo logo" />
           <div className={styles.categoryOverlay} />
           <Link href="/products?brand=Lattafa" className={styles.brandLink}>
             LATTAFA
@@ -46,6 +52,7 @@ export default async function HomePage() {
 
         <div className={styles.brandBox}>
           <div className={styles.categoryOverlay} />
+          <img className={styles.brandimage} src={armafimg.src} alt="Pluteo logo" />
           <Link href="/products?brand=Armaf" className={styles.brandLink}>
             ARMAF
           </Link>
@@ -53,6 +60,7 @@ export default async function HomePage() {
 
         <div className={styles.brandBox}>
           <div className={styles.categoryOverlay} />
+          <img className={styles.brandimage} src={frenchavenueimg.src} alt="Pluteo logo" />
           <Link href="/products?brand=French Avenue" className={styles.brandLink}>
             FRENCH AVENUE
           </Link>

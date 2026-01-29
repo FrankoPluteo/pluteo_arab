@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
+import styles from '@/styles/home.module.css';
 
 export default async function HomePage() {
   const featuredProducts = await prisma.product.findMany({
@@ -8,46 +10,74 @@ export default async function HomePage() {
     include: { brand: true },
     take: 4,
   });
-  
+
   const bestSellers = await prisma.product.findMany({
     where: { isBestSeller: true },
     include: { brand: true },
     take: 4,
   });
-  
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <section className="mb-16 text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Our Perfume Shop</h1>
-        <p className="text-gray-600 mb-8">Discover your signature scent</p>
-        <Link
-          href="/products"
-          className="inline-block bg-black text-white px-8 py-3 rounded hover:bg-gray-800 transition"
-        >
-          Shop All Products
-        </Link>
-      </section>
-      
+    <div>
+      <Navbar />
+
+      <div className={styles.homeBackground}>
+        <h1 className={styles.mainTitle}>PLUTEO</h1>
+        <Link href="/products" className={styles.goToShop}>SHOP</Link>
+
+        <div className={styles.filterLinkBox}>
+          <Link href="/products?gender=Men" className={styles.filterLink}>
+            MEN&apos;S
+          </Link>
+          <Link href="/products?gender=Women" className={styles.filterLink}>
+            WOMEN&apos;S
+          </Link>
+        </div>
+      </div>
+
+      <div className={styles.home2}>
+        <div className={styles.brandBox}>
+          <div className={styles.categoryOverlay} />
+          <Link href="/products?brand=Lattafa" className={styles.brandLink}>
+            LATTAFA
+          </Link>
+        </div>
+
+        <div className={styles.brandBox}>
+          <div className={styles.categoryOverlay} />
+          <Link href="/products?brand=Armaf" className={styles.brandLink}>
+            ARMAF
+          </Link>
+        </div>
+
+        <div className={styles.brandBox}>
+          <div className={styles.categoryOverlay} />
+          <Link href="/products?brand=French Avenue" className={styles.brandLink}>
+            FRENCH AVENUE
+          </Link>
+        </div>
+      </div>
+
       {featuredProducts.length > 0 && (
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-6">Featured Products</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={styles.productsSection}>
+          <h2 className={styles.sectionTitle}>FEATURED PERFUMES</h2>
+          <div className={styles.productsGrid}>
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        </section>
+        </div>
       )}
-      
+
       {bestSellers.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold mb-6">Best Sellers</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={styles.productsSection}>
+          <h2 className={styles.sectionTitle}>BEST SELLERS</h2>
+          <div className={styles.productsGrid}>
             {bestSellers.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        </section>
+        </div>
       )}
     </div>
   );

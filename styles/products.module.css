@@ -1,0 +1,150 @@
+.productsContainer {
+  margin-top: 100px;
+  padding: 40px 75px;
+  min-height: 100vh;
+}
+
+.pageTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-dark);
+  text-align: center;
+  margin-bottom: 40px;
+  letter-spacing: 4px;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.noProducts {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #666;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 60px 0 40px;
+}
+
+.pageButton {
+  padding: 10px 18px;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  border: 2px solid var(--color-dark);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.pageButton:hover:not(:disabled) {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  transform: translateY(-2px);
+}
+
+.pageButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pageButton.active {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 8px;
+}
+
+.pageNumber {
+  padding: 8px 14px;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  border: 2px solid var(--color-light);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.pageNumber:hover {
+  background-color: var(--color-light);
+  color: var(--color-white);
+  transform: translateY(-2px);
+}
+
+.pageNumber.active {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  border-color: var(--color-dark);
+}
+
+.pageInfo {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 1024px) {
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .productsContainer {
+    padding: 40px 30px;
+    margin-top: 80px;
+  }
+  
+  .pageTitle {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+  
+  .productsGrid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .pageButton {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  
+  .pageNumber {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 35px;
+  }
+  
+  .pageNumbers {
+    gap: 6px;
+  }
+}

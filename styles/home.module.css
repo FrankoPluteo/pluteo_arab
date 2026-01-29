@@ -1,0 +1,215 @@
+.homeBackground {
+  position: relative;
+  margin: 75px;
+  margin-top: 100px;
+  height: 550px;
+  background: linear-gradient(to right, var(--color-dark), var(--color-light));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+  align-items: center;
+}
+
+.mainTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--color-white);
+  letter-spacing: 8px;
+}
+
+.goToShop {
+  position: relative;
+  width: 120px;
+  text-decoration: none;
+  font-family: Montserrat, sans-serif;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  padding: 10px;
+  font-size: 30px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  z-index: 1;
+  font-weight: 500;
+}
+
+.goToShop:hover {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  transform: scale(1.1);
+}
+
+.filterLinkBox {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  height: 50px;
+  background-color: var(--color-white);
+  font-family: Montserrat, sans-serif;
+  color: var(--color-dark);
+  font-weight: 700;
+}
+
+.filterLink {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-bottom: 2px solid var(--color-light);
+  text-decoration: none;
+  color: var(--color-dark);
+}
+
+.filterLink:hover {
+  background-color: var(--color-light);
+  color: var(--color-white);
+}
+
+.home2 {
+  position: relative;
+  margin: 75px;
+  height: 500px;
+  display: flex;
+  gap: 50px;
+}
+
+.brandBox {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-dark), var(--color-light));
+}
+
+.categoryOverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease;
+}
+
+.brandBox:hover .categoryOverlay {
+  opacity: 0;
+}
+
+.brandLink {
+  position: relative;
+  width: 200px;
+  text-decoration: none;
+  font-family: Montserrat, sans-serif;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  padding: 15px;
+  font-size: 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  z-index: 10;
+  font-weight: 500;
+}
+
+.brandLink:hover {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  transform: scale(1.1);
+}
+
+.productsSection {
+  margin: 75px;
+}
+
+.sectionTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-dark);
+  text-align: center;
+  margin-bottom: 40px;
+  letter-spacing: 4px;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+@media (max-width: 1200px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .homeBackground {
+    margin: 50px 30px 30px;
+    height: 200px;
+    gap: 20px;
+  }
+
+  .mainTitle {
+    font-size: 32px;
+    letter-spacing: 4px;
+  }
+
+  .goToShop {
+    font-size: 20px;
+    width: 100px;
+    padding: 8px;
+  }
+
+  .filterLink {
+    font-size: 10px;
+    border-bottom: 1px solid var(--color-dark);
+  }
+
+  .filterLinkBox {
+    height: 40px;
+  }
+
+  .home2 {
+    margin: 30px;
+    gap: 20px;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .brandBox {
+    width: 100%;
+    height: 150px;
+  }
+
+  .brandLink {
+    width: 150px;
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .productsSection {
+    margin: 40px 30px;
+  }
+
+  .sectionTitle {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+
+  .productsGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

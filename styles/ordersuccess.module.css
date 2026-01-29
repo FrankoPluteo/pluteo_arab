@@ -1,0 +1,130 @@
+.container {
+  margin-top: 100px;
+  padding: 100px 75px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.successCard {
+  max-width: 600px;
+  width: 100%;
+  background-color: var(--color-white);
+  padding: 60px 50px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.checkmark {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 30px;
+  background: linear-gradient(to right, var(--color-dark), var(--color-light));
+  color: var(--color-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 40px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.primaryButton {
+  display: block;
+  padding: 16px 32px;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 83, 78, 0.3);
+}
+
+.secondaryButton {
+  display: block;
+  padding: 16px 32px;
+  background-color: transparent;
+  color: var(--color-dark);
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  border: 2px solid var(--color-dark);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 60px 30px;
+    margin-top: 80px;
+  }
+  
+  .successCard {
+    padding: 40px 30px;
+  }
+  
+  .checkmark {
+    width: 60px;
+    height: 60px;
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  
+  .title {
+    font-size: 28px;
+  }
+  
+  .message {
+    font-size: 15px;
+  }
+}

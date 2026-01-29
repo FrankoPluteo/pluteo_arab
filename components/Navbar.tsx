@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCart } from '@/lib/store';
 import styles from '@/styles/navbar.module.css';
+import logoicon from '../public/Pluteo Logo Icon.svg'
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
@@ -21,6 +22,8 @@ export default function Navbar() {
         <Link href="/about" className={styles.navbarLink}>ABOUT</Link>
         <Link href="/contact" className={styles.navbarLink}>CONTACT</Link>
       </div>
+
+      <Link className={styles.logoiconimg} href="/"><img src={logoicon.src} alt="Pluteo logo" /></Link>
 
       <Link href="/cart" className={`${styles.navbarLink} ${styles.cartLink}`}>
         CART

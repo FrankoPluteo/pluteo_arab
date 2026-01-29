@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import styles from '@/styles/home.module.css';
+import logolong from '../public/Pluteo Logo Long.svg';
 
 export default async function HomePage() {
   const featuredProducts = await prisma.product.findMany({
@@ -22,7 +23,7 @@ export default async function HomePage() {
       <Navbar />
 
       <div className={styles.homeBackground}>
-        <h1 className={styles.mainTitle}>PLUTEO</h1>
+        <img className={styles.logolongimg} src={logolong.src} alt="Pluteo logo" />
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
 
         <div className={styles.filterLinkBox}>

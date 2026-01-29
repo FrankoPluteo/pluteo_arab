@@ -30,6 +30,13 @@
   transform: translateY(-2px);
 }
 
+.logoiconimg{
+  width: 70px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .cartLink {
   position: relative;
   display: flex;
@@ -59,5 +66,10 @@
 
   .navbarLink {
     font-size: 14px;
+  }
+
+  .logoiconimg{
+    left: 70%;
+    width: 50px;
   }
 }

@@ -11,12 +11,9 @@
   align-items: center;
 }
 
-.mainTitle {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 64px;
-  font-weight: 700;
-  color: var(--color-white);
-  letter-spacing: 8px;
+.logolongimg{
+  position: relative;
+  width: 400px;
 }
 
 .goToShop {
@@ -157,13 +154,12 @@
 @media (max-width: 768px) {
   .homeBackground {
     margin: 50px 30px 30px;
-    height: 200px;
+    height: 40  0px;
     gap: 20px;
   }
 
-  .mainTitle {
-    font-size: 32px;
-    letter-spacing: 4px;
+  .logolongimg{
+    width: 200px;
   }
 
   .goToShop {

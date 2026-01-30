@@ -121,10 +121,12 @@ export default function ProductDetailPage() {
               ADD TO CART
             </button>
 
-            <div className={styles.description}>
-              <h3>Description</h3>
-              <p>{product.description}</p>
-            </div>
+            {product.fragranceProfiles && product.fragranceProfiles.length > 0 && (
+              <div className={styles.description}>
+                <h3>Fragrance Profile</h3>
+                <p>{product.fragranceProfiles.join(', ')}</p>
+              </div>
+            )}
 
             {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) && (
               <div className={styles.notesSection}>
@@ -148,6 +150,11 @@ export default function ProductDetailPage() {
                 )}
               </div>
             )}
+
+            <div className={styles.description}>
+              <h3>Description</h3>
+              <p>{product.description}</p>
+            </div>
 
             <div className={styles.productInfo}>
               <div className={styles.infoItem}>

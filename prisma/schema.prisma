@@ -19,25 +19,26 @@ model Brand {
 }
 
 model Product {
-  id             String   @id @default(cuid())
-  name           String
-  brandId        String
-  brand          Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  size           Int
-  price          Float
-  images         String[]
-  concentration  String
-  gender         String
-  description    String   @db.Text
-  discountAmount Float    @default(0)
-  isFeatured     Boolean  @default(false)
-  isBestSeller   Boolean  @default(false)
-  stock          Int      @default(0)
-  topNotes       String[]
-  heartNotes     String[]
-  baseNotes      String[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String   @id @default(cuid())
+  name              String
+  brandId           String
+  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  size              Int
+  price             Float
+  images            String[]
+  concentration     String
+  gender            String
+  description       String   @db.Text
+  discountAmount    Float    @default(0)
+  isFeatured        Boolean  @default(false)
+  isBestSeller      Boolean  @default(false)
+  stock             Int      @default(0)
+  fragranceProfiles String[] // NEW: Array of profiles like ["Fresh", "Woody", "Citrus"]
+  topNotes          String[]
+  heartNotes        String[]
+  baseNotes         String[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([brandId])
   @@index([isFeatured])

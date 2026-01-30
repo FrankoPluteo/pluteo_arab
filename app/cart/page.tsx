@@ -52,7 +52,7 @@ export default function CartPage() {
                         {item.product.concentration} • {item.product.size}ml
                       </p>
                     </div>
-                    <p className={styles.itemPrice}>${finalPrice}</p>
+                    <p className={styles.itemPrice}>{finalPrice} €</p>
                   </div>
                   
                   <div className={styles.itemControls}>
@@ -89,7 +89,7 @@ export default function CartPage() {
             
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>Subtotal</span>
-              <span className={styles.summaryValue}>${getTotalPrice().toFixed(2)}</span>
+              <span className={styles.summaryValue}>{getTotalPrice().toFixed(2)} €</span>
             </div>
             
             <div className={styles.summaryRow}>
@@ -101,7 +101,7 @@ export default function CartPage() {
             
             <div className={`${styles.summaryRow} ${styles.totalRow}`}>
               <span className={styles.summaryLabel}>Total</span>
-              <span className={styles.summaryValue}>${getTotalPrice().toFixed(2)}</span>
+              <span className={styles.summaryValue}>{getTotalPrice().toFixed(2)} €</span>
             </div>
             
             <Link href="/checkout" className={styles.checkoutButton}>

@@ -1,0 +1,119 @@
+.filtersContainer {
+  background-color: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 40px;
+}
+
+.filtersHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.filtersHeader h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-dark);
+  letter-spacing: 1px;
+}
+
+.clearButton {
+  background: none;
+  border: none;
+  color: var(--color-light);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.clearButton:hover {
+  color: var(--color-dark);
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filterGroup label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filterGroup select,
+.filterGroup input[type="number"] {
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  background-color: white;
+  transition: border-color 0.3s ease;
+}
+
+.filterGroup select:focus,
+.filterGroup input[type="number"]:focus {
+  outline: none;
+  border-color: var(--color-dark);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.applyButton {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.applyButton:hover {
+  background-color: var(--color-light);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .filtersGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filtersContainer {
+    padding: 20px;
+  }
+}

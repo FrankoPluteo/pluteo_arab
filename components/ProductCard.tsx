@@ -40,9 +40,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <div className={styles.productPricing}>
             {product.discountAmount > 0 && (
-              <span className={styles.originalPrice}>${product.price}</span>
+              <span className={styles.originalPrice}>{product.price} €</span>
             )}
-            <span className={styles.finalPrice}>${finalPrice}</span>
+            <span className={styles.finalPrice}>{finalPrice} €</span>
           </div>
         </div>
       </Link>

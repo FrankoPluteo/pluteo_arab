@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
+import { sendOrderConfirmation } from '@/lib/email';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
@@ -31,15 +32,14 @@ export async function POST(request: Request) {
 
     console.log('Webhook event received:', event.type);
 
-    // Handle the event
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
         console.log('Checkout session completed:', session.id);
         
-        // Update order status
         try {
-          await prisma.order.update({
+          // Update order status
+          const order = await prisma.order.update({
             where: { stripeSessionId: session.id },
             data: {
               paymentStatus: 'paid',
@@ -47,7 +47,18 @@ export async function POST(request: Request) {
               paidAt: new Date(),
             },
           });
-          console.log('Order updated successfully');
+
+          // Send confirmation email
+          const items = JSON.parse(order.items as string);
+          await sendOrderConfirmation({
+            orderNumber: order.orderNumber,
+            customerEmail: order.customerEmail,
+            customerName: order.customerName,
+            items: items,
+            total: order.total,
+          });
+
+          console.log('Order updated and email sent successfully');
         } catch (dbError) {
           console.error('Database update error:', dbError);
         }
@@ -59,7 +70,6 @@ export async function POST(request: Request) {
         const paymentIntent = event.data.object;
         console.log('Payment failed:', paymentIntent.id);
         
-        // Update order status
         try {
           await prisma.order.updateMany({
             where: { stripePaymentId: paymentIntent.id },

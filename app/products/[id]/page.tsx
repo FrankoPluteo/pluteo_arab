@@ -104,12 +104,12 @@ export default function ProductDetailPage() {
 
             <div className={styles.priceSection}>
               {hasDiscount && (
-                <span className={styles.originalPrice}>${product.price}</span>
+                <span className={styles.originalPrice}>{product.price} €</span>
               )}
-              <span className={styles.finalPrice}>${finalPrice}</span>
+              <span className={styles.finalPrice}>{finalPrice} €</span>
               {hasDiscount && (
                 <span className={styles.discount}>
-                  Save ${product.discountAmount}
+                  Save {product.discountAmount} €
                 </span>
               )}
             </div>
@@ -120,13 +120,6 @@ export default function ProductDetailPage() {
             >
               ADD TO CART
             </button>
-
-            {product.fragranceProfiles && product.fragranceProfiles.length > 0 && (
-              <div className={styles.description}>
-                <h3>Fragrance Profile</h3>
-                <p>{product.fragranceProfiles.join(', ')}</p>
-              </div>
-            )}
 
             {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) && (
               <div className={styles.notesSection}>
@@ -155,6 +148,13 @@ export default function ProductDetailPage() {
               <h3>Description</h3>
               <p>{product.description}</p>
             </div>
+
+            {product.fragranceProfiles && product.fragranceProfiles.length > 0 && (
+              <div className={styles.description}>
+                <h3>Fragrance Profile</h3>
+                <p>{product.fragranceProfiles.join(', ')}</p>
+              </div>
+            )}
 
             <div className={styles.productInfo}>
               <div className={styles.infoItem}>

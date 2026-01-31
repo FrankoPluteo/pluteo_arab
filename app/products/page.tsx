@@ -32,26 +32,26 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   
   if (params.gender) {
     where.gender = {
-      in: [params.gender, 'unisex'], // Include Unisex with Men or Women
+      in: [params.gender, 'unisex'],
     };
   }
-  
+
   if (params.brand) {
     where.brand = {
       name: params.brand,
     };
   }
-  
+
   if (params.concentration) {
     where.concentration = params.concentration;
   }
-  
+
   if (params.fragranceProfile) {
     where.fragranceProfiles = {
       has: params.fragranceProfile,
     };
   }
-  
+
   if (params.minPrice || params.maxPrice) {
     where.price = {};
     if (params.minPrice) {

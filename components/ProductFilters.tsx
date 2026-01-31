@@ -23,7 +23,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
     gender: searchParams.get('gender') || '',
     brand: searchParams.get('brand') || '',
     concentration: searchParams.get('concentration') || '',
-    fragranceProfile: searchParams.get('fragranceProfile') || '',
+    fragranceProfile: searchParams.get('fragranceProfile') || '', // Single selection
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     inStock: searchParams.get('inStock') || '',
@@ -40,7 +40,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
     });
     
     router.push(`/products?${params.toString()}`);
-    setIsOpen(false); // Close filters after applying
+    setIsOpen(false);
   };
 
   const clearFilters = () => {
@@ -118,8 +118,8 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
                 onChange={(e) => handleChange('gender', e.target.value)}
               >
                 <option value="">All</option>
-                <option value="men">Men</option>
-                <option value="women">Women</option>
+                <option value="male">Men</option>
+                <option value="female">Women</option>
               </select>
             </div>
 
@@ -155,7 +155,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
               </select>
             </div>
 
-            {/* Fragrance Profile */}
+            {/* Fragrance Profile - Dropdown */}
             <div className={styles.filterGroup}>
               <label>Fragrance Profile</label>
               <select

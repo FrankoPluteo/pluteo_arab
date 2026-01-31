@@ -32,10 +32,10 @@ export default async function HomePage() {
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
 
         <div className={styles.filterLinkBox}>
-          <Link href="/products?gender=Men" className={styles.filterLink}>
+          <Link href="/products?gender=male" className={styles.filterLink}>
             MEN&apos;S
           </Link>
-          <Link href="/products?gender=Women" className={styles.filterLink}>
+          <Link href="/products?gender=female" className={styles.filterLink}>
             WOMEN&apos;S
           </Link>
         </div>

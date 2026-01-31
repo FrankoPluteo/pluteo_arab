@@ -250,6 +250,11 @@
 }
 
 @media (max-width: 768px) {
+
+  .mainImage img{
+    width: 50%;
+  }
+
   .productContainer {
     padding: 40px 30px;
     margin-top: 80px;

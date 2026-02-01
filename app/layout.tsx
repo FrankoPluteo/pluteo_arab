@@ -6,12 +6,12 @@ import Navbar from '@/components/Navbar';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Pluteo - Premium Arabian & Designer Perfumes',
+  title: 'Pluteo - Premium Arabian Perfumes',
   description: 'Discover authentic Arabian fragrances and designer perfumes. Shop Lattafa, Armaf, French Avenue and premium brands at Pluteo. Free shipping on orders over 50 €.',
   keywords: 'Arabian perfumes, designer fragrances, Lattafa, Armaf, French Avenue luxury perfumes, oriental scents, oud perfumes',
   authors: [{ name: 'Pluteo' }],
   openGraph: {
-    title: 'Pluteo - Premium Arabian & Designer Perfumes',
+    title: 'Pluteo - Premium Arabian Perfumes',
     description: 'Discover authentic Arabian fragrances and designer perfumes. Shop the finest scents.',
     url: 'https://pluteo.shop',
     siteName: 'Pluteo',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pluteo - Premium Arabian & Designer Perfumes',
+    title: 'Pluteo - Premium Arabian Perfumes',
     description: 'Discover authentic Arabian fragrances and designer perfumes.',
     images: ['https://pluteo.shop/og-image.jpg'],
   },

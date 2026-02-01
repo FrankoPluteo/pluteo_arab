@@ -17,6 +17,7 @@
 }
 
 .productImage {
+  position: relative;
   width: 100%;
   aspect-ratio: 1;
   background-color: white;
@@ -33,8 +34,8 @@
   max-height: 75%;
   object-fit: contain;
   display: block;
+  transition: transform 0.3s ease;
 }
-
 
 .productCard:hover .productImage img {
   transform: scale(1.05);
@@ -107,17 +108,6 @@
   background-color: var(--color-light);
 }
 
-.productImage {
-  position: relative; /* Add this line */
-  width: 100%;
-  aspect-ratio: 1;
-  background-color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
 .brandLogo {
   position: absolute;
   top: 10px;
@@ -131,11 +121,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10; /* Add this line */
+  z-index: 10;
 }
 
 .brandLogo img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .productImage img {
+    max-width: 80% !important;
+    max-height: 80% !important;
+  }
+  
+  .productInfo {
+    padding: 12px;
+  }
+  
+  .productName {
+    font-size: 14px;
+  }
+  
+  .finalPrice {
+    font-size: 18px;
+  }
+  
+  .brandLogo {
+    width: 30px;
+    height: 30px;
+    top: 8px;
+    right: 8px;
+  }
 }

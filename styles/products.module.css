@@ -148,3 +148,18 @@
     gap: 6px;
   }
 }
+
+.searchInfo {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.searchInfo strong {
+  color: var(--color-dark);
+  font-weight: 700;
+}

@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import Pagination from '@/components/Pagination';
 import ProductFilters from '@/components/ProductFilters';
+import SearchBar from '@/components/SearchBar';
 import styles from '@/styles/products.module.css';
 
 const ITEMS_PER_PAGE = 9;
@@ -18,6 +19,7 @@ interface ProductsPageProps {
     maxPrice?: string;
     inStock?: string;
     sortBy?: string;
+    search?: string;
   }>;
 }
 
@@ -30,28 +32,37 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   // Build where clause based on filters
   const where: any = {};
   
+  // Search functionality
+  if (params.search) {
+    where.OR = [
+      { name: { contains: params.search, mode: 'insensitive' } },
+      { description: { contains: params.search, mode: 'insensitive' } },
+      { brand: { name: { contains: params.search, mode: 'insensitive' } } },
+    ];
+  }
+  
   if (params.gender) {
     where.gender = {
       in: [params.gender, 'unisex'],
     };
   }
-
+  
   if (params.brand) {
     where.brand = {
       name: params.brand,
     };
   }
-
+  
   if (params.concentration) {
     where.concentration = params.concentration;
   }
-
+  
   if (params.fragranceProfile) {
     where.fragranceProfiles = {
       has: params.fragranceProfile,
     };
   }
-
+  
   if (params.minPrice || params.maxPrice) {
     where.price = {};
     if (params.minPrice) {
@@ -127,7 +138,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <div className={styles.productsContainer}>
           <h1 className={styles.pageTitle}>ALL PRODUCTS</h1>
           
+          <SearchBar initialValue={params.search || ''} />
+          
           <ProductFilters options={filterOptions} />
+          
+          {params.search && (
+            <p className={styles.searchInfo}>
+              Showing results for: <strong>"{params.search}"</strong>
+            </p>
+          )}
           
           {products.length > 0 ? (
             <>
@@ -151,7 +170,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </>
           ) : (
             <div className={styles.noProducts}>
-              No products found. Try adjusting your filters.
+              {params.search ? (
+                <>
+                  No products found for "{params.search}". Try adjusting your search or filters.
+                </>
+              ) : (
+                'No products found. Try adjusting your filters.'
+              )}
             </div>
           )}
         </div>

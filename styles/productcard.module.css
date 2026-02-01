@@ -20,22 +20,21 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  background-color: white;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 .productImage img {
-  width: auto;
-  height: auto;
-  max-width: 75%;
-  max-height: 75%;
+  position: absolute;
+  width: 80%;
+  height: 80%;
   object-fit: contain;
   display: block;
-  transition: transform 0.3s ease;
 }
+
+
 
 .productCard:hover .productImage img {
   transform: scale(1.05);
@@ -130,29 +129,3 @@
   object-fit: contain;
 }
 
-/* Mobile styles */
-@media (max-width: 768px) {
-  .productImage img {
-    max-width: 80% !important;
-    max-height: 80% !important;
-  }
-  
-  .productInfo {
-    padding: 12px;
-  }
-  
-  .productName {
-    font-size: 14px;
-  }
-  
-  .finalPrice {
-    font-size: 18px;
-  }
-  
-  .brandLogo {
-    width: 30px;
-    height: 30px;
-    top: 8px;
-    right: 8px;
-  }
-}

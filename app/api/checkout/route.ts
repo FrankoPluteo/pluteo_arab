@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 
+const SHIPPING_COST = 4.99;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { items, customerInfo } = body;
 
-    // Validate items
     if (!items || items.length === 0) {
       return NextResponse.json(
         { error: 'No items in cart' },
@@ -15,7 +16,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate customer info
     if (!customerInfo?.email || !customerInfo?.name) {
       return NextResponse.json(
         { error: 'Customer information is required' },
@@ -23,14 +23,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate total
+    // Calculate totals
     const subtotal = items.reduce((sum: number, item: any) => {
       const price = item.product.price - item.product.discountAmount;
       return sum + (price * item.quantity);
     }, 0);
 
-    const shippingCost = 0; // Add your shipping logic here
-    const total = subtotal + shippingCost;
+    const total = subtotal + SHIPPING_COST;
 
     // Generate order number
     const orderNumber = `PLA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -48,11 +47,39 @@ export async function POST(request: Request) {
         shippingCountry: customerInfo.country,
         items: JSON.stringify(items),
         subtotal,
-        shippingCost,
+        shippingCost: SHIPPING_COST,
         total,
         paymentStatus: 'pending',
         orderStatus: 'processing',
       },
+    });
+
+    // Create Stripe line items
+    const lineItems = items.map((item: any) => {
+      const price = item.product.price - item.product.discountAmount;
+      return {
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: `${item.product.brand.name} - ${item.product.name}`,
+            description: `${item.product.concentration} - ${item.product.size}ml`,
+          },
+          unit_amount: Math.round(price * 100),
+        },
+        quantity: item.quantity,
+      };
+    });
+
+    // Add shipping as a line item
+    lineItems.push({
+      price_data: {
+        currency: 'eur',
+        product_data: {
+          name: 'Shipping',
+        },
+        unit_amount: Math.round(SHIPPING_COST * 100),
+      },
+      quantity: 1,
     });
 
     // Create Stripe checkout session
@@ -60,21 +87,7 @@ export async function POST(request: Request) {
       payment_method_types: ['card'],
       mode: 'payment',
       customer_email: customerInfo.email,
-      line_items: items.map((item: any) => {
-        const price = item.product.price - item.product.discountAmount;
-        return {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${item.product.brand.name} - ${item.product.name}`,
-              description: `${item.product.concentration} - ${item.product.size}ml`,
-              // images: item.product.images?.[0] ? [item.product.images[0]] : [],
-            },
-            unit_amount: Math.round(price * 100), // Convert to cents
-          },
-          quantity: item.quantity,
-        };
-      }),
+      line_items: lineItems,
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
       metadata: {
@@ -83,7 +96,6 @@ export async function POST(request: Request) {
       },
     });
 
-    // Update order with Stripe session ID
     await prisma.order.update({
       where: { id: order.id },
       data: { stripeSessionId: session.id },

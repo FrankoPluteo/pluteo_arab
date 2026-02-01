@@ -5,8 +5,13 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import styles from '@/styles/cart.module.css';
 
+const SHIPPING_COST = 4.99;
+
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotalPrice } = useCart();
+  
+  const subtotal = getTotalPrice();
+  const total = subtotal + SHIPPING_COST;
   
   if (items.length === 0) {
     return (
@@ -52,7 +57,7 @@ export default function CartPage() {
                         {item.product.concentration} • {item.product.size}ml
                       </p>
                     </div>
-                    <p className={styles.itemPrice}>{finalPrice} €</p>
+                    <p className={styles.itemPrice}>€{finalPrice.toFixed(2)}</p>
                   </div>
                   
                   <div className={styles.itemControls}>
@@ -89,19 +94,19 @@ export default function CartPage() {
             
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>Subtotal</span>
-              <span className={styles.summaryValue}>{getTotalPrice().toFixed(2)} €</span>
+              <span className={styles.summaryValue}>€{subtotal.toFixed(2)}</span>
             </div>
             
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>Shipping</span>
-              <span className={styles.summaryValue}>Calculated at checkout</span>
+              <span className={styles.summaryValue}>€{SHIPPING_COST.toFixed(2)}</span>
             </div>
             
             <hr className={styles.summaryDivider} />
             
             <div className={`${styles.summaryRow} ${styles.totalRow}`}>
               <span className={styles.summaryLabel}>Total</span>
-              <span className={styles.summaryValue}>{getTotalPrice().toFixed(2)} €</span>
+              <span className={styles.summaryValue}>€{total.toFixed(2)}</span>
             </div>
             
             <Link href="/checkout" className={styles.checkoutButton}>

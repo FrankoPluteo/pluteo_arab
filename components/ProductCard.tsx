@@ -12,9 +12,10 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
   const finalPrice = product.price - product.discountAmount;
+  const isOutOfStock = product.stock <= 0;
 
   return (
-    <div className={styles.productCard}>
+    <div className={`${styles.productCard} ${isOutOfStock ? styles.outOfStock : ''}`}>
       <Link href={`/products/${product.id}`} className={styles.productLink}>
         <div className={styles.productImage}>
           {product.images[0] ? (
@@ -23,11 +24,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className={styles.noImage}>No image</div>
           )}
           
-          {/* Brand logo overlay */}
           {product.brand.logoUrl && (
             <div className={styles.brandLogo}>
               <img src={product.brand.logoUrl} alt={product.brand.name} />
             </div>
+          )}
+          
+          {isOutOfStock && (
+            <div className={styles.outOfStockBadge}>OUT OF STOCK</div>
           )}
         </div>
 
@@ -40,9 +44,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <div className={styles.productPricing}>
             {product.discountAmount > 0 && (
-              <span className={styles.originalPrice}>{product.price} €</span>
+              <span className={styles.originalPrice}>€{product.price}</span>
             )}
-            <span className={styles.finalPrice}>{finalPrice} €</span>
+            <span className={styles.finalPrice}>€{finalPrice.toFixed(2)}</span>
           </div>
         </div>
       </Link>
@@ -51,10 +55,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         className={styles.addToCartBtn}
         onClick={(e) => {
           e.preventDefault();
-          addItem(product);
+          if (!isOutOfStock) {
+            addItem(product);
+          }
         }}
+        disabled={isOutOfStock}
       >
-        ADD TO CART
+        {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
       </button>
     </div>
   );

@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar';
 import CheckoutForm from '@/components/CheckoutForm';
 import styles from '@/styles/checkout.module.css';
 
+const SHIPPING_COST = 4.99;
+
 export default function CheckoutPage() {
   const { items, getTotalPrice } = useCart();
   const router = useRouter();
@@ -20,6 +22,9 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return null;
   }
+
+  const subtotal = getTotalPrice();
+  const total = subtotal + SHIPPING_COST;
 
   return (
     <div>
@@ -50,7 +55,7 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <p className={styles.itemPrice}>
-                      ${(price * item.quantity).toFixed(2)}
+                      €{(price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 );
@@ -60,15 +65,15 @@ export default function CheckoutPage() {
             <div className={styles.summaryTotals}>
               <div className={styles.totalRow}>
                 <span>Subtotal</span>
-                <span>${getTotalPrice().toFixed(2)}</span>
+                <span>€{subtotal.toFixed(2)}</span>
               </div>
               <div className={styles.totalRow}>
                 <span>Shipping</span>
-                <span>FREE</span>
+                <span>€{SHIPPING_COST.toFixed(2)}</span>
               </div>
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                 <span>Total</span>
-                <span>${getTotalPrice().toFixed(2)}</span>
+                <span>€{total.toFixed(2)}</span>
               </div>
             </div>
           </div>

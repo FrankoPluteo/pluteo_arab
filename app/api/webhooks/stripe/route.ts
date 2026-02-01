@@ -38,7 +38,6 @@ export async function POST(request: Request) {
         console.log('Checkout session completed:', session.id);
         
         try {
-          // Update order status
           const order = await prisma.order.update({
             where: { stripeSessionId: session.id },
             data: {
@@ -48,8 +47,20 @@ export async function POST(request: Request) {
             },
           });
 
-          // Send confirmation email
+          // Decrease stock for purchased items
           const items = JSON.parse(order.items as string);
+          for (const item of items) {
+            await prisma.product.update({
+              where: { id: item.product.id },
+              data: {
+                stock: {
+                  decrement: item.quantity,
+                },
+              },
+            });
+          }
+
+          // Send confirmation email
           await sendOrderConfirmation({
             orderNumber: order.orderNumber,
             customerEmail: order.customerEmail,
@@ -58,7 +69,7 @@ export async function POST(request: Request) {
             total: order.total,
           });
 
-          console.log('Order updated and email sent successfully');
+          console.log('Order updated, stock decreased, and email sent successfully');
         } catch (dbError) {
           console.error('Database update error:', dbError);
         }

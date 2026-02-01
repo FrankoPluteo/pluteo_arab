@@ -185,11 +185,6 @@ export async function sendOrderConfirmation(orderData: {
                 </div>
               </div>
               
-              <div class="message">
-                <p style="margin: 0;"><strong>What happens next?</strong></p>
-                <p style="margin: 10px 0 0 0;">We'll send you another email with tracking information once your order ships. This usually takes 1-2 business days.</p>
-              </div>
-              
               <center>
                 <a href="https://pluteo.shop/products" class="button">Continue Shopping</a>
               </center>

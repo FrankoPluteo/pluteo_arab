@@ -48,26 +48,9 @@ export default function ContactPage() {
             <div className={styles.contactDetails}>
               <div className={styles.contactItem}>
                 <h3>Email</h3>
-                <a href="mailto:support@pluteo.shop">support@pluteo.shop</a>
+                <a href="mailto:pluteoinfo@gmail.com">pluteoinfo@gmail.com</a>
               </div>
-              
-              <div className={styles.contactItem}>
-                <h3>Phone</h3>
-                <a href="tel:+385123456789">+385 12 345 6789</a>
-              </div>
-              
-              <div className={styles.contactItem}>
-                <h3>Business Hours</h3>
-                <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                <p>Saturday: 10:00 AM - 4:00 PM</p>
-                <p>Sunday: Closed</p>
-              </div>
-              
-              <div className={styles.contactItem}>
-                <h3>Address</h3>
-                <p>Pluteo Perfumes</p>
-                <p>Zagreb, Croatia</p>
-              </div>
+        
             </div>
           </div>
           

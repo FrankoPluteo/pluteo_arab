@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       };
     });
 
-    const shippingCost = calculateShipping(subtotal);
+    const shippingCost = calculateShipping();
     const total = subtotal + shippingCost;
 
     // Generate order number

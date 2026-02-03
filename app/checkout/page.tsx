@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import CheckoutForm from '@/components/CheckoutForm';
 import styles from '@/styles/checkout.module.css';
-import { calculateShipping, FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
+import { calculateShipping } from '@/lib/shipping';
 
 export default function CheckoutPage() {
   const { items, getTotalPrice } = useCart();
@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   }
 
   const subtotal = getTotalPrice();
-  const shippingCost = calculateShipping(subtotal);
+  const shippingCost = calculateShipping();
   const total = subtotal + shippingCost;
 
   return (
@@ -72,9 +72,7 @@ export default function CheckoutPage() {
               </div>
               <div className={styles.totalRow}>
                 <span>Shipping</span>
-                <span style={{ color: shippingCost === 0 ? '#155724' : 'inherit', fontWeight: shippingCost === 0 ? 700 : 400 }}>
-                  {shippingCost === 0 ? 'FREE' : `€${shippingCost.toFixed(2)}`}
-                </span>
+                <span>€{shippingCost.toFixed(2)}</span>
               </div>
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                 <span>Total</span>

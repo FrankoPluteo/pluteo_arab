@@ -5,5 +5,6 @@ export function calculateShipping(): number {
 }
 
 export function isCountryAllowed(country: string): boolean {
-  return country === 'Croatia';
+  return country === 'HR' || country === 'Croatia';
 }
+

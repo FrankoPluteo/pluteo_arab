@@ -1,10 +1,26 @@
 .valentineWrapper {
+  position: relative;
   margin: 0 75px;
   padding: 60px 0;
-  background: linear-gradient(to bottom, #fef5f7, #ffffff);
+  overflow: hidden;
+  padding: 20px;
+}
+
+.backgroundImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .valentineHeader {
+  position: relative;
+  z-index: 1;
   text-align: center;
   margin-bottom: 50px;
 }
@@ -36,9 +52,11 @@
 }
 
 .packsGrid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+  gap: 20px;
 }
 
 .packCard {
@@ -245,6 +263,30 @@
 .packButtonInCart {
   background-color: #155724;
 }
+
+.packProductLink {
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.packProductLink:hover {
+  transform: scale(1.05);
+}
+
+.packNameLink {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.packNameLink:hover {
+  color: var(--color-light);
+  text-decoration: underline;
+}
+
 
 @media (max-width: 1024px) {
   .packsGrid {

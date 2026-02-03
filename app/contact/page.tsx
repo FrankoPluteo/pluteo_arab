@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import styles from '@/styles/staticpage.module.css';
+import Footer from '@/components/Footer';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -65,8 +66,6 @@ export default function ContactPage() {
               <div className={styles.contactItem}>
                 <h3>Shipping</h3>
                 <p>We currently ship within Croatia only.</p>
-                <p>Delivery: 2-5 business days</p>
-                <p>Free shipping on orders over €50</p>
               </div>
             </div>
           </div>
@@ -156,6 +155,8 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

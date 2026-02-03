@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { VALENTINE_PACKS, ValentinePack } from '@/lib/valentinePacks';
 import { useCart } from '@/lib/store';
 import { Product } from '@/types';
 import styles from '@/styles/valentine.module.css';
+import valentineswallpaper from '../public/valentineswallpaper.jpg';
 
 interface PackProducts {
   him: Product | null;
@@ -83,7 +85,6 @@ export default function ValentineSection() {
       }
 
       addPackItems(products.him, products.her, pack.id, pack.discount);
-      alert(`Valentine's Pack added to cart!\nYou saved €${pack.discount}!`);
     } catch (error) {
       console.error('Error adding pack:', error);
       alert('Failed to add pack to cart. Please try again.');
@@ -94,9 +95,14 @@ export default function ValentineSection() {
 
   return (
     <div className={styles.valentineWrapper}>
-      <div className={styles.valentineHeader}>
+      <img 
+            src={valentineswallpaper.src} 
+            alt="" 
+            className={styles.backgroundImage}
+          />
+          <div className={styles.valentineHeader}>
         <h2 className={styles.valentineTitle}>
-          In Sync
+          In Sync 
         </h2>
         <p className={styles.valentineSubtitle}>
           Perfectly Paired, In Sync: For Her & For Him
@@ -127,16 +133,36 @@ export default function ValentineSection() {
                   <span className={styles.packLabel}>For Him</span>
                   {fetching ? (
                     <div className={styles.packImagePlaceholder} />
-                  ) : products?.him?.images[0] ? (
-                    <img
-                      src={products.him.images[0]}
-                      alt={pack.himName}
-                      className={styles.packImage}
-                    />
+                  ) : products?.him ? (
+                    <Link
+                      href={`/products/${products.him.id}`}
+                      className={styles.packProductLink}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {products.him.images[0] ? (
+                        <img
+                          src={products.him.images[0]}
+                          alt={pack.himName}
+                          className={styles.packImage}
+                        />
+                      ) : (
+                        <div className={styles.packImagePlaceholder} />
+                      )}
+                    </Link>
                   ) : (
                     <div className={styles.packImagePlaceholder} />
                   )}
-                  <span className={styles.packName}>{pack.himName}</span>
+                  {!fetching && products?.him ? (
+                    <Link
+                      href={`/products/${products.him.id}`}
+                      className={styles.packNameLink}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {pack.himName}
+                    </Link>
+                  ) : (
+                    <span className={styles.packName}>{pack.himName}</span>
+                  )}
                   {!fetching && products?.him && (
                     <span className={styles.packPrice}>€{products.him.price.toFixed(2)}</span>
                   )}
@@ -146,16 +172,36 @@ export default function ValentineSection() {
                   <span className={styles.packLabel}>For Her</span>
                   {fetching ? (
                     <div className={styles.packImagePlaceholder} />
-                  ) : products?.her?.images[0] ? (
-                    <img
-                      src={products.her.images[0]}
-                      alt={pack.herName}
-                      className={styles.packImage}
-                    />
+                  ) : products?.her ? (
+                    <Link
+                      href={`/products/${products.her.id}`}
+                      className={styles.packProductLink}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {products.her.images[0] ? (
+                        <img
+                          src={products.her.images[0]}
+                          alt={pack.herName}
+                          className={styles.packImage}
+                        />
+                      ) : (
+                        <div className={styles.packImagePlaceholder} />
+                      )}
+                    </Link>
                   ) : (
                     <div className={styles.packImagePlaceholder} />
                   )}
-                  <span className={styles.packName}>{pack.herName}</span>
+                  {!fetching && products?.her ? (
+                    <Link
+                      href={`/products/${products.her.id}`}
+                      className={styles.packNameLink}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {pack.herName}
+                    </Link>
+                  ) : (
+                    <span className={styles.packName}>{pack.herName}</span>
+                  )}
                   {!fetching && products?.her && (
                     <span className={styles.packPrice}>€{products.her.price.toFixed(2)}</span>
                   )}

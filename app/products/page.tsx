@@ -5,6 +5,7 @@ import Pagination from '@/components/Pagination';
 import ProductFilters from '@/components/ProductFilters';
 import SearchBar from '@/components/SearchBar';
 import styles from '@/styles/products.module.css';
+import Footer from '@/components/Footer';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -180,6 +181,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </div>
           )}
         </div>
+        <Footer />
       </div>
     );
   } catch (error) {

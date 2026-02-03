@@ -9,6 +9,7 @@ import frenchavenueimg from '../public/frenchavenue.jpg';
 import armafimg from '../public/armaf.jpg';
 import wallapaperhome from '../public/wallpaperhome.jpg';
 import ValentineSection from '@/components/ValentineSection';
+import Footer from '@/components/Footer';
 
 export default async function HomePage() {
   const featuredProducts = await prisma.product.findMany({
@@ -72,7 +73,7 @@ export default async function HomePage() {
 
       {featuredProducts.length > 0 && (
         <div className={styles.productsSection}>
-          <h2 className={styles.sectionTitle}>FEATURED PERFUMES</h2>
+          <h2 className={styles.sectionTitle}>For Those Who Stand Out.</h2>
           <div className={styles.productsGrid}>
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
@@ -91,6 +92,7 @@ export default async function HomePage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

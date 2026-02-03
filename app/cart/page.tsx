@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import styles from '@/styles/cart.module.css';
 import { calculateShipping } from '@/lib/shipping';
+import Footer from '@/components/Footer';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotalPrice } = useCart();
@@ -139,6 +140,8 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      <Navbar />
     </div>
   );
 }

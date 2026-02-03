@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import styles from '@/styles/staticpage.module.css';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'About Us - Pluteo',
@@ -48,6 +49,7 @@ Each perfume is handled with care and shipped securely to ensure it arrives in p
           </ul>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

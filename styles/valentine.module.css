@@ -85,6 +85,44 @@
   margin: 0;
 }
 
+.packImages {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.packImageWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.packImage {
+  width: 100%;
+  max-width: 120px;
+  height: 140px;
+  object-fit: contain;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.packImagePlaceholder {
+  width: 100%;
+  max-width: 120px;
+  height: 140px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .packNames {
   display: flex;
   justify-content: space-between;
@@ -109,13 +147,40 @@
 
 .packName {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-dark);
 }
 
+.packPrice {
+  font-size: 13px;
+  color: #666;
+}
+
 .packDivider {
   font-size: 18px;
+  font-weight: 700;
+  color: var(--color-light);
+  padding-top: 50px;
+}
+
+.packPricing {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.packOriginalPrice {
+  font-size: 15px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.packFinalPrice {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-dark);
 }
 
 .packSavings {
@@ -177,6 +242,10 @@
   cursor: not-allowed;
 }
 
+.packButtonInCart {
+  background-color: #155724;
+}
+
 @media (max-width: 1024px) {
   .packsGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -196,5 +265,15 @@
   .packsGrid {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .packImage {
+    max-width: 100px;
+    height: 120px;
+  }
+
+  .packImagePlaceholder {
+    max-width: 100px;
+    height: 120px;
   }
 }

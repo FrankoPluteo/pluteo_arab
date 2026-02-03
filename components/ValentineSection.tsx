@@ -1,54 +1,89 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VALENTINE_PACKS, ValentinePack } from '@/lib/valentinePacks';
 import { useCart } from '@/lib/store';
+import { Product } from '@/types';
 import styles from '@/styles/valentine.module.css';
+
+interface PackProducts {
+  him: Product | null;
+  her: Product | null;
+}
 
 export default function ValentineSection() {
   const [selectedPack, setSelectedPack] = useState<ValentinePack | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
-  const addItem = useCart((state) => state.addItem);
+  const [packProducts, setPackProducts] = useState<Record<string, PackProducts>>({});
+  const [fetching, setFetching] = useState(true);
+  const addPackItems = useCart((state) => state.addPackItems);
+  const items = useCart((state) => state.items);
+
+  useEffect(() => {
+    const fetchAllPackProducts = async () => {
+      setFetching(true);
+      const productIds = new Set<string>();
+      VALENTINE_PACKS.forEach((pack) => {
+        productIds.add(pack.himId);
+        productIds.add(pack.herId);
+      });
+
+      const productMap: Record<string, Product> = {};
+      await Promise.all(
+        Array.from(productIds).map(async (id) => {
+          try {
+            const res = await fetch(`/api/products/${id}`);
+            if (res.ok) {
+              productMap[id] = await res.json();
+            }
+          } catch {
+            // Product unavailable
+          }
+        })
+      );
+
+      const result: Record<string, PackProducts> = {};
+      VALENTINE_PACKS.forEach((pack) => {
+        result[pack.id] = {
+          him: productMap[pack.himId] || null,
+          her: productMap[pack.herId] || null,
+        };
+      });
+      setPackProducts(result);
+      setFetching(false);
+    };
+
+    fetchAllPackProducts();
+  }, []);
+
+  const isPackInCart = (packId: string) => {
+    return items.some((item) => item.valentinePackId === packId);
+  };
 
   const handleAddPackToCart = async (pack: ValentinePack) => {
-    setLoading(pack.id);
-    
-    try {
-      // Fetch both products
-      const [himProduct, herProduct] = await Promise.all([
-        fetch(`/api/products/${pack.himId}`).then(r => r.json()),
-        fetch(`/api/products/${pack.herId}`).then(r => r.json()),
-      ]);
+    if (isPackInCart(pack.id)) {
+      alert('This pack is already in your cart.');
+      return;
+    }
 
-      // Check if both products exist
-      if (!himProduct || !herProduct) {
+    setLoading(pack.id);
+
+    try {
+      const products = packProducts[pack.id];
+      if (!products?.him || !products?.her) {
         alert('One or both products in this pack are currently unavailable.');
         setLoading(null);
         return;
       }
 
-      // Check stock
-      if (himProduct.stock <= 0 || herProduct.stock <= 0) {
+      if (products.him.stock <= 0 || products.her.stock <= 0) {
         alert('One or both products in this pack are out of stock.');
         setLoading(null);
         return;
       }
 
-      // Apply discount to both products
-      const discountedHim = {
-        ...himProduct,
-        discountAmount: himProduct.discountAmount + (pack.discount / 2),
-      };
-      const discountedHer = {
-        ...herProduct,
-        discountAmount: herProduct.discountAmount + (pack.discount / 2),
-      };
-
-      // Add both to cart
-      addItem(discountedHim);
-      addItem(discountedHer);
-
-      alert(`✨ Valentine's Pack added to cart!\nYou saved €${pack.discount}!`);
+      addPackItems(products.him, products.her, pack.id, pack.discount);
+      alert(`Valentine's Pack added to cart!\nYou saved €${pack.discount}!`);
     } catch (error) {
       console.error('Error adding pack:', error);
       alert('Failed to add pack to cart. Please try again.');
@@ -61,7 +96,7 @@ export default function ValentineSection() {
     <div className={styles.valentineWrapper}>
       <div className={styles.valentineHeader}>
         <h2 className={styles.valentineTitle}>
-          💝 In Sync
+          In Sync
         </h2>
         <p className={styles.valentineSubtitle}>
           Perfectly Paired, In Sync: For Her & For Him
@@ -72,51 +107,95 @@ export default function ValentineSection() {
       </div>
 
       <div className={styles.packsGrid}>
-        {VALENTINE_PACKS.map((pack) => (
-          <div
-            key={pack.id}
-            className={`${styles.packCard} ${selectedPack?.id === pack.id ? styles.packCardActive : ''}`}
-            onClick={() => setSelectedPack(selectedPack?.id === pack.id ? null : pack)}
-          >
-            <div className={styles.packHeader}>
-              <h3 className={styles.packTitle}>{pack.title}</h3>
-              <p className={styles.packSubtitle}>{pack.subtitle}</p>
-            </div>
+        {VALENTINE_PACKS.map((pack) => {
+          const products = packProducts[pack.id];
+          const inCart = isPackInCart(pack.id);
 
-            <div className={styles.packNames}>
-              <div className={styles.packPerson}>
-                <span className={styles.packLabel}>For Him</span>
-                <span className={styles.packName}>{pack.himName}</span>
-              </div>
-              <div className={styles.packDivider}>💕</div>
-              <div className={styles.packPerson}>
-                <span className={styles.packLabel}>For Her</span>
-                <span className={styles.packName}>{pack.herName}</span>
-              </div>
-            </div>
-
-            <div className={styles.packSavings}>
-              <span className={styles.savingsBadge}>You save €{pack.discount}</span>
-            </div>
-
-            {selectedPack?.id === pack.id && (
-              <div className={styles.packDescription}>
-                <p>{pack.description}</p>
-              </div>
-            )}
-
-            <button
-              className={styles.packButton}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddPackToCart(pack);
-              }}
-              disabled={loading === pack.id}
+          return (
+            <div
+              key={pack.id}
+              className={`${styles.packCard} ${selectedPack?.id === pack.id ? styles.packCardActive : ''}`}
+              onClick={() => setSelectedPack(selectedPack?.id === pack.id ? null : pack)}
             >
-              {loading === pack.id ? 'Adding...' : 'Add Pack to Cart'}
-            </button>
-          </div>
-        ))}
+              <div className={styles.packHeader}>
+                <h3 className={styles.packTitle}>{pack.title}</h3>
+                <p className={styles.packSubtitle}>{pack.subtitle}</p>
+              </div>
+
+              <div className={styles.packImages}>
+                <div className={styles.packImageWrapper}>
+                  <span className={styles.packLabel}>For Him</span>
+                  {fetching ? (
+                    <div className={styles.packImagePlaceholder} />
+                  ) : products?.him?.images[0] ? (
+                    <img
+                      src={products.him.images[0]}
+                      alt={pack.himName}
+                      className={styles.packImage}
+                    />
+                  ) : (
+                    <div className={styles.packImagePlaceholder} />
+                  )}
+                  <span className={styles.packName}>{pack.himName}</span>
+                  {!fetching && products?.him && (
+                    <span className={styles.packPrice}>€{products.him.price.toFixed(2)}</span>
+                  )}
+                </div>
+                <div className={styles.packDivider}>+</div>
+                <div className={styles.packImageWrapper}>
+                  <span className={styles.packLabel}>For Her</span>
+                  {fetching ? (
+                    <div className={styles.packImagePlaceholder} />
+                  ) : products?.her?.images[0] ? (
+                    <img
+                      src={products.her.images[0]}
+                      alt={pack.herName}
+                      className={styles.packImage}
+                    />
+                  ) : (
+                    <div className={styles.packImagePlaceholder} />
+                  )}
+                  <span className={styles.packName}>{pack.herName}</span>
+                  {!fetching && products?.her && (
+                    <span className={styles.packPrice}>€{products.her.price.toFixed(2)}</span>
+                  )}
+                </div>
+              </div>
+
+              {!fetching && products?.him && products?.her && (
+                <div className={styles.packPricing}>
+                  <span className={styles.packOriginalPrice}>
+                    €{(products.him.price - products.him.discountAmount + products.her.price - products.her.discountAmount).toFixed(2)}
+                  </span>
+                  <span className={styles.packFinalPrice}>
+                    €{(products.him.price - products.him.discountAmount + products.her.price - products.her.discountAmount - pack.discount).toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              <div className={styles.packSavings}>
+                <span className={styles.savingsBadge}>You save €{pack.discount}</span>
+              </div>
+
+              {selectedPack?.id === pack.id && (
+                <div className={styles.packDescription}>
+                  <p>{pack.description}</p>
+                </div>
+              )}
+
+              <button
+                className={`${styles.packButton} ${inCart ? styles.packButtonInCart : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddPackToCart(pack);
+                }}
+                disabled={loading === pack.id || inCart}
+              >
+                {inCart ? 'Pack in Cart' : loading === pack.id ? 'Adding...' : 'Add Pack to Cart'}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

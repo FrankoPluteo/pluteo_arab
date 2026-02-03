@@ -4,14 +4,15 @@ import { useCart } from '@/lib/store';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import styles from '@/styles/cart.module.css';
-
-const SHIPPING_COST = 4.99;
+import { calculateShipping, FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotalPrice } = useCart();
   
   const subtotal = getTotalPrice();
-  const total = subtotal + SHIPPING_COST;
+  const shippingCost = calculateShipping(subtotal);
+  const total = subtotal + shippingCost;
+  const amountToFreeShipping = FREE_SHIPPING_THRESHOLD - subtotal;
   
   if (items.length === 0) {
     return (
@@ -91,6 +92,21 @@ export default function CartPage() {
           
           <div className={styles.orderSummary}>
             <h2>ORDER SUMMARY</h2>
+
+            {/* Free shipping progress bar */}
+            {amountToFreeShipping > 0 && (
+              <div className={styles.freeShippingBar}>
+                <p className={styles.freeShippingText}>
+                  Add <strong>€{amountToFreeShipping.toFixed(2)}</strong> more for free shipping!
+                </p>
+                <div className={styles.progressBarBg}>
+                  <div
+                    className={styles.progressBarFill}
+                    style={{ width: `${(subtotal / FREE_SHIPPING_THRESHOLD) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
             
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>Subtotal</span>
@@ -99,7 +115,9 @@ export default function CartPage() {
             
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>Shipping</span>
-              <span className={styles.summaryValue}>€{SHIPPING_COST.toFixed(2)}</span>
+              <span className={shippingCost === 0 ? styles.freeShippingLabel : styles.summaryValue}>
+                {shippingCost === 0 ? 'FREE' : `€${shippingCost.toFixed(2)}`}
+              </span>
             </div>
             
             <hr className={styles.summaryDivider} />

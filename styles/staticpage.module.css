@@ -176,6 +176,15 @@
   border: 1px solid #c3e6cb;
 }
 
+.errorMessage {
+  background-color: #fee;
+  color: #c33;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #fcc;
+}
+
 @media (max-width: 768px) {
   .pageContainer {
     padding: 40px 30px;

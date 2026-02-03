@@ -2,16 +2,18 @@
 
 import { useState } from 'react';
 import { useCart } from '@/lib/store';
-import { loadStripe } from '@stripe/stripe-js';
 import styles from '@/styles/checkout.module.css';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+import { calculateShipping } from '@/lib/shipping';
 
 export default function CheckoutForm() {
   const { items, getTotalPrice, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
+  const subtotal = getTotalPrice();
+  const shippingCost = calculateShipping(subtotal);
+  const total = subtotal + shippingCost;
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,7 +21,7 @@ export default function CheckoutForm() {
     address: '',
     city: '',
     zip: '',
-    country: 'US',
+    country: 'HR', // Croatia only
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -35,7 +37,6 @@ export default function CheckoutForm() {
     setError('');
 
     try {
-      // Create checkout session
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,9 +52,8 @@ export default function CheckoutForm() {
         throw new Error(data.error || 'Failed to create checkout session');
       }
 
-      // Redirect to Stripe Checkout using URL
       if (data.url) {
-        clearCart(); // Clear cart before redirect
+        clearCart();
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
@@ -103,6 +103,7 @@ export default function CheckoutForm() {
           name="phone"
           value={formData.phone}
           onChange={handleChange}
+          placeholder="+385..."
         />
       </div>
       
@@ -115,6 +116,7 @@ export default function CheckoutForm() {
           value={formData.address}
           onChange={handleChange}
           required
+          placeholder="Street and number"
         />
       </div>
       
@@ -140,26 +142,25 @@ export default function CheckoutForm() {
             value={formData.zip}
             onChange={handleChange}
             required
+            placeholder="10000"
           />
         </div>
       </div>
       
       <div className={styles.formGroup}>
-        <label htmlFor="country">Country *</label>
+        <label htmlFor="country">Country</label>
         <select
           id="country"
           name="country"
           value={formData.country}
           onChange={handleChange}
-          required
+          disabled
         >
-          <option value="US">United States</option>
-          <option value="CA">Canada</option>
-          <option value="GB">United Kingdom</option>
-          <option value="HR">Croatia</option>
-          <option value="DE">Germany</option>
-          <option value="FR">France</option>
+          <option value="HR">Croatia 🇭🇷</option>
         </select>
+        <p style={{ fontSize: '13px', color: '#666', marginTop: '8px' }}>
+          We currently ship within Croatia only
+        </p>
       </div>
       
       <button
@@ -167,7 +168,7 @@ export default function CheckoutForm() {
         className={styles.submitButton}
         disabled={loading}
       >
-        {loading ? 'Processing...' : `Pay $${getTotalPrice().toFixed(2)}`}
+        {loading ? 'Processing...' : `Pay €${total.toFixed(2)}`}
       </button>
       
       <p className={styles.secureText}>

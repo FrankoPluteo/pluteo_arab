@@ -11,17 +11,28 @@ export default function ContactPage() {
     subject: '',
     message: '',
   });
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('sending');
-    
-    // You can implement email sending here or just show a message
-    setTimeout(() => {
-      setStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 1000);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -34,35 +45,47 @@ export default function ContactPage() {
   return (
     <div>
       <Navbar />
-      
+
       <div className={styles.pageContainer}>
         <h1 className={styles.pageTitle}>CONTACT US</h1>
-        
+
         <div className={styles.contactGrid}>
           <div className={styles.contactInfo}>
             <h2 className={styles.sectionTitle}>Get In Touch</h2>
             <p className={styles.bodyText}>
               Have a question about our products or need assistance with your order? We're here to help!
             </p>
-            
+
             <div className={styles.contactDetails}>
               <div className={styles.contactItem}>
                 <h3>Email</h3>
                 <a href="mailto:pluteoinfo@gmail.com">pluteoinfo@gmail.com</a>
               </div>
-        
+
+              <div className={styles.contactItem}>
+                <h3>Shipping</h3>
+                <p>We currently ship within Croatia only.</p>
+                <p>Delivery: 2-5 business days</p>
+                <p>Free shipping on orders over €50</p>
+              </div>
             </div>
           </div>
-          
+
           <div className={styles.contactForm}>
             <h2 className={styles.sectionTitle}>Send Us a Message</h2>
-            
+
             {status === 'success' && (
               <div className={styles.successMessage}>
-                Thank you for your message! We'll get back to you soon.
+                Thank you for your message! We'll get back to you within 24 hours.
               </div>
             )}
-            
+
+            {status === 'error' && (
+              <div className={styles.errorMessage}>
+                Something went wrong. Please try again or email us directly at pluteoinfo@gmail.com
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
                 <label htmlFor="name">Name *</label>
@@ -73,9 +96,10 @@ export default function ContactPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  disabled={status === 'sending'}
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="email">Email *</label>
                 <input
@@ -85,9 +109,10 @@ export default function ContactPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  disabled={status === 'sending'}
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="subject">Subject *</label>
                 <select
@@ -96,6 +121,7 @@ export default function ContactPage() {
                   value={formData.subject}
                   onChange={handleChange}
                   required
+                  disabled={status === 'sending'}
                 >
                   <option value="">Select a subject</option>
                   <option value="order">Order Inquiry</option>
@@ -105,7 +131,7 @@ export default function ContactPage() {
                   <option value="other">Other</option>
                 </select>
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="message">Message *</label>
                 <textarea
@@ -115,9 +141,10 @@ export default function ContactPage() {
                   onChange={handleChange}
                   rows={6}
                   required
+                  disabled={status === 'sending'}
                 />
               </div>
-              
+
               <button
                 type="submit"
                 className={styles.submitButton}

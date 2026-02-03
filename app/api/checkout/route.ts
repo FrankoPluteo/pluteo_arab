@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
-
-const SHIPPING_COST = 4.99;
+import { calculateShipping, isCountryAllowed } from '@/lib/shipping';
 
 export async function POST(request: Request) {
   try {
@@ -23,13 +22,22 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate country
+    if (!isCountryAllowed(customerInfo.country)) {
+      return NextResponse.json(
+        { error: 'We currently only ship within Croatia.' },
+        { status: 400 }
+      );
+    }
+
     // Calculate totals
     const subtotal = items.reduce((sum: number, item: any) => {
       const price = item.product.price - item.product.discountAmount;
       return sum + (price * item.quantity);
     }, 0);
 
-    const total = subtotal + SHIPPING_COST;
+    const shippingCost = calculateShipping(subtotal);
+    const total = subtotal + shippingCost;
 
     // Generate order number
     const orderNumber = `PLA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -47,7 +55,7 @@ export async function POST(request: Request) {
         shippingCountry: customerInfo.country,
         items: JSON.stringify(items),
         subtotal,
-        shippingCost: SHIPPING_COST,
+        shippingCost,
         total,
         paymentStatus: 'pending',
         orderStatus: 'processing',
@@ -55,7 +63,7 @@ export async function POST(request: Request) {
     });
 
     // Create Stripe line items
-    const lineItems = items.map((item: any) => {
+    const lineItems: any[] = items.map((item: any) => {
       const price = item.product.price - item.product.discountAmount;
       return {
         price_data: {
@@ -70,17 +78,19 @@ export async function POST(request: Request) {
       };
     });
 
-    // Add shipping as a line item
-    lineItems.push({
-      price_data: {
-        currency: 'eur',
-        product_data: {
-          name: 'Shipping',
+    // Add shipping as a line item (only if not free)
+    if (shippingCost > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: 'Shipping (Croatia)',
+          },
+          unit_amount: Math.round(shippingCost * 100),
         },
-        unit_amount: Math.round(SHIPPING_COST * 100),
-      },
-      quantity: 1,
-    });
+        quantity: 1,
+      });
+    }
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -101,7 +111,7 @@ export async function POST(request: Request) {
       data: { stripeSessionId: session.id },
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       sessionId: session.id,
       url: session.url,
       orderNumber: order.orderNumber,

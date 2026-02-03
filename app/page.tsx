@@ -8,6 +8,7 @@ import lattafaimg from '../public/lattafa.jpg';
 import frenchavenueimg from '../public/frenchavenue.jpg';
 import armafimg from '../public/armaf.jpg';
 import wallapaperhome from '../public/wallpaperhome.jpg';
+import ValentineSection from '@/components/ValentineSection';
 
 export default async function HomePage() {
   const featuredProducts = await prisma.product.findMany({
@@ -40,6 +41,8 @@ export default async function HomePage() {
           </Link>
         </div>
       </div>
+
+      <ValentineSection />
 
       <div className={styles.home2}>
         <div className={styles.brandBox}>

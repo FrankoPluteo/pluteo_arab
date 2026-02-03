@@ -16,23 +16,26 @@ export default function AboutPage() {
         
         <div className={styles.contentSection}>
           <p className={styles.leadText}>
-            Welcome to Pluteo, your premium destination for authentic Arabian fragrances and designer perfumes.
+            Welcome to Pluteo, your premium destination for authentic Arabian fragrances.
           </p>
           
           <h2 className={styles.sectionTitle}>Our Story</h2>
           <p className={styles.bodyText}>
-            Founded with a passion for exceptional scents, Pluteo brings you a carefully curated collection of the finest perfumes from around the world. We specialize in authentic Arabian fragrances from renowned brands like Lattafa and Armaf, alongside exclusive designer collections.
-          </p>
+We are a curated online store focused on modern Arabic perfumery, offering carefully selected fragrances defined by character, expression, and effortless elegance. Our selection reflects a contemporary approach, combined with a refined style that remains confident, rich, and seductive. 
+
+We believe scent is a form of identity, and our mission is to help you discover perfumes that feel personal, expressive, and irresistible. Every fragrance in our collection is chosen with intention, quality, and character in mind.           </p>
           
-          <h2 className={styles.sectionTitle}>Our Mission</h2>
+          <h2 className={styles.sectionTitle}>What do we offer?</h2>
           <p className={styles.bodyText}>
-            We believe that fragrance is more than just a scent – it's an expression of personality, a memory maker, and a confidence booster. Our mission is to make premium perfumes accessible to everyone who appreciates quality and authenticity.
-          </p>
+We specialize in Arabic perfumes, fragrances known for their richness, longevity, and depth. Unlike many mass-market scents, Arabic perfumes often emphasize warm woods, resins, spices, amber, musk, vanilla, and expressive florals, creating compositions that evolve beautifully on the skin. 
+
+Our selection includes modern interpretations as well as classic-inspired creations, designed for both everyday wear and special occasions. These perfumes are not about fleeting impressions, but about presence, emotion, and lasting character.           </p>
           
           <h2 className={styles.sectionTitle}>Quality Guarantee</h2>
           <p className={styles.bodyText}>
-            Every perfume in our collection is 100% authentic and sourced directly from authorized distributors. We stand behind the quality of our products and offer a satisfaction guarantee on all purchases.
-          </p>
+We guarantee that every product we offer is 100% original and authentic, sourced from trusted distributors and verified suppliers. Quality and transparency are at the core of our business, from the fragrance itself to packaging and storage. 
+
+Each perfume is handled with care and shipped securely to ensure it arrives in perfect condition. When you shop with us, you can trust that you are receiving genuine fragrances that meet high standards of craftsmanship and performance.           </p>
           
           <h2 className={styles.sectionTitle}>Why Choose Pluteo?</h2>
           <ul className={styles.featureList}>

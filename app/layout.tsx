@@ -7,17 +7,17 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Pluteo - Premium Arabian Perfumes',
-  description: 'Discover authentic Arabian fragrances and designer perfumes. Shop Lattafa, Armaf, French Avenue and premium brands at Pluteo. Free shipping on orders over 50 €.',
-  keywords: 'Arabian perfumes, designer fragrances, Lattafa, Armaf, French Avenue luxury perfumes, oriental scents, oud perfumes',
+  description: 'Discover authentic Arabian fragrances from Lattafa, Armaf, and French Avenue. Premium oriental perfumes shipped across Croatia. Shop luxury oud, musk, and designer scents.',
+  keywords: 'Arabian perfumes, designer fragrances, Lattafa, Armaf, French Avenue, luxury perfumes, oriental scents, oud perfumes, Croatia perfume shop',
   authors: [{ name: 'Pluteo' }],
   openGraph: {
     title: 'Pluteo - Premium Arabian Perfumes',
-    description: 'Discover authentic Arabian fragrances and designer perfumes. Shop the finest scents.',
-    url: 'https://pluteo.shop',
+    description: 'Discover authentic Arabian fragrances from Lattafa, Armaf, and French Avenue. Premium oriental perfumes shipped across Croatia.',
+    url: 'https://www.pluteo.shop',
     siteName: 'Pluteo',
     images: [
       {
-        url: 'https://pluteo.shop/og-image.jpg',
+        url: 'https://www.pluteo.shop/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Pluteo Perfumes',
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Pluteo - Premium Arabian Perfumes',
-    description: 'Discover authentic Arabian fragrances and designer perfumes.',
-    images: ['https://pluteo.shop/og-image.jpg'],
+    description: 'Discover authentic Arabian fragrances from Lattafa, Armaf, and French Avenue.',
+    images: ['https://www.pluteo.shop/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -46,8 +46,7 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180" },
     ],
   },
-
-  };
+};
 
 export default function RootLayout({
   children,
@@ -55,7 +54,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" translate="no">
+      <head>
+        <meta name="google" content="notranslate" />
+      </head>
       <body className={inter.className}>
         <Navbar />
         <main className="min-h-screen">

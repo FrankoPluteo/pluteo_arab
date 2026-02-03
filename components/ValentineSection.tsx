@@ -105,7 +105,7 @@ export default function ValentineSection() {
           In Sync 
         </h2>
         <p className={styles.valentineSubtitle}>
-          Perfectly Paired, In Sync: For Her & For Him
+          Perfectly Paired, In Sync: For Him & For Her
         </p>
         <p className={styles.valentineSave}>
           Save €10 on every pair

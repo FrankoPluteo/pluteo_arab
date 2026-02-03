@@ -11,7 +11,8 @@ import wallapaperhome from '../public/wallpaperhome.jpg';
 import ValentineSection from '@/components/ValentineSection';
 import Footer from '@/components/Footer';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function HomePage() {
   const featuredProducts = await prisma.product.findMany({
@@ -75,7 +76,7 @@ export default async function HomePage() {
 
       {featuredProducts.length > 0 && (
         <div className={styles.productsSection}>
-          <h2 className={styles.sectionTitle}>For Those Who Stand Out.</h2>
+          <h2 className={styles.sectionTitle}>FOR THOSE WHO STAND OUT.</h2>
           <div className={styles.productsGrid}>
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />

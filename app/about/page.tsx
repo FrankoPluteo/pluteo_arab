@@ -45,7 +45,6 @@ Each perfume is handled with care and shipped securely to ensure it arrives in p
             <li>✓ Fast & Secure Shipping</li>
             <li>✓ Expert Customer Service</li>
             <li>✓ Carefully Curated Collection</li>
-            <li>✓ Easy Returns & Exchanges</li>
           </ul>
         </div>
       </div>

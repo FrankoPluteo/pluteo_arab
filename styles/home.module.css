@@ -133,11 +133,14 @@
   transform: scale(1.1);
 }
 
-.brandimage{
-  filter: brightness(0.5);
+.brandimage {
   position: absolute;
-  width: auto;
-  height: 150%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.5);
 }
 
 .productsSection {
@@ -174,13 +177,13 @@
     overflow: hidden;
   }
 
-  .wallpaperhome{
+  .wallpaperhome {
     height: 100%;
     width: 100%;
     object-fit: cover;
   }
 
-  .logolongimg{
+  .logolongimg {
     width: 200px;
   }
 
@@ -201,13 +204,15 @@
 
   .home2 {
     margin: 30px;
-    gap: 20px;
+    gap: 15px;
     flex-direction: column;
-    height: 400px;
+    height: auto;
   }
 
-  .brandBox {
+ .brandBox {
     width: 100%;
+    min-height: 150px;
+    height: 150px;
   }
 
   .brandLink {
@@ -217,16 +222,31 @@
   }
 
   .productsSection {
-    margin: 40px 30px;
+    margin: 40px 0;
+    padding: 0 30px;
   }
 
   .sectionTitle {
     font-size: 24px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
 
   .productsGrid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 15px;
+    padding-bottom: 15px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .productsGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .productsGrid > * {
+    flex: 0 0 80%;
+    scroll-snap-align: center;
   }
 }

@@ -11,6 +11,8 @@ import wallapaperhome from '../public/wallpaperhome.jpg';
 import ValentineSection from '@/components/ValentineSection';
 import Footer from '@/components/Footer';
 
+export const revalidate = 60;
+
 export default async function HomePage() {
   const featuredProducts = await prisma.product.findMany({
     where: { isFeatured: true },

@@ -11,7 +11,7 @@ export default function CheckoutForm() {
   const [error, setError] = useState('');
   
   const subtotal = getTotalPrice();
-  const shippingCost = calculateShipping(subtotal);
+  const shippingCost = calculateShipping();
   const total = subtotal + shippingCost;
 
   const [formData, setFormData] = useState({

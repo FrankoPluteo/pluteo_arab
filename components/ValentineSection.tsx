@@ -6,7 +6,6 @@ import { VALENTINE_PACKS, ValentinePack } from '@/lib/valentinePacks';
 import { useCart } from '@/lib/store';
 import { Product } from '@/types';
 import styles from '@/styles/valentine.module.css';
-import valentineswallpaper from '../public/valentineswallpaper.jpg';
 
 interface PackProducts {
   him: Product | null;
@@ -14,7 +13,7 @@ interface PackProducts {
 }
 
 export default function ValentineSection() {
-  const [selectedPack, setSelectedPack] = useState<ValentinePack | null>(null);
+  const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [packProducts, setPackProducts] = useState<Record<string, PackProducts>>({});
   const [fetching, setFetching] = useState(true);
@@ -85,6 +84,7 @@ export default function ValentineSection() {
       }
 
       addPackItems(products.him, products.her, pack.id, pack.discount);
+      alert(`Valentine's Pack added to cart!\nYou saved €${pack.discount}!`);
     } catch (error) {
       console.error('Error adding pack:', error);
       alert('Failed to add pack to cart. Please try again.');
@@ -93,137 +93,141 @@ export default function ValentineSection() {
     }
   };
 
+  const toggleDescription = (packId: string) => {
+    setSelectedPackId(selectedPackId === packId ? null : packId);
+  };
+
   return (
     <div className={styles.valentineWrapper}>
-      <img 
-            src={valentineswallpaper.src} 
-            alt="" 
-            className={styles.backgroundImage}
-          />
-          <div className={styles.valentineHeader}>
-        <h2 className={styles.valentineTitle}>
-          In Sync 
-        </h2>
+      <div className={styles.valentineHeader}>
+        <h2 className={styles.valentineTitle}>In Sync</h2>
         <p className={styles.valentineSubtitle}>
-          Perfectly Paired, In Sync: For Him & For Her
+          Perfectly Paired, In Sync: For Her & For Him
         </p>
-        <p className={styles.valentineSave}>
-          Save €10 on every pair
-        </p>
+        <p className={styles.valentineSave}>Save €10 on every pair</p>
       </div>
 
       <div className={styles.packsGrid}>
         {VALENTINE_PACKS.map((pack) => {
           const products = packProducts[pack.id];
           const inCart = isPackInCart(pack.id);
+          const isSelected = selectedPackId === pack.id;
 
           return (
             <div
               key={pack.id}
-              className={`${styles.packCard} ${selectedPack?.id === pack.id ? styles.packCardActive : ''}`}
-              onClick={() => setSelectedPack(selectedPack?.id === pack.id ? null : pack)}
+              className={`${styles.packCard} ${isSelected ? styles.packCardActive : ''}`}
             >
-              <div className={styles.packHeader}>
-                <h3 className={styles.packTitle}>{pack.title}</h3>
-                <p className={styles.packSubtitle}>{pack.subtitle}</p>
+              <div
+                className={styles.packClickable}
+                onClick={() => toggleDescription(pack.id)}
+              >
+                <div className={styles.packHeader}>
+                  <h3 className={styles.packTitle}>{pack.title}</h3>
+                  <p className={styles.packSubtitle}>{pack.subtitle}</p>
+                </div>
+
+                <div className={styles.packImages}>
+                  <div className={styles.packImageWrapper}>
+                    <span className={styles.packLabel}>For Him</span>
+                    {fetching ? (
+                      <div className={styles.packImagePlaceholder} />
+                    ) : products?.him ? (
+                      <Link
+                        href={`/products/${products.him.id}`}
+                        className={styles.packProductLink}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {products.him.images[0] ? (
+                          <img
+                            src={products.him.images[0]}
+                            alt={pack.himName}
+                            className={styles.packImage}
+                          />
+                        ) : (
+                          <div className={styles.packImagePlaceholder} />
+                        )}
+                      </Link>
+                    ) : (
+                      <div className={styles.packImagePlaceholder} />
+                    )}
+                    {!fetching && products?.him ? (
+                      <Link
+                        href={`/products/${products.him.id}`}
+                        className={styles.packNameLink}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {pack.himName}
+                      </Link>
+                    ) : (
+                      <span className={styles.packName}>{pack.himName}</span>
+                    )}
+                    {!fetching && products?.him && (
+                      <span className={styles.packPrice}>
+                        €{products.him.price.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.packDivider}>+</div>
+                  <div className={styles.packImageWrapper}>
+                    <span className={styles.packLabel}>For Her</span>
+                    {fetching ? (
+                      <div className={styles.packImagePlaceholder} />
+                    ) : products?.her ? (
+                      <Link
+                        href={`/products/${products.her.id}`}
+                        className={styles.packProductLink}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {products.her.images[0] ? (
+                          <img
+                            src={products.her.images[0]}
+                            alt={pack.herName}
+                            className={styles.packImage}
+                          />
+                        ) : (
+                          <div className={styles.packImagePlaceholder} />
+                        )}
+                      </Link>
+                    ) : (
+                      <div className={styles.packImagePlaceholder} />
+                    )}
+                    {!fetching && products?.her ? (
+                      <Link
+                        href={`/products/${products.her.id}`}
+                        className={styles.packNameLink}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {pack.herName}
+                      </Link>
+                    ) : (
+                      <span className={styles.packName}>{pack.herName}</span>
+                    )}
+                    {!fetching && products?.her && (
+                      <span className={styles.packPrice}>
+                        €{products.her.price.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {!fetching && products?.him && products?.her && (
+                  <div className={styles.packPricing}>
+                    <span className={styles.packOriginalPrice}>
+                      €{(products.him.price - products.him.discountAmount + products.her.price - products.her.discountAmount).toFixed(2)}
+                    </span>
+                    <span className={styles.packFinalPrice}>
+                      €{(products.him.price - products.him.discountAmount + products.her.price - products.her.discountAmount - pack.discount).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+
+                <div className={styles.packSavings}>
+                  <span className={styles.savingsBadge}>You save €{pack.discount}</span>
+                </div>
               </div>
 
-              <div className={styles.packImages}>
-                <div className={styles.packImageWrapper}>
-                  <span className={styles.packLabel}>For Him</span>
-                  {fetching ? (
-                    <div className={styles.packImagePlaceholder} />
-                  ) : products?.him ? (
-                    <Link
-                      href={`/products/${products.him.id}`}
-                      className={styles.packProductLink}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {products.him.images[0] ? (
-                        <img
-                          src={products.him.images[0]}
-                          alt={pack.himName}
-                          className={styles.packImage}
-                        />
-                      ) : (
-                        <div className={styles.packImagePlaceholder} />
-                      )}
-                    </Link>
-                  ) : (
-                    <div className={styles.packImagePlaceholder} />
-                  )}
-                  {!fetching && products?.him ? (
-                    <Link
-                      href={`/products/${products.him.id}`}
-                      className={styles.packNameLink}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {pack.himName}
-                    </Link>
-                  ) : (
-                    <span className={styles.packName}>{pack.himName}</span>
-                  )}
-                  {!fetching && products?.him && (
-                    <span className={styles.packPrice}>€{products.him.price.toFixed(2)}</span>
-                  )}
-                </div>
-                <div className={styles.packDivider}>+</div>
-                <div className={styles.packImageWrapper}>
-                  <span className={styles.packLabel}>For Her</span>
-                  {fetching ? (
-                    <div className={styles.packImagePlaceholder} />
-                  ) : products?.her ? (
-                    <Link
-                      href={`/products/${products.her.id}`}
-                      className={styles.packProductLink}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {products.her.images[0] ? (
-                        <img
-                          src={products.her.images[0]}
-                          alt={pack.herName}
-                          className={styles.packImage}
-                        />
-                      ) : (
-                        <div className={styles.packImagePlaceholder} />
-                      )}
-                    </Link>
-                  ) : (
-                    <div className={styles.packImagePlaceholder} />
-                  )}
-                  {!fetching && products?.her ? (
-                    <Link
-                      href={`/products/${products.her.id}`}
-                      className={styles.packNameLink}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {pack.herName}
-                    </Link>
-                  ) : (
-                    <span className={styles.packName}>{pack.herName}</span>
-                  )}
-                  {!fetching && products?.her && (
-                    <span className={styles.packPrice}>€{products.her.price.toFixed(2)}</span>
-                  )}
-                </div>
-              </div>
-
-              {!fetching && products?.him && products?.her && (
-                <div className={styles.packPricing}>
-                  <span className={styles.packOriginalPrice}>
-                    €{(products.him.price - products.him.discountAmount + products.her.price - products.her.discountAmount).toFixed(2)}
-                  </span>
-                  <span className={styles.packFinalPrice}>
-                    €{(products.him.price - products.him.discountAmount + products.her.price - products.her.discountAmount - pack.discount).toFixed(2)}
-                  </span>
-                </div>
-              )}
-
-              <div className={styles.packSavings}>
-                <span className={styles.savingsBadge}>You save €{pack.discount}</span>
-              </div>
-
-              {selectedPack?.id === pack.id && (
+              {isSelected && (
                 <div className={styles.packDescription}>
                   <p>{pack.description}</p>
                 </div>

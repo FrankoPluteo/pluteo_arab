@@ -7,6 +7,12 @@
   min-height: 100vh;
 }
 
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
 .pageTitle {
   font-family: 'Montserrat', sans-serif;
   font-size: 42px;
@@ -44,6 +50,7 @@
   line-height: 1.8;
   color: #555;
   margin-bottom: 20px;
+  white-space: pre-line;
 }
 
 .featureList {
@@ -128,6 +135,7 @@
   font-family: 'Montserrat', sans-serif;
   background-color: white;
   transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 .formGroup input:focus,

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import styles from '@/styles/productdetails.module.css';
 
 export default function ProductDetailPage() {
@@ -49,6 +50,8 @@ export default function ProductDetailPage() {
   const hasDiscount = product.discountAmount > 0;
   const images = product.images && Array.isArray(product.images) ? product.images : [];
   const hasImages = images.length > 0;
+  const isLowStock = product.stock > 0 && product.stock <= 3;
+  const isOutOfStock = product.stock === 0;
 
   return (
     <div>
@@ -58,6 +61,18 @@ export default function ProductDetailPage() {
         <div className={styles.productLayout}>
           {/* Image Section */}
           <div className={styles.imageSection}>
+            {/* Mobile Slider */}
+            {hasImages && images.length > 1 && (
+              <div className={styles.imageSlider}>
+                {images.map((img, index) => (
+                  <div key={index} className={styles.slideImage}>
+                    <img src={img} alt={`${product.name} ${index + 1}`} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Desktop Main Image */}
             <div className={styles.mainImage}>
               {hasImages && images[selectedImage] ? (
                 <img src={images[selectedImage]} alt={product.name} />
@@ -66,6 +81,7 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            {/* Desktop Thumbnails */}
             {hasImages && images.length > 1 && (
               <div className={styles.thumbnails}>
                 {images.map((img, index) => (
@@ -114,11 +130,27 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            {isLowStock && (
+              <div className={styles.lowStock}>
+                <span className={styles.lowStockIcon}>⚠</span>
+                <span className={styles.lowStockText}>
+                  Only {product.stock} left — almost gone!
+                </span>
+              </div>
+            )}
+
+            {isOutOfStock && (
+              <div className={styles.outOfStockBanner}>
+                Out of Stock
+              </div>
+            )}
+
             <button
               onClick={() => addItem(product)}
               className={styles.addToCartButton}
+              disabled={isOutOfStock}
             >
-              ADD TO CART
+              {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
             </button>
 
             {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) && (
@@ -161,26 +193,11 @@ export default function ProductDetailPage() {
                 <span className={styles.infoLabel}>Gender</span>
                 <span className={styles.infoValue}>{product.gender}</span>
               </div>
-              <div className={styles.infoItem}>
-                {product.stock <= 3 && product.stock > 0 && (
-                  <div className={styles.lowStock}>
-                    <span className={styles.lowStockIcon}>⚠</span>
-                    <span className={styles.lowStockText}>
-                      Only {product.stock} left — almost gone!
-                    </span>
-                  </div>
-                )}
-
-                {product.stock === 0 && (
-                  <div className={styles.outOfStock}>
-                    Out of Stock
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

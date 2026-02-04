@@ -222,9 +222,10 @@
 }
 
 .checkoutButton {
-  width: 100%;
+  display: block;
+  width: calc(100% - 40px);
   padding: 16px;
-  background-color: green;
+  background-color: var(--color-dark);
   color: var(--color-white);
   border: none;
   font-family: 'Montserrat', sans-serif;
@@ -235,8 +236,14 @@
   transition: all 0.3s ease;
   border-radius: 4px;
   text-decoration: none;
+  text-align: center;
   margin: 20px;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
+
 
 .checkoutButton:hover {
   background-color: var(--color-light);

@@ -1,6 +1,8 @@
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
-import styles from '@/styles/staticpage.module.css';
 import Footer from '@/components/Footer';
+import styles from '@/styles/staticpage.module.css';
+import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
 export const metadata = {
   title: 'About Us - Pluteo',
@@ -13,6 +15,9 @@ export default function AboutPage() {
       <Navbar />
       
       <div className={styles.pageContainer}>
+        <div className={styles.logoContainer}>
+          <Image src={logoIcon} alt="Pluteo" width={60} height={60} />
+        </div>
         <h1 className={styles.pageTitle}>ABOUT PLUTEO</h1>
         
         <div className={styles.contentSection}>
@@ -45,6 +50,7 @@ Each perfume is handled with care and shipped securely to ensure it arrives in p
             <li>✓ Fast & Secure Shipping</li>
             <li>✓ Expert Customer Service</li>
             <li>✓ Carefully Curated Collection</li>
+            <li>✓ Easy Returns & Exchanges</li>
           </ul>
         </div>
       </div>

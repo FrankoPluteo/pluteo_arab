@@ -1,11 +1,13 @@
+import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Pagination from '@/components/Pagination';
 import ProductFilters from '@/components/ProductFilters';
 import SearchBar from '@/components/SearchBar';
 import styles from '@/styles/products.module.css';
-import Footer from '@/components/Footer';
+import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -137,6 +139,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <Navbar />
         
         <div className={styles.productsContainer}>
+          <div className={styles.logoContainer}>
+            <Image src={logoIcon} alt="Pluteo" width={60} height={60} />
+          </div>
           <h1 className={styles.pageTitle}>ALL PRODUCTS</h1>
           
           <SearchBar initialValue={params.search || ''} />
@@ -145,7 +150,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           
           {params.search && (
             <p className={styles.searchInfo}>
-              Showing results for: <strong>"{params.search}"</strong>
+              Showing results for: <strong>&quot;{params.search}&quot;</strong>
             </p>
           )}
           
@@ -173,7 +178,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <div className={styles.noProducts}>
               {params.search ? (
                 <>
-                  No products found for "{params.search}". Try adjusting your search or filters.
+                  No products found for &quot;{params.search}&quot;. Try adjusting your search or filters.
                 </>
               ) : (
                 'No products found. Try adjusting your filters.'

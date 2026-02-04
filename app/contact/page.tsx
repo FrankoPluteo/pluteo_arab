@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
-import styles from '@/styles/staticpage.module.css';
 import Footer from '@/components/Footer';
+import styles from '@/styles/staticpage.module.css';
+import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -48,13 +50,16 @@ export default function ContactPage() {
       <Navbar />
 
       <div className={styles.pageContainer}>
+        <div className={styles.logoContainer}>
+          <Image src={logoIcon} alt="Pluteo" width={60} height={60} />
+        </div>
         <h1 className={styles.pageTitle}>CONTACT US</h1>
 
         <div className={styles.contactGrid}>
           <div className={styles.contactInfo}>
             <h2 className={styles.sectionTitle}>Get In Touch</h2>
             <p className={styles.bodyText}>
-              Have a question about our products or need assistance with your order? We're here to help!
+              Have a question about our products or need assistance with your order? We&apos;re here to help!
             </p>
 
             <div className={styles.contactDetails}>
@@ -66,6 +71,7 @@ export default function ContactPage() {
               <div className={styles.contactItem}>
                 <h3>Shipping</h3>
                 <p>We currently ship within Croatia only.</p>
+                <p>Delivery: 2-5 business days</p>
               </div>
             </div>
           </div>
@@ -75,7 +81,7 @@ export default function ContactPage() {
 
             {status === 'success' && (
               <div className={styles.successMessage}>
-                Thank you for your message! We'll get back to you within 24 hours.
+                Thank you for your message! We&apos;ll get back to you within 24 hours.
               </div>
             )}
 
@@ -155,7 +161,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );

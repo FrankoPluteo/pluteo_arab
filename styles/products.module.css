@@ -4,6 +4,12 @@
   min-height: 100vh;
 }
 
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
 .pageTitle {
   font-family: 'Montserrat', sans-serif;
   font-size: 36px;

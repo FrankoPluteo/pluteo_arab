@@ -287,6 +287,14 @@
   text-decoration: underline;
 }
 
+.packClickable {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+
 
 @media (max-width: 1024px) {
   .packsGrid {
@@ -312,7 +320,7 @@
     font-size: 14px;
     padding: 6px 18px;
   }
-
+  
   .packsGrid {
     display: flex;
     overflow-x: auto;
@@ -321,7 +329,9 @@
     padding-bottom: 15px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    align-items: flex-start;
   }
+
 
   .packsGrid::-webkit-scrollbar {
     display: none;

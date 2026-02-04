@@ -12,6 +12,33 @@
   overflow: hidden  ;
 }
 
+.promoTrack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to right, var(--color-dark), var(--color-light));
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  z-index: 10;
+}
+
+.promoTrack span {
+  display: inline-block;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+
 .wallpaperhome{
   width: 100%;
   filter: brightness(0.3);
@@ -161,6 +188,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 30px;
+  align-items: stretch;
 }
 
 @media (max-width: 1200px) {
@@ -170,11 +198,25 @@
 }
 
 @media (max-width: 768px) {
+
+  .productsGrid > * {
+  flex: 0 0 80%;
+  scroll-snap-align: center;
+  height: auto;
+  display: flex;
+}
+
   .homeBackground {
     margin: 50px 30px 30px;
     height: 350px;
     gap: 20px;
     overflow: hidden;
+  }
+
+  .promoTrack {
+    font-size: 10px;
+    padding: 8px 15px;
+    letter-spacing: 1px;
   }
 
   .wallpaperhome {

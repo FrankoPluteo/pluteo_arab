@@ -33,6 +33,9 @@ export default async function HomePage() {
 
       <div className={styles.homeBackground}>
         <img className={styles.wallpaperhome} src={wallapaperhome.src} alt="Pluteo logo" />
+        <div className={styles.promoTrack}>
+          <span>IN SYNC — Valentine&apos;s Duo Packs — Save €10</span>
+        </div>
         <img className={styles.logolongimg} src={logolong.src} alt="Pluteo logo" />
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
 

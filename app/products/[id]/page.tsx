@@ -163,7 +163,20 @@ export default function ProductDetailPage() {
               </div>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Stock</span>
-                <span className={styles.infoValue}>{product.stock || 0} units available</span>
+                {product.stock <= 3 && product.stock > 0 && (
+                  <div className={styles.lowStock}>
+                    <span className={styles.lowStockIcon}>⚠</span>
+                    <span className={styles.lowStockText}>
+                      Only {product.stock} left — almost gone!
+                    </span>
+                  </div>
+                )}
+
+                {product.stock === 0 && (
+                  <div className={styles.outOfStock}>
+                    Out of Stock
+                  </div>
+                )}
               </div>
             </div>
           </div>

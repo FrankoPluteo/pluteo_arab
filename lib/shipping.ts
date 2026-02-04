@@ -1,4 +1,4 @@
-export const SHIPPING_COST = 5;
+export const SHIPPING_COST = 4.99;
 
 export function calculateShipping(): number {
   return SHIPPING_COST;

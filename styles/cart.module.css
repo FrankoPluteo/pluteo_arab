@@ -27,7 +27,7 @@
 .continueShoppingLink {
   display: inline-block;
   padding: 12px 30px;
-  background-color: var(--color-dark);
+  background-color: var(--color-light);
   color: var(--color-white);
   text-decoration: none;
   font-weight: 600;
@@ -224,7 +224,7 @@
 .checkoutButton {
   width: 100%;
   padding: 16px;
-  background-color: var(--color-dark);
+  background-color: green;
   color: var(--color-white);
   border: none;
   font-family: 'Montserrat', sans-serif;
@@ -352,5 +352,9 @@
 
   .orderSummary {
     padding: 25px;
+  }
+
+  .checkoutButton {
+    font-size: 14px;
   }
 }

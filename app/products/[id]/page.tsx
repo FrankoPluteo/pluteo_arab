@@ -162,7 +162,6 @@ export default function ProductDetailPage() {
                 <span className={styles.infoValue}>{product.gender}</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Stock</span>
                 {product.stock <= 3 && product.stock > 0 && (
                   <div className={styles.lowStock}>
                     <span className={styles.lowStockIcon}>⚠</span>

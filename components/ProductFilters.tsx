@@ -139,22 +139,6 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
               </select>
             </div>
 
-            {/* Concentration */}
-            <div className={styles.filterGroup}>
-              <label>Concentration</label>
-              <select
-                value={filters.concentration}
-                onChange={(e) => handleChange('concentration', e.target.value)}
-              >
-                <option value="">All</option>
-                {options.concentrations.map((conc) => (
-                  <option key={conc} value={conc}>
-                    {conc}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Fragrance Profile - Dropdown */}
             <div className={styles.filterGroup}>
               <label>Fragrance Profile</label>

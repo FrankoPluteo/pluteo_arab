@@ -14,6 +14,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const finalPrice = product.price - product.discountAmount;
   const isOutOfStock = product.stock <= 0;
   const hasDiscount = product.discountAmount > 0;
+  const isLowStock = product.stock > 0 && product.stock <= 3;
 
   return (
     <div className={`${styles.productCard} ${isOutOfStock ? styles.outOfStock : ''}`}>
@@ -30,10 +31,16 @@ export default function ProductCard({ product }: ProductCardProps) {
               <img src={product.brand.logoUrl} alt={product.brand.name} />
             </div>
           )}
-          
-          {hasDiscount && !isOutOfStock && (
-            <div className={styles.saleBadge}>SALE</div>
-          )}
+
+          <div className={styles.badgeContainer}>
+            {hasDiscount && !isOutOfStock && (
+              <div className={styles.saleBadge}>SALE</div>
+            )}
+            
+            {isLowStock && (
+              <div className={styles.lowStockBadge}>ALMOST GONE</div>
+            )}
+          </div>
           
           {isOutOfStock && (
             <div className={styles.outOfStockBadge}>OUT OF STOCK</div>
@@ -49,7 +56,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <div className={styles.productPricing}>
             {product.discountAmount > 0 && (
-              <span className={styles.originalPrice}>€{product.price}</span>
+            <span className={styles.originalPrice}>€{product.price.toFixed(2)}</span>
             )}
             <span className={styles.finalPrice}>€{finalPrice.toFixed(2)}</span>
           </div>

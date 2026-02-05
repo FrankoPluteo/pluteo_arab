@@ -173,10 +173,17 @@
   z-index: 5;
 }
 
-.saleBadge {
+.badgeContainer {
   position: absolute;
   top: 10px;
   left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+}
+
+.saleBadge {
   background-color: #e63946;
   color: white;
   padding: 6px 12px;
@@ -184,6 +191,17 @@
   font-size: 12px;
   letter-spacing: 1px;
   border-radius: 4px;
-  z-index: 10;
   box-shadow: 0 2px 8px rgba(230, 57, 70, 0.3);
 }
+
+.lowStockBadge {
+  background-color: #f77f00;
+  color: white;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(247, 127, 0, 0.3);
+}
+

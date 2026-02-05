@@ -69,6 +69,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-height: 520px;
 }
 
 .packCard:hover {
@@ -79,8 +80,7 @@
 
 .packCardActive {
   border-color: var(--color-dark);
-  background: #faf8f7;
-}
+  }
 
 .packHeader {
   text-align: center;
@@ -216,10 +216,18 @@
 }
 
 .packDescription {
-  background: #f9f9f9;
-  padding: 15px;
+  padding: 0 15px;
   border-radius: 8px;
-  animation: fadeIn 0.3s ease;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.packDescriptionVisible {
+  max-height: 200px;
+  opacity: 1;
+  padding: 15px;
 }
 
 .packDescription p {

@@ -72,4 +72,14 @@
   .logoiconimg{
     display: none;
   }
+
+  .cartLink {
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .cartBadge {
+    position: static;
+  }
 }

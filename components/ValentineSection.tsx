@@ -14,7 +14,7 @@ interface PackProducts {
 }
 
 export default function ValentineSection() {
-  const [selectedPack, setSelectedPack] = useState<ValentinePack | null>(null);
+  const [expandedPackId, setExpandedPackId] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [packProducts, setPackProducts] = useState<Record<string, PackProducts>>({});
   const [fetching, setFetching] = useState(true);
@@ -93,6 +93,10 @@ export default function ValentineSection() {
     }
   };
 
+  const handlePackClick = (packId: string) => {
+    setExpandedPackId(expandedPackId === packId ? null : packId);
+  };
+
   return (
     <div className={styles.valentineWrapper}>
       <img 
@@ -116,12 +120,13 @@ export default function ValentineSection() {
         {VALENTINE_PACKS.map((pack) => {
           const products = packProducts[pack.id];
           const inCart = isPackInCart(pack.id);
+          const isExpanded = expandedPackId === pack.id;
 
           return (
             <div
               key={pack.id}
-              className={`${styles.packCard} ${selectedPack?.id === pack.id ? styles.packCardActive : ''}`}
-              onClick={() => setSelectedPack(selectedPack?.id === pack.id ? null : pack)}
+              className={`${styles.packCard} ${isExpanded ? styles.packCardActive : ''}`}
+              onClick={() => handlePackClick(pack.id)}
             >
               <div className={styles.packHeader}>
                 <h3 className={styles.packTitle}>{pack.title}</h3>
@@ -223,11 +228,9 @@ export default function ValentineSection() {
                 <span className={styles.savingsBadge}>You save €{pack.discount}</span>
               </div>
 
-              {selectedPack?.id === pack.id && (
-                <div className={styles.packDescription}>
-                  <p>{pack.description}</p>
-                </div>
-              )}
+              <div className={`${styles.packDescription} ${isExpanded ? styles.packDescriptionVisible : ''}`}>
+                <p>{pack.description}</p>
+              </div>
 
               <button
                 className={`${styles.packButton} ${inCart ? styles.packButtonInCart : ''}`}

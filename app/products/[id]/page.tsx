@@ -28,6 +28,11 @@ export default function ProductDetailPage() {
       });
   }, [params.id]);
 
+  // Scroll to top when page loads or product changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [params.id]);
+
   if (loading) {
     return (
       <div>
@@ -61,8 +66,8 @@ export default function ProductDetailPage() {
         <div className={styles.productLayout}>
           {/* Image Section */}
           <div className={styles.imageSection}>
-            {/* Mobile Slider */}
-            {hasImages && images.length > 1 && (
+            {/* Mobile Slider - now shows for single images too */}
+            {hasImages && (
               <div className={styles.imageSlider}>
                 {images.map((img, index) => (
                   <div key={index} className={styles.slideImage}>
@@ -120,12 +125,12 @@ export default function ProductDetailPage() {
 
             <div className={styles.priceSection}>
               {hasDiscount && (
-                <span className={styles.originalPrice}>{product.price} €</span>
+                <span className={styles.originalPrice}>{product.price.toFixed(2)} €</span>
               )}
-              <span className={styles.finalPrice}>{finalPrice} €</span>
+              <span className={styles.finalPrice}>{finalPrice.toFixed(2)} €</span>
               {hasDiscount && (
                 <span className={styles.discount}>
-                  Save {product.discountAmount} €
+                  Save {product.discountAmount.toFixed(2)} €
                 </span>
               )}
             </div>

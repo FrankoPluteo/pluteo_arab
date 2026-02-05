@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from '@/styles/searchbar.module.css';
 
@@ -12,10 +12,40 @@ export default function SearchBar({ initialValue = '' }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(initialValue);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollThreshold = 100; // Start hiding after scrolling 100px
 
   useEffect(() => {
     setSearchTerm(initialValue);
   }, [initialValue]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Always show at top of page
+      if (currentScrollY < scrollThreshold) {
+        setIsVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+      
+      // Scrolling up - show search bar
+      if (currentScrollY < lastScrollY.current) {
+        setIsVisible(true);
+      } 
+      // Scrolling down - hide search bar
+      else if (currentScrollY > lastScrollY.current) {
+        setIsVisible(false);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +72,7 @@ export default function SearchBar({ initialValue = '' }: SearchBarProps) {
   };
 
   return (
-    <div className={styles.searchContainer}>
+    <div className={`${styles.searchContainer} ${isVisible ? styles.visible : styles.hidden}`}>
       <form onSubmit={handleSearch} className={styles.searchForm}>
         <div className={styles.searchInputWrapper}>
           <input

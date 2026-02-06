@@ -63,7 +63,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [] as string[],
       description:
-        "A boozy-spiced fruity opening of cognac and raspberry melts into rosy caramel sweetness over a resinous, woody amber base.",
+        "Fire On Ice by Lattafa is a bold, long-lasting Arabian perfume that opens with a boozy-spiced blend of cognac, raspberry, and cinnamon. The heart reveals rosy caramel sweetness layered with moss, while the drydown delivers a warm, resinous base of oak, myrrh, cedarwood, and ambroxan. A luxurious unisex oriental fragrance perfect for evening wear and cooler seasons.",
       topNotes: ["Cognac", "Raspberry", "Cinnamon"],
       heartNotes: ["Rose Petals", "Caramel", "Moss"],
       baseNotes: ["Oak", "Myrrh", "Cedarwood", "Ambroxan"],
@@ -78,7 +78,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Citrus-fruity brightness with incense nuance up top, settling into a softly floral-spiced heart and a smooth vanilla-amber woods drydown.",
+        "Pride Art Of Nature II by Lattafa is a refined Arabian Eau de Parfum that combines citrus-fruity brightness with sacred frankincense. The heart blends spiced cardamom with delicate orange blossom and rose, while the long-lasting base of vanilla, musk, ambroxan, and guaiac wood creates a smooth, oriental drydown. An elegant unisex luxury fragrance for all occasions.",
       topNotes: ["Olibanum (Frankincense)", "Mandarin", "Bergamot", "Apple"],
       heartNotes: ["Cardamom", "Orange Blossom", "Rose"],
       baseNotes: ["Vanilla", "Musk", "Ambroxan", "Guaiac Wood", "Cedarwood"],
@@ -93,7 +93,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "A fruity-rose opening with an aromatic twist leads to a refined woody-floral center, finishing with cozy vanilla, tonka sweetness and patchouli depth.",
+        "Pride La Collection Antiquities 1910 by Lattafa is a heritage-inspired Arabian perfume with exceptional longevity. A fruity-rose opening of apple, davana, and rose transitions into a refined woody-floral heart of cedar and osmanthus. The luxurious base of vanilla, tonka bean, and patchouli provides hours of warm, sensual depth. An opulent unisex oriental fragrance.",
       topNotes: ["Apple", "Davana", "Rose"],
       heartNotes: ["Cedar", "Osmanthus"],
       baseNotes: ["Vanilla", "Tonka Bean", "Patchouli"],
@@ -108,7 +108,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "A berry-citrus pop up front turns into creamy cacao-vanilla with rose accents, drying down into sugary amber musk and tonka warmth.",
+        "Pride Nebras by Lattafa is an irresistible Arabian perfume that blends juicy red berries and mandarin with a creamy cacao-vanilla heart accented by delicate rose. The long-lasting base wraps you in sugary amber, tonka bean, and musk warmth. A sweet, sensual oriental fragrance perfect for those who want a gourmand Arabian scent with excellent projection.",
       topNotes: ["Red Berries", "Mandarin Orange"],
       heartNotes: ["Vanilla", "Cacao", "Rose"],
       baseNotes: ["Sugar", "Tonka Bean", "Amber", "Musk"],
@@ -123,7 +123,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Spiced saffron and cinnamon wrapped around rose, with a sweet caramel-patchouli core and a warm amber-vanilla woody base.",
+        "Sheikh Al Shuyukh Supreme by Lattafa is one of the most beloved Arabian perfumes, offering incredible value for a luxury fragrance. Spiced saffron and cinnamon are wrapped around lush rose, leading into a sweet caramel-patchouli core. The warm amber-vanilla woody base delivers exceptional longevity — a signature Arabian oud-inspired scent that lasts all day.",
       topNotes: ["Cinnamon", "Rose", "Saffron"],
       heartNotes: ["Caramel", "Patchouli"],
       baseNotes: ["Vanilla", "Ambroxan", "Woody Notes", "Amber"],
@@ -138,7 +138,7 @@ async function main() {
       gender: genderFromCode("M"),
       images: [],
       description:
-        "A smoky-spiced mandarin opening flows into incense and balsamic richness, finishing with praline sweetness, tobacco warmth and resinous amber.",
+        "Khamrah Dukhan by Lattafa is a rich, smoky Arabian perfume for men that commands attention. A spiced mandarin opening flows into sacred incense and balsamic labdanum, while the long-lasting base of praline, tobacco, amber, tonka bean, and benzoin creates a mesmerizing oriental warmth. A bold, masculine luxury fragrance with outstanding sillage and longevity.",
       topNotes: ["Spices", "Pimento", "Mandarin"],
       heartNotes: ["Incense", "Labdanum", "Orange Blossom", "Patchouli"],
       baseNotes: ["Praline", "Tobacco", "Amber", "Tonka Bean", "Benzoin"],
@@ -153,7 +153,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Sparkling ginger-citrus with pink pepper leads into a cozy praline-cacao heart with aromatic lavender, resting on a smooth vanilla amber musk base.",
+        "Angham by Lattafa is a versatile Arabian perfume that balances sparkling freshness with cozy oriental warmth. Ginger, mandarin, and pink pepper open into a delicious praline-cacao heart layered with aromatic lavender and jasmine. The smooth vanilla-amber-musk base ensures long-lasting wear — a perfect everyday luxury fragrance that transitions beautifully from day to night.",
       topNotes: ["Ginger", "Mandarin", "Pink Pepper"],
       heartNotes: ["Lavender", "Praline", "Cacao", "Jasmine"],
       baseNotes: ["Vanilla", "Amber", "Musk"],
@@ -168,7 +168,7 @@ async function main() {
       gender: genderFromCode("W"),
       images: [],
       description:
-        "A playful fruity-floral opening of pear and berries melts into praline-jasmine sweetness, settling into a creamy musky vanilla with warm amber woods.",
+        "The Kingdom by Lattafa is an enchanting Arabian perfume for women, opening with a playful bouquet of pear, peony, and black currant. The heart reveals indulgent praline, jasmine, and tonka bean sweetness, while the long-lasting base of creamy vanilla, musk, sandalwood, and amber creates a sensual, oriental embrace. A feminine luxury fragrance with unforgettable depth.",
       topNotes: ["Pear", "Peony", "Cassis (Black Currant)"],
       heartNotes: ["Praline", "Jasmine", "Tonka Bean"],
       baseNotes: ["Vanilla", "Musk", "Sandalwood", "Amber"],
@@ -187,7 +187,7 @@ async function main() {
       gender: genderFromCode("M"),
       images: [],
       description:
-        "A fresh aromatic opening of mint and lavender turns creamy with vanilla and benzoin, finishing with a rich honeyed tobacco-tonka drydown.",
+        "Club de Nuit Heritage Lionheart by Armaf is a sophisticated men's fragrance that blends fresh aromatic mint and lavender with a creamy vanilla-benzoin heart. The long-lasting base of honeyed tobacco and tonka bean delivers a rich, masculine drydown. A versatile luxury perfume with the depth of Arabian perfumery and clean modern appeal — ideal for daily wear and special evenings.",
       topNotes: ["Mint", "Lavender"],
       heartNotes: ["Vanilla", "Benzoin"],
       baseNotes: ["Honey", "Tonka Bean", "Tobacco"],
@@ -202,7 +202,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Clean lavender and bergamot open into a crisp floral-fougère heart, drying down earthy and woody with patchouli depth.",
+        "Dubai Nights Midnight by Armaf captures the allure of Arabian nights in a refined, long-lasting Eau de Parfum. Clean lavender and bergamot open into a crisp floral-fougère heart of orange blossom and geranium, drying down to an earthy woody base anchored by patchouli. A sophisticated unisex oriental fragrance that evokes the elegance of Dubai.",
       topNotes: ["Lavender", "Bergamot"],
       heartNotes: ["Orange Blossom", "Geranium"],
       baseNotes: ["Patchouli", "Woody Notes"],
@@ -217,7 +217,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Juicy pear and mandarin brighten the opening, followed by creamy vanilla and orange blossom, finishing with coffee-caramel woods and soft musk.",
+        "Effects of Uniq by Armaf is a gourmand Arabian perfume that opens with juicy pear and mandarin freshness, followed by a creamy heart of vanilla and orange blossom. The long-lasting base of coffee, caramel, cedarwood, patchouli, and white musk creates an addictive oriental drydown. A luxurious unisex fragrance that delivers exceptional sillage and all-day longevity.",
       topNotes: ["Pear", "Mandarin"],
       heartNotes: ["Vanilla", "Orange Blossom"],
       baseNotes: ["Coffee", "Caramel", "Cedarwood", "Patchouli", "White Musk"],
@@ -232,7 +232,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "A lush fruity cocktail of peach, pineapple and pear leads to airy florals and cashmere wood, settling into a warm oud-sandalwood amber vanilla base.",
+        "Éter Perfume Oasis by Armaf is a luxurious oud perfume that begins with a lush fruity cocktail of peach, pineapple, bergamot, and pear. Airy florals and cashmere wood form the elegant heart, while the prized base of genuine agarwood (oud), sandalwood, amber, vanilla, and musk provides exceptional longevity. A premium unisex Arabian fragrance for oud enthusiasts.",
       topNotes: ["Peach", "Pineapple", "Bergamot", "Pear", "Plum"],
       heartNotes: ["Cashmere Wood", "Violet Leaves", "Freesia", "Jasmine"],
       baseNotes: ["Agarwood (Oud)", "Sandalwood", "Amber", "Vanilla", "Musk"],
@@ -247,7 +247,7 @@ async function main() {
       gender: genderFromCode("M"),
       images: [],
       description:
-        "Amber-vanilla richness up top with a powdery iris-spice heart, drying down to smooth leathered vanilla with a touch of jasmine.",
+        "Odyssey Homme by Armaf is a seductive men's Arabian perfume that opens with rich amber and vanilla warmth. The powdery iris and spice heart adds sophistication, while the long-lasting base of leathered vanilla and jasmine delivers a smooth, oriental finish. A masculine luxury fragrance with remarkable longevity — perfect for those who appreciate bold, warm scents.",
       topNotes: ["Vanilla", "Amber"],
       heartNotes: ["Oriental Notes", "Spices", "Iris"],
       baseNotes: ["Vanilla", "Leather", "Jasmine"],
@@ -262,7 +262,7 @@ async function main() {
       gender: genderFromCode("M"),
       images: [],
       description:
-        "Bright citrus and aromatic greens open into minty lavender freshness, finishing clean and modern with ambroxan, cypress and patchouli.",
+        "Odyssey Aqua by Armaf is a fresh, modern men's fragrance that brings aquatic energy to Arabian perfumery. Bright citrus of orange and grapefruit blends with aromatic artemisia, flowing into a refreshing minty-lavender heart. The clean base of ambroxan, cypress, and patchouli ensures long-lasting wear. An affordable luxury perfume ideal for warm-weather days and active lifestyles.",
       topNotes: ["Orange", "Grapefruit", "Artemisia"],
       heartNotes: ["Mint", "Lavender"],
       baseNotes: ["Ambroxan", "Cypress", "Patchouli"],
@@ -277,7 +277,7 @@ async function main() {
       gender: genderFromCode("M"),
       images: [],
       description:
-        "A crisp citrus-spice opening blends into airy violet leaf and marine notes, finishing with a smooth woody amber trail.",
+        "Odyssey Homme White Edition by Armaf is a crisp, elegant men's fragrance that pairs yuzu and grapefruit with pink pepper spice. Airy violet leaf and marine sea notes create a breezy, refined heart, finishing with a smooth woody amber trail of amberwood and guaiac wood. A long-lasting luxury perfume that offers premium Arabian quality at an exceptional price.",
       topNotes: ["Pink Pepper", "Yuzu", "Grapefruit"],
       heartNotes: ["Violet Leaf", "Sea Notes"],
       baseNotes: ["Amber", "Amberwood", "Guaiac Wood"],
@@ -296,7 +296,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Spiced-floral top notes move into a cozy chestnut-woods heart, finishing smooth and balsamic with vanilla and cashmeran warmth.",
+        "Ace by French Avenue is a warm, spiced Arabian perfume that opens with cloves, pink pepper, and orange blossom elegance. The cozy chestnut and guaiac wood heart is layered with aromatic juniper, leading to a smooth, long-lasting base of vanilla, Peru balsam, and cashmeran warmth. A refined unisex oriental fragrance that wraps you in sophisticated comfort.",
       topNotes: ["Cloves", "Pink Pepper", "Orange Blossom"],
       heartNotes: ["Chestnut", "Guaiac Wood", "Juniper"],
       baseNotes: ["Vanilla", "Peru Balsam", "Cashmeran"],
@@ -311,7 +311,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "A zesty citrus opening dives into a breezy tropical heart of watermelon and coconut, drying down into a cocoa-amberwood and ambergris base.",
+        "Atlantis by French Avenue is an Extrait de Parfum — the highest concentration of luxury fragrance — offering extraordinary longevity and projection. A zesty citrus opening of orange, mandarin, and lemon dives into a breezy tropical heart of watermelon and coconut. The rich base of cacao, amberwood, and ambergris delivers a unique, warm Arabian drydown. A standout unisex perfume.",
       topNotes: ["Orange", "Mandarin Orange", "Lemon"],
       heartNotes: ["Watermelon", "Coconut"],
       baseNotes: ["Cacao", "Amberwood", "Ambergris"],
@@ -326,7 +326,7 @@ async function main() {
       gender: genderFromCode("W"),
       images: [],
       description:
-        "A rose-forward bouquet from top to base: sparkling mandarin with layered Turkish/Bulgarian/Moroccan roses, finishing with patchouli depth.",
+        "Enigma Quatre by French Avenue is a luxurious rose Arabian perfume for women, featuring a magnificent bouquet of the world's finest roses. Sparkling mandarin and Damask rose open into a heart layered with Bulgarian, Moroccan, and classic rose, accented by orange blossom and jasmine. Turkish rose and patchouli anchor the long-lasting base. A feminine oriental fragrance of unmatched floral depth.",
       topNotes: ["Damask Rose", "Mandarin", "Taif Rose"],
       heartNotes: ["Bulgarian Rose", "Moroccan Rose", "Rose", "Orange Blossom", "Jasmine"],
       baseNotes: ["Turkish Rose", "Patchouli"],
@@ -341,7 +341,7 @@ async function main() {
       gender: genderFromCode("M"),
       images: [],
       description:
-        "Warm spices and grapefruit open into aromatic lavender and creamy vanilla, settling into an ambery, earthy patchouli-vetiver base with a licorice twist.",
+        "Enigma Une by French Avenue is a bold men's Arabian perfume built on warm spices and earthy depth. Cardamom, cinnamon, nutmeg, and grapefruit create a striking opening, while aromatic lavender and creamy vanilla form the refined heart. The long-lasting base of licorice, patchouli, amber, and vetiver delivers a masculine oriental drydown with exceptional staying power.",
       topNotes: ["Cardamom", "Cinnamon", "Nutmeg", "Grapefruit"],
       heartNotes: ["Lavender", "Coumarin", "Vanilla"],
       baseNotes: ["Licorice", "Patchouli", "Amber", "Vetiver"],
@@ -356,7 +356,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Cherry and bergamot sparkle with peppery bite, melting into heliotrope-vanilla softness and a musky amber-resin base.",
+        "Francique 107.9 by French Avenue is a captivating unisex Arabian perfume that opens with sparkling cherry and bergamot brightened by peppery spice. The sweet heliotrope-vanilla heart melts into a complex, long-lasting base of tonka bean, white and cashmere musk, frankincense, ambroxan, and labdanum. A luxurious oriental fragrance that balances sweetness with resinous depth.",
       topNotes: ["Cherry", "Bergamot", "Pepper"],
       heartNotes: ["Heliotrope", "Vanilla", "Orange Blossom"],
       baseNotes: ["Tonka Bean", "White Musk", "Cashmere Musk", "Olibanum (Frankincense)", "Ambroxan", "Labdanum"],
@@ -371,7 +371,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "A cool, metallic-aquatic opening with aldehydes and violet leaf leads to lavender, beeswax and leather nuances, drying down into honeyed mossy amber woods.",
+        "Moonstone Bleu by French Avenue is a complex, multi-faceted Arabian perfume with extraordinary longevity. A cool metallic-aquatic opening of aldehydes, violet leaf, black pepper, and cardamom transitions into lavender, beeswax, and leather nuances. The rich base layers white musk, honey, oakmoss, patchouli, cedar, tonka, vanilla, amber, and myrrh — a luxurious unisex oriental masterpiece.",
       topNotes: ["Metallic Notes", "Aldehydes", "Watery Notes", "Black Pepper", "Violet Leaf", "Cardamom"],
       heartNotes: ["Lavender", "Beeswax", "Lime", "Leather", "Cyclamen"],
       baseNotes: ["White Musk", "Honey", "Oakmoss", "Patchouli", "Woody Notes", "Cedar", "Tonka Bean", "Vanilla", "Amber", "Gurjan Balsam", "Myrrh"],
@@ -386,7 +386,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "Fruity plum and apple over bright bergamot open into aromatic clary sage and pepper, finishing smooth and sensual with vanilla, leather, musk and patchouli.",
+        "Paradigm by French Avenue is an Extrait de Parfum that delivers the ultimate in Arabian luxury fragrance. Fruity plum and apple sparkle with bright bergamot, opening into an aromatic heart of clary sage and pepper. The sensual, long-lasting base of musk, vanilla, supple leather, and patchouli creates an unforgettable oriental drydown. A unisex perfume of exceptional quality and longevity.",
       topNotes: ["Plum", "Apple", "Bergamot"],
       heartNotes: ["Clary Sage", "Pepper"],
       baseNotes: ["Musk", "Vanilla", "Leather", "Patchouli"],
@@ -401,7 +401,7 @@ async function main() {
       gender: genderFromCode("W"),
       images: [],
       description:
-        "A rosy, lightly spicy floral: Turkish rose and pink pepper on top, raspberry-rose in the heart, and a clean papyrus/amber base.",
+        "Roses D'Emotion by French Avenue is an exquisite women's Arabian perfume that celebrates the timeless beauty of rose. Turkish rose and pink pepper create an elegant, lightly spicy opening, while the heart reveals juicy raspberry intertwined with deeper rose layers. A clean papyrus and white amber base provides long-lasting, feminine warmth. A romantic oriental fragrance for the modern woman.",
       topNotes: ["Turkish Rose", "Pink Pepper"],
       heartNotes: ["Turkish Rose", "Raspberry"],
       baseNotes: ["Papyrus", "White Amber"],
@@ -416,7 +416,7 @@ async function main() {
       gender: genderFromCode("U"),
       images: [],
       description:
-        "A juicy tropical opening (mango, lemon, ginger, rhubarb) turns creamy-sweet with praline and soft florals, finishing on tonka, woods, moss and ambergris.",
+        "Vulcan Feu by French Avenue is a vibrant, tropical Arabian perfume that opens with an intoxicating blend of mango, lemon, ginger, and rhubarb. Pink pepper, jasmine, violet, and praline form a creamy-sweet heart, while the long-lasting base of tonka bean, cedarwood, ambergris, and moss delivers warm, oriental depth. A unique luxury unisex fragrance that stands out from the crowd.",
       topNotes: ["Mango", "Lemon", "Ginger", "Rhubarb"],
       heartNotes: ["Pink Pepper", "Jasmine", "Violet", "Praline"],
       baseNotes: ["Tonka Bean", "Cedarwood", "Ambergris", "Moss"],

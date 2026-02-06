@@ -58,26 +58,26 @@ export default function AboutPage() {
 
         <div className={styles.contentSection}>
           <p className={styles.leadText}>
-            Welcome to Pluteo — your premium destination for authentic Arabian perfumes and luxury oud fragrances in Croatia.
+            Welcome to Pluteo, your premium destination for authentic Arabian perfumes and luxury oud fragrances
           </p>
 
           <h2 className={styles.sectionTitle}>Our Story</h2>
           <p className={styles.bodyText}>
 We are a curated online perfume store focused on modern Arabic perfumery, offering carefully selected Arabian fragrances defined by character, expression, and effortless elegance. Our selection reflects a contemporary approach to oriental perfumery, combined with a refined style that remains confident, rich, and seductive.
 
-We believe scent is a form of identity. Our mission is to help you discover long-lasting perfumes that feel personal, expressive, and irresistible. Every oud fragrance and Arabian perfume in our collection is chosen with intention, quality, and character in mind — from bold woody compositions to delicate floral orientals.
+We believe scent is a form of identity. Our mission is to help you discover long-lasting perfumes that feel personal, expressive, and irresistible. Every oud fragrance and Arabian perfume in our collection is chosen with intention, quality, and character in mind, from bold woody compositions to delicate floral orientals.
           </p>
 
           <h2 className={styles.sectionTitle}>What Are Arabian Perfumes?</h2>
           <p className={styles.bodyText}>
-We specialize in Arabian perfumes and oud fragrances — scents renowned worldwide for their exceptional richness, longevity, and depth. Unlike many mass-market fragrances, Arabic perfumes emphasize warm oud woods, precious resins, exotic spices, amber, musk, vanilla, and expressive florals, creating compositions that evolve beautifully on the skin and last throughout the day.
+We specialize in Arabian perfumes and oud fragrances, scents renowned worldwide for their exceptional richness, longevity, and depth. Unlike many mass-market fragrances, Arabic perfumes emphasize warm oud woods, precious resins, exotic spices, amber, musk, vanilla, and expressive florals, creating compositions that evolve beautifully on the skin and last throughout the day.
 
-Our curated selection from <Link href="/products?brand=Lattafa">Lattafa</Link>, <Link href="/products?brand=Armaf">Armaf</Link>, and <Link href="/products?brand=French Avenue">French Avenue</Link> includes modern interpretations as well as classic-inspired creations, designed for both everyday wear and special occasions. These luxury perfumes are not about fleeting impressions — they are about presence, emotion, and lasting character.
+Our curated selection from <Link href="/products?brand=Lattafa">Lattafa</Link>, <Link href="/products?brand=Armaf">Armaf</Link>, and <Link href="/products?brand=French Avenue">French Avenue</Link> includes modern interpretations as well as classic-inspired creations, designed for both everyday wear and special occasions. These luxury perfumes are not about fleeting impressions, they are about presence, emotion, and lasting character.
           </p>
 
-          <h2 className={styles.sectionTitle}>100% Authentic — Quality Guarantee</h2>
+          <h2 className={styles.sectionTitle}>100% Authentic, Quality Guarantee</h2>
           <p className={styles.bodyText}>
-We guarantee that every Arabian perfume and oud fragrance we offer is 100% original and authentic, sourced from trusted distributors and verified suppliers. Quality and transparency are at the core of our business — from the fragrance itself to packaging and storage.
+We guarantee that every Arabian perfume and oud fragrance we offer is 100% original and authentic, sourced from trusted distributors and verified suppliers. Quality and transparency are at the core of our business, from the fragrance itself to packaging and storage.
 
 Each perfume is handled with care and shipped securely across Croatia to ensure it arrives in perfect condition. When you shop with Pluteo, you can trust that you are receiving genuine luxury fragrances that meet the highest standards of craftsmanship and performance.
           </p>
@@ -89,7 +89,6 @@ Each perfume is handled with care and shipped securely across Croatia to ensure 
             <li>&#10003; Fast &amp; Secure Shipping Across Croatia</li>
             <li>&#10003; Expert Customer Service &amp; Fragrance Advice</li>
             <li>&#10003; Carefully Curated Collection — Lattafa, Armaf &amp; French Avenue</li>
-            <li>&#10003; Easy Returns &amp; Exchanges</li>
           </ul>
 
           <p className={styles.bodyText}>

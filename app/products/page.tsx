@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
@@ -8,6 +9,20 @@ import ProductFilters from '@/components/ProductFilters';
 import SearchBar from '@/components/SearchBar';
 import styles from '@/styles/products.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
+
+export const metadata: Metadata = {
+  title: 'Shop Arabian Perfumes & Oud Fragrances — Lattafa, Armaf, French Avenue',
+  description: 'Browse our curated collection of authentic Arabian perfumes, oud fragrances, and luxury oriental scents. Lattafa, Armaf & French Avenue — long-lasting perfumes shipped across Croatia.',
+  keywords: 'buy arabian perfumes, oud perfumes shop, lattafa perfumes, armaf perfumes, french avenue perfumes, luxury oriental fragrances, long lasting perfumes croatia, niche perfumes online',
+  alternates: {
+    canonical: 'https://www.pluteo.shop/products',
+  },
+  openGraph: {
+    title: 'Shop Arabian & Oud Perfumes | Pluteo — Croatia',
+    description: 'Browse authentic Lattafa, Armaf & French Avenue fragrances. Long-lasting luxury Arabian perfumes delivered across Croatia.',
+    url: 'https://www.pluteo.shop/products',
+  },
+};
 
 const ITEMS_PER_PAGE = 9;
 
@@ -142,7 +157,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <div className={styles.logoContainer}>
             <Image src={logoIcon} alt="Pluteo" width={60} height={60} />
           </div>
-          <h1 className={styles.pageTitle}>ALL PRODUCTS</h1>
+          <h1 className={styles.pageTitle}>ARABIAN PERFUMES &amp; OUD FRAGRANCES</h1>
           
           <SearchBar initialValue={params.search || ''} />
           

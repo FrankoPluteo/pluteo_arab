@@ -1,207 +1,174 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Product } from '@/types';
-import { useCart } from '@/lib/store';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import styles from '@/styles/productdetails.module.css';
+import ProductDetailClient from '@/components/ProductDetailClient';
 
-export default function ProductDetailPage() {
-  const params = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const addItem = useCart((state) => state.addItem);
+interface ProductPageProps {
+  params: Promise<{ id: string }>;
+}
 
-  useEffect(() => {
-    fetch(`/api/products/${params.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProduct(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error loading product:', err);
-        setLoading(false);
-      });
-  }, [params.id]);
+async function getProduct(id: string) {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: { brand: true },
+  });
+  return product;
+}
 
-  // Scroll to top when page loads or product changes
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [params.id]);
-
-  if (loading) {
-    return (
-      <div>
-        <Navbar />
-        <div className={styles.productContainer}>Loading...</div>
-      </div>
-    );
-  }
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProduct(id);
 
   if (!product) {
-    return (
-      <div>
-        <Navbar />
-        <div className={styles.productContainer}>Product not found</div>
-      </div>
-    );
+    return {
+      title: 'Product Not Found',
+    };
   }
 
+  const brandName = product.brand?.name || '';
+  const genderLabel = product.gender === 'men' ? "Men's" : product.gender === 'women' ? "Women's" : 'Unisex';
+  const title = `${brandName} ${product.name} ${product.concentration} ${product.size}ml — ${genderLabel} Arabian Perfume`;
+  const description = `Buy ${brandName} ${product.name} ${product.concentration} ${product.size}ml. ${product.description.slice(0, 120)}. Long-lasting luxury Arabian fragrance. Fast delivery across Croatia.`;
+
+  return {
+    title,
+    description,
+    keywords: `${product.name}, ${brandName}, ${brandName} ${product.name}, arabian perfume, oud perfume, ${product.concentration}, ${genderLabel.toLowerCase()} perfume, luxury fragrance croatia, long lasting perfume, oriental perfume`,
+    alternates: {
+      canonical: `https://www.pluteo.shop/products/${product.id}`,
+    },
+    openGraph: {
+      title: `${brandName} ${product.name} — Buy Authentic Arabian Perfume | Pluteo`,
+      description,
+      url: `https://www.pluteo.shop/products/${product.id}`,
+      siteName: 'Pluteo',
+      images: product.images?.length
+        ? product.images.map((img) => ({
+            url: img,
+            width: 800,
+            height: 800,
+            alt: `${brandName} ${product.name} ${product.concentration} Arabian perfume`,
+          }))
+        : [{ url: 'https://www.pluteo.shop/og-image.jpg', width: 1200, height: 630 }],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${brandName} ${product.name} — Arabian Perfume | Pluteo`,
+      description: `${product.description.slice(0, 150)}. Shop now at Pluteo.`,
+      images: product.images?.length ? [product.images[0]] : ['https://www.pluteo.shop/og-image.jpg'],
+    },
+  };
+}
+
+export default async function ProductDetailPage({ params }: ProductPageProps) {
+  const { id } = await params;
+  const product = await getProduct(id);
+
+  if (!product) {
+    notFound();
+  }
+
+  const brandName = product.brand?.name || '';
   const finalPrice = product.price - product.discountAmount;
   const hasDiscount = product.discountAmount > 0;
-  const images = product.images && Array.isArray(product.images) ? product.images : [];
-  const hasImages = images.length > 0;
-  const isLowStock = product.stock > 0 && product.stock <= 3;
-  const isOutOfStock = product.stock === 0;
+
+  // JSON-LD Product structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${brandName} ${product.name}`,
+    description: product.description,
+    image: product.images?.length ? product.images : undefined,
+    brand: {
+      '@type': 'Brand',
+      name: brandName,
+    },
+    sku: product.id,
+    category: 'Perfume',
+    offers: {
+      '@type': 'Offer',
+      url: `https://www.pluteo.shop/products/${product.id}`,
+      priceCurrency: 'EUR',
+      price: finalPrice.toFixed(2),
+      ...(hasDiscount && {
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      }),
+      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: 'Pluteo',
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'HR',
+        },
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '4.99',
+          currency: 'EUR',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 2,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 2,
+            maxValue: 5,
+            unitCode: 'DAY',
+          },
+        },
+      },
+    },
+    additionalProperty: [
+      {
+        '@type': 'PropertyValue',
+        name: 'Concentration',
+        value: product.concentration,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Size',
+        value: `${product.size}ml`,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Gender',
+        value: product.gender,
+      },
+      ...(product.topNotes?.length
+        ? [{ '@type': 'PropertyValue', name: 'Top Notes', value: product.topNotes.join(', ') }]
+        : []),
+      ...(product.heartNotes?.length
+        ? [{ '@type': 'PropertyValue', name: 'Heart Notes', value: product.heartNotes.join(', ') }]
+        : []),
+      ...(product.baseNotes?.length
+        ? [{ '@type': 'PropertyValue', name: 'Base Notes', value: product.baseNotes.join(', ') }]
+        : []),
+    ],
+  };
+
+  // Serialize the product data for the client component
+  const serializedProduct = JSON.parse(JSON.stringify(product));
 
   return (
     <div>
       <Navbar />
-
-      <div className={styles.productContainer}>
-        <div className={styles.productLayout}>
-          {/* Image Section */}
-          <div className={styles.imageSection}>
-            {/* Mobile Slider - now shows for single images too */}
-            {hasImages && (
-              <div className={styles.imageSlider}>
-                {images.map((img, index) => (
-                  <div key={index} className={styles.slideImage}>
-                    <img src={img} alt={`${product.name} ${index + 1}`} />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Desktop Main Image */}
-            <div className={styles.mainImage}>
-              {hasImages && images[selectedImage] ? (
-                <img src={images[selectedImage]} alt={product.name} />
-              ) : (
-                <div className={styles.noImage}>No image available</div>
-              )}
-            </div>
-
-            {/* Desktop Thumbnails */}
-            {hasImages && images.length > 1 && (
-              <div className={styles.thumbnails}>
-                {images.map((img, index) => (
-                  <div
-                    key={index}
-                    className={`${styles.thumbnail} ${selectedImage === index ? styles.active : ''}`}
-                    onClick={() => setSelectedImage(index)}
-                  >
-                    <img src={img} alt={`${product.name} ${index + 1}`} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Details Section */}
-          <div className={styles.detailsSection}>
-            <div>
-              <div className={styles.brandHeader}>
-                {product.brand?.logoUrl && (
-                  <div className={styles.brandLogoContainer}>
-                    <img 
-                      src={product.brand.logoUrl} 
-                      alt={product.brand.name}
-                      className={styles.brandLogoImage}
-                    />
-                  </div>
-                )}
-                <p className={styles.brandName}>{product.brand?.name || 'Unknown Brand'}</p>
-              </div>
-              <h1 className={styles.productName}>{product.name}</h1>
-              <p className={styles.productMeta}>
-                {product.concentration} • {product.size}ml • {product.gender}
-              </p>
-            </div>
-
-            <div className={styles.priceSection}>
-              {hasDiscount && (
-                <span className={styles.originalPrice}>{product.price.toFixed(2)} €</span>
-              )}
-              <span className={styles.finalPrice}>{finalPrice.toFixed(2)} €</span>
-              {hasDiscount && (
-                <span className={styles.discount}>
-                  Save {product.discountAmount.toFixed(2)} €
-                </span>
-              )}
-            </div>
-
-            {isLowStock && (
-              <div className={styles.lowStock}>
-                <span className={styles.lowStockIcon}>⚠</span>
-                <span className={styles.lowStockText}>
-                  Only {product.stock} left — almost gone!
-                </span>
-              </div>
-            )}
-
-            {isOutOfStock && (
-              <div className={styles.outOfStockBanner}>
-                Out of Stock
-              </div>
-            )}
-
-            <button
-              onClick={() => addItem(product)}
-              className={styles.addToCartButton}
-              disabled={isOutOfStock}
-            >
-              {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
-            </button>
-
-            {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) && (
-              <div className={styles.notesSection}>
-                {product.topNotes && product.topNotes.length > 0 && (
-                  <div className={styles.noteGroup}>
-                    <h4>Top Notes</h4>
-                    <p>{product.topNotes.join(', ')}</p>
-                  </div>
-                )}
-                {product.heartNotes && product.heartNotes.length > 0 && (
-                  <div className={styles.noteGroup}>
-                    <h4>Heart Notes</h4>
-                    <p>{product.heartNotes.join(', ')}</p>
-                  </div>
-                )}
-                {product.baseNotes && product.baseNotes.length > 0 && (
-                  <div className={styles.noteGroup}>
-                    <h4>Base Notes</h4>
-                    <p>{product.baseNotes.join(', ')}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className={styles.description}>
-              <h3>Description</h3>
-              <p>{product.description}</p>
-            </div>
-
-            {product.fragranceProfiles && product.fragranceProfiles.length > 0 && (
-              <div className={styles.description}>
-                <h3>Fragrance Profile</h3>
-                <p>{product.fragranceProfiles.join(', ')}</p>
-              </div>
-            )}
-
-            <div className={styles.productInfo}>
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Gender</span>
-                <span className={styles.infoValue}>{product.gender}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ProductDetailClient product={serializedProduct} />
       <Footer />
     </div>
   );

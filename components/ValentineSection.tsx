@@ -168,9 +168,7 @@ export default function ValentineSection() {
                   ) : (
                     <span className={styles.packName}>{pack.himName}</span>
                   )}
-                  {!fetching && products?.him && (
-                    <span className={styles.packPrice}>€{products.him.price.toFixed(2)}</span>
-                  )}
+                 
                 </div>
                 <div className={styles.packDivider}>+</div>
                 <div className={styles.packImageWrapper}>
@@ -207,9 +205,7 @@ export default function ValentineSection() {
                   ) : (
                     <span className={styles.packName}>{pack.herName}</span>
                   )}
-                  {!fetching && products?.her && (
-                    <span className={styles.packPrice}>€{products.her.price.toFixed(2)}</span>
-                  )}
+                  
                 </div>
               </div>
 

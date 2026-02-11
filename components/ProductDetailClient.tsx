@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
+import ReviewSummary from './ReviewSummary';
 import styles from '@/styles/productdetails.module.css';
 
 interface ProductDetailClientProps {
@@ -158,6 +159,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               <span className={styles.infoValue}>{product.gender}</span>
             </div>
           </div>
+
+          <ReviewSummary productId={product.id} />
         </div>
       </div>
     </div>

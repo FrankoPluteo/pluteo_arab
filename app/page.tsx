@@ -68,7 +68,7 @@ export default async function HomePage() {
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
 
         <div className={styles.taglines}>
-          <span className={styles.tagline}>LONG LASTING</span>
+          <span className={styles.tagline}>LASTING</span>
           <span className={styles.taglineDot}>&middot;</span>
           <span className={styles.tagline}>LUXURY</span>
           <span className={styles.taglineDot}>&middot;</span>

@@ -36,18 +36,40 @@ function HomeJsonLd() {
   );
 }
 
+async function enrichWithReviews(products: any[]) {
+  return Promise.all(
+    products.map(async (product) => {
+      const agg = await prisma.review.aggregate({
+        where: { productId: product.id },
+        _avg: { rating: true },
+        _count: { rating: true },
+      });
+      return {
+        ...product,
+        averageRating: agg._avg.rating ?? 0,
+        reviewCount: agg._count.rating,
+      };
+    })
+  );
+}
+
 export default async function HomePage() {
-  const featuredProducts = await prisma.product.findMany({
+  const featuredRaw = await prisma.product.findMany({
     where: { isFeatured: true },
     include: { brand: true },
     take: 4,
   });
 
-  const bestSellers = await prisma.product.findMany({
+  const bestSellersRaw = await prisma.product.findMany({
     where: { isBestSeller: true },
     include: { brand: true },
     take: 4,
   });
+
+  const [featuredProducts, bestSellers] = await Promise.all([
+    enrichWithReviews(featuredRaw),
+    enrichWithReviews(bestSellersRaw),
+  ]);
 
   return (
     <div>

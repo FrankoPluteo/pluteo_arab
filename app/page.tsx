@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
+import { prisma, withReviewAggregates } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import styles from '@/styles/home.module.css';
@@ -37,17 +37,21 @@ function HomeJsonLd() {
 }
 
 export default async function HomePage() {
-  const featuredProducts = await prisma.product.findMany({
-    where: { isFeatured: true },
-    include: { brand: true },
-    take: 4,
-  });
+  const featuredProducts = await withReviewAggregates(
+    await prisma.product.findMany({
+      where: { isFeatured: true },
+      include: { brand: true },
+      take: 4,
+    })
+  );
 
-  const bestSellers = await prisma.product.findMany({
-    where: { isBestSeller: true },
-    include: { brand: true },
-    take: 4,
-  });
+  const bestSellers = await withReviewAggregates(
+    await prisma.product.findMany({
+      where: { isBestSeller: true },
+      include: { brand: true },
+      take: 4,
+    })
+  );
 
   return (
     <div>
@@ -111,7 +115,7 @@ export default async function HomePage() {
 
       {featuredProducts.length > 0 && (
         <div className={styles.productsSection}>
-          <h2 className={styles.sectionTitle}>FEATURED ARABIAN PERFUMES</h2>
+          <h2 className={styles.sectionTitle}>FEATURED PERFUMES</h2>
           <div className={styles.productsGrid}>
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />

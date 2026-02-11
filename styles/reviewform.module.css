@@ -1,0 +1,134 @@
+.writeReviewBtn {
+  padding: 12px 24px;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.writeReviewBtn:hover {
+  background-color: var(--color-light);
+}
+
+.reviewForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldGroup label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fieldGroup input,
+.fieldGroup textarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.fieldGroup input:focus,
+.fieldGroup textarea:focus {
+  outline: none;
+  border-color: var(--color-dark);
+}
+
+.ratingStars {
+  display: flex;
+  gap: 4px;
+}
+
+.ratingStar {
+  font-size: 28px;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ratingStarActive {
+  color: #d4a259;
+}
+
+.error {
+  color: #dc3545;
+  font-size: 13px;
+  margin: 0;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #ccc;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.submitBtn {
+  padding: 10px 20px;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: var(--color-light);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.successMessage {
+  padding: 16px;
+  background: #d4edda;
+  color: #155724;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}

@@ -1,0 +1,33 @@
+.reviewSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.aggregate {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ratingText {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.countText {
+  font-size: 14px;
+  color: #666;
+}

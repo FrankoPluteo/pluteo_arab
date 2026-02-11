@@ -37,12 +37,30 @@ model Product {
   topNotes          String[]
   heartNotes        String[]
   baseNotes         String[]
+  reviews           Review[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   @@index([brandId])
   @@index([isFeatured])
   @@index([isBestSeller])
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reviewerName  String   @default("")
+  reviewerEmail String
+  rating        Int      // 1-5
+  title         String   @default("")
+  comment       String   @default("") @db.Text
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([productId])
+  @@index([reviewerEmail])
 }
 
 model Order {

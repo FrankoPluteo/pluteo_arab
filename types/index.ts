@@ -13,10 +13,12 @@ export interface Product {
   isFeatured: boolean;
   isBestSeller: boolean;
   stock: number;
-  fragranceProfiles: string[]; // NEW
+  fragranceProfiles: string[];
   topNotes: string[];
   heartNotes: string[];
   baseNotes: string[];
+  reviewCount?: number;
+  averageRating?: number;
   createdAt: Date;
   updatedAt: Date;
 }

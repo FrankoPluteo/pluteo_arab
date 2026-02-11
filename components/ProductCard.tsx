@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
+import StarRating from './StarRating';
 import styles from '@/styles/productcard.module.css';
 
 interface ProductCardProps {
@@ -53,6 +54,13 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className={styles.productDetails}>
             {product.concentration} - {product.size}ml
           </p>
+
+          {(product.reviewCount ?? 0) > 0 && (
+            <div className={styles.productRating}>
+              <StarRating rating={product.averageRating ?? 0} size="small" />
+              <span className={styles.reviewCount}>({product.reviewCount})</span>
+            </div>
+          )}
 
           <div className={styles.productPricing}>
             {product.discountAmount > 0 && (

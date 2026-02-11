@@ -205,3 +205,16 @@
   box-shadow: 0 2px 8px rgba(247, 127, 0, 0.3);
 }
 
+.productRating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.reviewCount {
+  font-size: 12px;
+  color: #888;
+}
+
+

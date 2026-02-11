@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
-import { prisma } from '@/lib/prisma';
+import { prisma, withReviewAggregates } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
@@ -141,13 +141,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
     
     // Get products for current page
-    const products = await prisma.product.findMany({
-      where,
-      include: { brand: true },
-      orderBy,
-      skip,
-      take: ITEMS_PER_PAGE,
-    });
+    const products = await withReviewAggregates(
+      await prisma.product.findMany({
+        where,
+        include: { brand: true },
+        orderBy,
+        skip,
+        take: ITEMS_PER_PAGE,
+      })
+    );
+
     
     return (
       <div>

@@ -63,12 +63,20 @@ export default async function HomePage() {
         <img className={styles.logolongimg} src={logolong.src} alt="Pluteo — Arabian Perfume Shop Croatia" />
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
 
+        <div className={styles.taglines}>
+          <span className={styles.tagline}>LONG LASTING</span>
+          <span className={styles.taglineDot}>&middot;</span>
+          <span className={styles.tagline}>LUXURY</span>
+          <span className={styles.taglineDot}>&middot;</span>
+          <span className={styles.tagline}>RICH</span>
+        </div>
+
         <div className={styles.filterLinkBox}>
           <Link href="/products?gender=male" className={styles.filterLink}>
-            MEN&apos;S ARABIAN PERFUMES
+            MEN&apos;S PERFUMES
           </Link>
           <Link href="/products?gender=female" className={styles.filterLink}>
-            WOMEN&apos;S ARABIAN PERFUMES
+            WOMEN&apos;S PERFUMES
           </Link>
         </div>
       </div>

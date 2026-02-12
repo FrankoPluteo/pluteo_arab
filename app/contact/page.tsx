@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/staticpage.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
+import Link from 'next/link';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -72,7 +73,9 @@ export default function ContactPage() {
                 <h3>Shipping</h3>
                 <p>We currently ship within Croatia only.</p>
                 <p>Delivery: 2-5 business days</p>
+                <p><Link href="/legal">View shipping & return policy</Link></p>
               </div>
+
             </div>
           </div>
 

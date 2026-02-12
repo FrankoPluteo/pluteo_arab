@@ -23,11 +23,11 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className={styles.footerSection}>
+                <div className={styles.footerSection}>
           <h4 className={styles.footerHeading}>Customer Service</h4>
           <nav className={styles.footerNav}>
             <Link href="/contact">Help & Support</Link>
-            <span>Shipping: Croatia Only</span>
+            <Link href="/legal">Legal & Shipping Info</Link>
             <span>Email: pluteoinfo@gmail.com</span>
           </nav>
         </div>

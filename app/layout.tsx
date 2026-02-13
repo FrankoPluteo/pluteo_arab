@@ -21,22 +21,13 @@ export const metadata: Metadata = {
     description: 'Discover authentic Arabian fragrances from Lattafa, Armaf, and French Avenue. Long-lasting luxury oud, musk, and oriental perfumes delivered across Croatia and Europe.',
     url: 'https://www.pluteo.shop',
     siteName: 'Pluteo',
-    images: [
-      {
-        url: 'https://www.pluteo.shop/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Pluteo — Premium Arabian and Oud Perfumes in Europe',
-      },
-    ],
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'Pluteo | Arabian & Oud Perfumes — Luxury Fragrances in Europe',
     description: 'Authentic Arabian perfumes from Lattafa, Armaf & French Avenue. Long-lasting luxury fragrances shipped across Croatia and Europe.',
-    images: ['https://www.pluteo.shop/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -50,12 +41,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: "/public/favicon.ico" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180" },
-    ],
+    icon: '/icon.svg',
+    apple: '/icon.svg',
   },
 };
 

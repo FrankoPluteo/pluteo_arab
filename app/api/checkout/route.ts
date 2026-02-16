@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { calculateShipping, isCountryAllowed } from '@/lib/shipping';
-import { VALENTINE_PACKS } from '@/lib/valentinePacks';
 
 export async function POST(request: Request) {
   try {
@@ -59,70 +58,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // Build a set of valid valentine pack IDs from the cart and validate them
-    const packItemsByPackId = new Map<string, any[]>();
-    for (const item of items) {
-      if (item.valentinePackId) {
-        const existing = packItemsByPackId.get(item.valentinePackId) || [];
-        existing.push(item);
-        packItemsByPackId.set(item.valentinePackId, existing);
-      }
-    }
-
-    // Validate each claimed pack
-    const validatedPackDiscounts = new Map<string, number>();
-    for (const [packId, packItems] of packItemsByPackId) {
-      const pack = VALENTINE_PACKS.find((p) => p.id === packId);
-      if (!pack) {
-        return NextResponse.json(
-          { error: 'Invalid valentine pack.' },
-          { status: 400 }
-        );
-      }
-
-      // Pack must have exactly 2 items
-      if (packItems.length !== 2) {
-        return NextResponse.json(
-          { error: 'Invalid valentine pack configuration.' },
-          { status: 400 }
-        );
-      }
-
-      // Verify the pack contains the correct product IDs
-      const itemProductIds = new Set(packItems.map((i: any) => i.product.id));
-      if (!itemProductIds.has(pack.himId) || !itemProductIds.has(pack.herId)) {
-        return NextResponse.json(
-          { error: 'Valentine pack products do not match.' },
-          { status: 400 }
-        );
-      }
-
-      // Each pack item must have quantity 1
-      for (const packItem of packItems) {
-        if (packItem.quantity !== 1) {
-          return NextResponse.json(
-            { error: 'Valentine pack items must have quantity 1.' },
-            { status: 400 }
-          );
-        }
-      }
-
-      validatedPackDiscounts.set(packId, pack.discount);
-    }
-
     // Calculate totals using DB prices (not client prices)
     let subtotal = 0;
     const validatedItems = items.map((item: any) => {
       const dbProduct = productMap.get(item.product.id)!;
-      const basePrice = dbProduct.price - dbProduct.discountAmount;
-
-      let packDiscount = 0;
-      if (item.valentinePackId && validatedPackDiscounts.has(item.valentinePackId)) {
-        const totalPackDiscount = validatedPackDiscounts.get(item.valentinePackId)!;
-        packDiscount = totalPackDiscount / 2;
-      }
-
-      const finalPrice = basePrice - packDiscount;
+      const finalPrice = dbProduct.price - dbProduct.discountAmount;
       subtotal += finalPrice * item.quantity;
 
       return {
@@ -137,8 +77,6 @@ export async function POST(request: Request) {
           images: dbProduct.images,
         },
         quantity: item.quantity,
-        valentinePackId: item.valentinePackId || null,
-        packDiscount,
         unitPrice: finalPrice,
       };
     });
@@ -176,7 +114,7 @@ export async function POST(request: Request) {
           currency: 'eur',
           product_data: {
             name: `${item.product.brand.name} - ${item.product.name}`,
-            description: `${item.product.concentration} - ${item.product.size}ml${item.valentinePackId ? ' (Valentine\'s Pack)' : ''}`,
+            description: `${item.product.concentration} - ${item.product.size}ml`,
           },
           unit_amount: Math.round(item.unitPrice * 100),
         },

@@ -43,18 +43,15 @@ export default function CheckoutPage() {
             
             <div className={styles.orderItems}>
               {items.map((item) => {
-                const basePrice = item.product.price - item.product.discountAmount;
-                const packDiscount = item.packDiscount || 0;
-                const price = basePrice - packDiscount;
+                const price = item.product.price - item.product.discountAmount;
                 return (
-                  <div key={`${item.product.id}-${item.valentinePackId || ''}`} className={styles.summaryItem}>
+                  <div key={item.product.id} className={styles.summaryItem}>
                     <div className={styles.itemInfo}>
                       <p className={styles.itemName}>
                         {item.product.brand.name} - {item.product.name}
                       </p>
                       <p className={styles.itemMeta}>
                         {item.product.size}ml × {item.quantity}
-                        {item.valentinePackId ? ' (Valentine\'s Pack)' : ''}
                       </p>
                     </div>
                     <p className={styles.itemPrice}>

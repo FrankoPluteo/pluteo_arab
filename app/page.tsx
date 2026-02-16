@@ -8,7 +8,6 @@ import lattafaimg from '../public/lattafa.jpg';
 import frenchavenueimg from '../public/frenchavenue.jpg';
 import armafimg from '../public/armaf.jpg';
 import wallapaperhome from '../public/wallpaperhome.jpg';
-import ValentineSection from '@/components/ValentineSection';
 import Footer from '@/components/Footer';
 
 export const dynamic = 'force-dynamic';
@@ -60,9 +59,6 @@ export default async function HomePage() {
 
       <div className={styles.homeBackground}>
         <img className={styles.wallpaperhome} src={wallapaperhome.src} alt="Premium Arabian perfumes and oud fragrances — Pluteo Croatia" />
-        <div className={styles.promoTrack}>
-          <span>IN SYNC — Valentine&apos;s Duo Packs — Save &euro;10</span>
-        </div>
         <h1 className="sr-only">Pluteo — Premium Arabian Perfumes &amp; Oud Fragrances in Croatia</h1>
         <img className={styles.logolongimg} src={logolong.src} alt="Pluteo — Arabian Perfume Shop Croatia" />
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
@@ -84,8 +80,6 @@ export default async function HomePage() {
           </Link>
         </div>
       </div>
-
-      <ValentineSection />
 
       <div className={styles.home2}>
         <div className={styles.brandBox}>

@@ -251,25 +251,6 @@
   box-shadow: 0 4px 12px rgba(108, 83, 78, 0.3);
 }
 
-.packBadge {
-  display: inline-block;
-  background: linear-gradient(to right, #6c534e, #8b7268);
-  color: white;
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  margin-top: 6px;
-}
-
-.itemOriginalPrice {
-  font-size: 14px;
-  color: #999;
-  text-decoration: line-through;
-  margin-right: 8px;
-}
-
-
 .freeShippingBar {
   background-color: #f0faf0;
   border: 1px solid #c3e6cb;

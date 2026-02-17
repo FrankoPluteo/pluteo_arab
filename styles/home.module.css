@@ -12,33 +12,6 @@
   overflow: hidden  ;
 }
 
-.promoTrack {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to right, var(--color-dark), var(--color-light));
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  font-size: 25px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  z-index: 10;
-}
-
-.promoTrack span {
-  display: inline-block;
-  animation: shimmer 3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-
 .wallpaperhome{
   width: 100%;
   filter: brightness(0.3);
@@ -248,12 +221,6 @@
     font-size: 14px;
   }
 
-  .promoTrack {
-    font-size: 13px;
-    padding: 8px 15px;
-    letter-spacing: 1px;
-  }
-  
   .wallpaperhome {
     height: 100%;
     width: 100%;

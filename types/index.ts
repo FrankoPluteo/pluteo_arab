@@ -34,6 +34,4 @@ export interface Brand {
 export interface CartItem {
   product: Product;
   quantity: number;
-  valentinePackId?: string;
-  packDiscount?: number;
 }

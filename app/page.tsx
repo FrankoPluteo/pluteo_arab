@@ -115,7 +115,7 @@ export default async function HomePage() {
 
       {featuredProducts.length > 0 && (
         <div className={styles.productsSection}>
-          <h2 className={styles.sectionTitle}>FEATURED PERFUMES</h2>
+          <h2 className={styles.sectionTitle}>FEATURED PERFUMES - FOR THOSE WHO STAND OUT</h2>
           <div className={styles.productsGrid}>
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />

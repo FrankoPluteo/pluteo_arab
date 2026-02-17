@@ -120,7 +120,7 @@ export default async function HomePage() {
 
       {bestSellers.length > 0 && (
         <div className={styles.productsSection}>
-          <h2 className={styles.sectionTitle}>BEST-SELLING LUXURY FRAGRANCES</h2>
+          <h2 className={styles.sectionTitle}>BEST-SELLING FRAGRANCES</h2>
           <div className={styles.productsGrid}>
             {bestSellers.map((product) => (
               <ProductCard key={product.id} product={product} />

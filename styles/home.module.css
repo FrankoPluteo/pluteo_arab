@@ -1,31 +1,38 @@
+/* ── Hero ─────────────────────────────────────────────── */
 .homeBackground {
   position: relative;
-  margin: 75px;
-  margin-top: 100px;
-  height: 650px;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
   background: linear-gradient(to right, var(--color-dark), var(--color-light));
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 40px;
   align-items: center;
-  overflow: hidden  ;
+  overflow: hidden;
 }
 
-.wallpaperhome{
+.wallpaperhome {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
+  object-fit: cover;
   filter: brightness(0.3);
   opacity: 0.5;
-  position: absolute;
 }
 
-.logolongimg{
+.logolongimg {
   position: relative;
   width: 400px;
+  z-index: 1;
 }
 
 .goToShop {
   position: relative;
+  z-index: 1;
   width: 120px;
   text-decoration: none;
   font-family: Montserrat, sans-serif;
@@ -37,7 +44,6 @@
   transition: all 0.3s ease;
   border-top-right-radius: 8px;
   border-bottom-left-radius: 8px;
-  z-index: 1;
   font-weight: 500;
 }
 
@@ -49,10 +55,10 @@
 
 .taglines {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 20px;
-  z-index: 1;
 }
 
 .tagline {
@@ -72,13 +78,12 @@
 .filterLinkBox {
   position: absolute;
   bottom: 0;
+  z-index: 1;
   display: flex;
   width: 100%;
-  justify-content: space-around;
   height: 50px;
   background-color: var(--color-white);
   font-family: Montserrat, sans-serif;
-  color: var(--color-dark);
   font-weight: 700;
 }
 
@@ -90,7 +95,6 @@
   align-items: center;
   padding: 10px;
   transition: all 0.3s ease;
-  cursor: pointer;
   border-bottom: 2px solid var(--color-light);
   text-decoration: none;
   color: var(--color-dark);
@@ -101,12 +105,12 @@
   color: var(--color-white);
 }
 
-.home2 {
-  position: relative;
-  margin: 75px;
+/* ── Brand Section ────────────────────────────────────── */
+/* Full width, 3 panels touching — no gap, no margin */
+.brandSection {
+  width: 100%;
   height: 500px;
   display: flex;
-  gap: 50px;
 }
 
 .brandBox {
@@ -122,37 +126,13 @@
 
 .categoryOverlay {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.25);
   transition: opacity 0.3s ease;
 }
 
 .brandBox:hover .categoryOverlay {
   opacity: 0;
-}
-
-.brandLink {
-  position: relative;
-  width: 200px;
-  text-decoration: none;
-  font-family: Montserrat, sans-serif;
-  background-color: var(--color-white);
-  color: var(--color-dark);
-  padding: 15px;
-  font-size: 24px;
-  text-align: center;
-  transition: all 0.3s ease;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 8px;
-  z-index: 10;
-  font-weight: 500;
-}
-
-.brandLink:hover {
-  background-color: var(--color-dark);
-  color: var(--color-white);
-  transform: scale(1.1);
 }
 
 .brandimage {
@@ -165,6 +145,30 @@
   filter: brightness(0.5);
 }
 
+.brandLink {
+  position: relative;
+  z-index: 10;
+  width: 200px;
+  text-decoration: none;
+  font-family: Montserrat, sans-serif;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  padding: 15px;
+  font-size: 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  font-weight: 500;
+}
+
+.brandLink:hover {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  transform: scale(1.1);
+}
+
+/* ── Product Sections ─────────────────────────────────── */
 .productsSection {
   margin: 75px;
 }
@@ -186,6 +190,7 @@
   align-items: stretch;
 }
 
+/* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 1200px) {
   .productsGrid {
     grid-template-columns: repeat(3, 1fr);
@@ -193,19 +198,20 @@
 }
 
 @media (max-width: 768px) {
-
-  .productsGrid > * {
-  flex: 0 0 80%;
-  scroll-snap-align: center;
-  height: auto;
-  display: flex;
-}
-
   .homeBackground {
-    margin: 70px 30px 30px;
-    height: 400px;
+    height: 100svh;
+    min-height: unset;
     gap: 20px;
-    overflow: hidden;
+  }
+
+  .logolongimg {
+    width: 350px;
+  }
+
+  .goToShop {
+    font-size: 30px;
+    width: 250px;
+    padding: 8px;
   }
 
   .taglines {
@@ -213,7 +219,7 @@
   }
 
   .tagline {
-    font-size: 14px;
+    font-size: 18px;
     letter-spacing: 3px;
   }
 
@@ -221,20 +227,8 @@
     font-size: 14px;
   }
 
-  .wallpaperhome {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-  }
-
-  .logolongimg {
-    width: 200px;
-  }
-
-  .goToShop {
-    font-size: 20px;
-    width: 100px;
-    padding: 8px;
+  .filterLinkBox {
+    height: 40px;
   }
 
   .filterLink {
@@ -242,21 +236,15 @@
     border-bottom: 1px solid var(--color-dark);
   }
 
-  .filterLinkBox {
-    height: 40px;
-  }
-
-  .home2 {
-    margin: 30px;
-    gap: 15px;
+  /* Brand panels stack vertically on mobile */
+  .brandSection {
     flex-direction: column;
-    height: auto;
+    height: 400px;
   }
 
- .brandBox {
+  .brandBox {
     width: 100%;
-    min-height: 150px;
-    height: 150px;
+    height: 200px;
   }
 
   .brandLink {
@@ -271,7 +259,8 @@
   }
 
   .sectionTitle {
-    font-size: 24px;
+    font-size: 20px;
+    letter-spacing: 2px;
     margin-bottom: 20px;
   }
 
@@ -292,5 +281,7 @@
   .productsGrid > * {
     flex: 0 0 80%;
     scroll-snap-align: center;
+    height: auto;
+    display: flex;
   }
 }

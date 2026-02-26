@@ -9,7 +9,25 @@
   padding: 20px 75px;
   font-family: Montserrat, sans-serif;
   z-index: 100;
-  background-color: rgba(255, 255, 255, 0.95);
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.navbarTransparent {
+  background-color: transparent;
+}
+
+.navbarSolid {
+  background-color: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 2px 20px rgba(108, 83, 78, 0.08);
+}
+
+/* Link colors per state */
+.navbarTransparent .navbarLink {
+  color: white;
+}
+
+.navbarSolid .navbarLink {
+  color: var(--color-dark);
 }
 
 .navLinks {
@@ -19,7 +37,6 @@
 
 .navbarLink {
   text-decoration: none;
-  color: var(--color-dark);
   font-weight: 500;
   transition: color 0.3s ease, transform 0.3s ease;
   position: relative;
@@ -30,11 +47,16 @@
   transform: translateY(-2px);
 }
 
-.logoiconimg{
+.logoiconimg {
   width: 70px;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* Inverts dark logo to white when navbar is transparent */
+.logoInverted {
+  filter: brightness(0) invert(1);
 }
 
 .cartLink {
@@ -69,7 +91,7 @@
     font-size: 14px;
   }
 
-  .logoiconimg{
+  .logoiconimg {
     display: none;
   }
 

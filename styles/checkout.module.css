@@ -186,6 +186,122 @@
   margin-top: 10px;
 }
 
+/* ── Delivery method cards ── */
+.deliveryMethods {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.deliveryCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+  user-select: none;
+}
+
+.deliveryCard:hover {
+  border-color: var(--color-light);
+}
+
+.deliveryCardActive {
+  border-color: var(--color-dark);
+  background-color: #fdf9f8;
+}
+
+.deliveryRadio {
+  accent-color: var(--color-dark);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.deliveryCardContent {
+  flex: 1;
+}
+
+.deliveryCardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 3px;
+}
+
+.deliveryCardDesc {
+  font-size: 13px;
+  color: #777;
+}
+
+.deliveryCardPrice {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-dark);
+  white-space: nowrap;
+}
+
+/* ── BoxNow widget area ── */
+.boxnowSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: #f5f0ef;
+  border-radius: 8px;
+  border: 1px solid #e0d5d3;
+}
+
+.boxnowSelectBtn {
+  padding: 13px 20px;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  align-self: flex-start;
+}
+
+.boxnowSelectBtn:hover {
+  background-color: var(--color-light);
+}
+
+.selectedLockerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #c8b8b5;
+  font-size: 14px;
+  color: #444;
+}
+
+.selectedLockerLabel {
+  font-weight: 700;
+  color: var(--color-dark);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.boxnowHint {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
 @media (max-width: 1024px) {
   .checkoutLayout {
     grid-template-columns: 1fr;

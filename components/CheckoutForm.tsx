@@ -49,6 +49,7 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
       partnerId: 13783,
       parentElement: '#boxnowmap',
       type: 'popup',
+      buttonSelector: '.boxnow-map-widget-button',
       afterSelect: function (selected: any) {
         setSelectedLockerRef.current({
           id: selected.boxnowLockerId,
@@ -183,7 +184,7 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
         {/* Widget renders content inside this div */}
         <div id="boxnowmap" />
 
-        <button type="button" className={`boxnow-widget-button ${styles.boxnowSelectBtn}`}>
+        <button type="button" className={`boxnow-map-widget-button ${styles.boxnowSelectBtn}`}>
           {selectedLocker ? '📍 Change Locker' : '📍 Select a Locker'}
         </button>
 

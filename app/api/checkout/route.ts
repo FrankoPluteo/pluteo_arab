@@ -123,7 +123,7 @@ export async function POST(request: Request) {
         shippingCity,
         shippingZip,
         shippingCountry: 'HR',
-        deliveryMethod: shippingMethod,
+        shippingMethod,
         boxnowLockerId: shippingMethod === 'boxnow' ? customerInfo.boxnowLockerId : null,
         boxnowLockerAddress:
           shippingMethod === 'boxnow' ? customerInfo.boxnowLockerAddress : null,

@@ -51,7 +51,7 @@ export async function POST(request: Request) {
           }
 
           // Create BoxNow delivery request if the order uses BoxNow
-          const deliveryMethod = (order as any).deliveryMethod;
+          const deliveryMethod = (order as any).shippingMethod;
           const boxnowLockerId = (order as any).boxnowLockerId;
 
           if (deliveryMethod === 'boxnow' && boxnowLockerId && order.customerPhone) {

@@ -93,10 +93,13 @@ model Order {
   orderStatus     String   @default("processing") // processing, shipped, delivered, cancelled
   
   // Delivery method
-  deliveryMethod      String   @default("gls")  // "gls" or "boxnow"
+  shippingMethod      String   @default("gls")  // "gls" or "boxnow"
   boxnowLockerId      String?
+  boxnowLockerName    String?
   boxnowLockerAddress String?
+  boxnowDeliveryId    String?
   boxnowParcelId      String?
+  boxnowStatus        String?
 
   // Tracking
   trackingNumber  String?

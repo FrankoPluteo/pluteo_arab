@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/lib/store';
 import styles from '@/styles/checkout.module.css';
 import { calculateShipping, ShippingMethod } from '@/lib/shipping';
@@ -21,7 +21,10 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('gls');
   const [selectedLocker, setSelectedLocker] = useState<SelectedLocker | null>(null);
-  const [widgetLoaded, setWidgetLoaded] = useState(false);
+
+  // Keep a stable ref to the setter so the widget callback never goes stale
+  const setSelectedLockerRef = useRef(setSelectedLocker);
+  setSelectedLockerRef.current = setSelectedLocker;
 
   const subtotal = getTotalPrice();
   const shippingCost = calculateShipping(shippingMethod);
@@ -37,17 +40,17 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
     country: 'HR',
   });
 
-  // Load the BoxNow widget script the first time BoxNow is selected
+  // Load the BoxNow widget script once on mount.
+  // The #boxnowmap div and .boxnow-widget-button element must already be in the
+  // DOM when the script runs — that's why we keep them always rendered (hidden
+  // via CSS when GLS is selected).
   useEffect(() => {
-    if (shippingMethod !== 'boxnow' || widgetLoaded) return;
-
-    // Expose the config before the script runs
     (window as any)._bn_map_widget_config = {
       partnerId: 13783,
       parentElement: '#boxnowmap',
       type: 'popup',
       afterSelect: function (selected: any) {
-        setSelectedLocker({
+        setSelectedLockerRef.current({
           id: selected.boxnowLockerId,
           address: selected.boxnowLockerAddressLine1 || '',
           postalCode: selected.boxnowLockerPostalCode || '',
@@ -58,10 +61,8 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
     const script = document.createElement('script');
     script.src = 'https://widget-cdn.boxnow.hr/map-widget/client/v5.js';
     script.async = true;
-    script.defer = true;
     document.head.appendChild(script);
-    setWidgetLoaded(true);
-  }, [shippingMethod, widgetLoaded]);
+  }, []); // runs once on mount
 
   const handleMethodChange = (method: ShippingMethod) => {
     setShippingMethod(method);
@@ -125,6 +126,8 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
     }
   };
 
+  const boxnowHidden = shippingMethod !== 'boxnow';
+
   return (
     <form onSubmit={handleSubmit} className={styles.checkoutForm}>
       {/* ── Delivery method selection ── */}
@@ -170,31 +173,36 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
         </label>
       </div>
 
-      {/* ── BoxNow locker picker ── */}
-      {shippingMethod === 'boxnow' && (
-        <div className={styles.boxnowSection}>
-          {/* The widget renders its map inside this div */}
-          <div id="boxnowmap" />
+      {/*
+        ── BoxNow locker picker ──
+        Always kept in the DOM so the widget script (loaded on mount) can
+        attach its click handler to .boxnow-widget-button at initialisation.
+        Visibility is toggled via the `hidden` style prop.
+      */}
+      <div className={styles.boxnowSection} style={{ display: boxnowHidden ? 'none' : 'flex' }}>
+        {/* Widget renders content inside this div */}
+        <div id="boxnowmap" />
 
-          <button type="button" className={`boxnow-widget-button ${styles.boxnowSelectBtn}`}>
-            {selectedLocker ? '📍 Change Locker' : '📍 Select a Locker'}
-          </button>
+        {/* Use <a> exactly as the BoxNow docs specify */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a href="javascript:;" className={`boxnow-widget-button ${styles.boxnowSelectBtn}`}>
+          {selectedLocker ? '📍 Change Locker' : '📍 Select a Locker'}
+        </a>
 
-          {selectedLocker ? (
-            <div className={styles.selectedLockerInfo}>
-              <span className={styles.selectedLockerLabel}>Selected Locker</span>
-              <span>
-                {selectedLocker.address}
-                {selectedLocker.postalCode && `, ${selectedLocker.postalCode}`}
-              </span>
-            </div>
-          ) : (
-            <p className={styles.boxnowHint}>
-              Click the button above to choose your nearest BOX NOW locker on the map.
-            </p>
-          )}
-        </div>
-      )}
+        {selectedLocker ? (
+          <div className={styles.selectedLockerInfo}>
+            <span className={styles.selectedLockerLabel}>Selected Locker</span>
+            <span>
+              {selectedLocker.address}
+              {selectedLocker.postalCode && `, ${selectedLocker.postalCode}`}
+            </span>
+          </div>
+        ) : (
+          <p className={styles.boxnowHint}>
+            Click the button above to choose your nearest BOX NOW locker on the map.
+          </p>
+        )}
+      </div>
 
       {/* ── Contact / shipping info ── */}
       <h2 className={styles.sectionTitle}>

@@ -183,11 +183,9 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
         {/* Widget renders content inside this div */}
         <div id="boxnowmap" />
 
-        {/* Use <a> exactly as the BoxNow docs specify */}
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="javascript:;" className={`boxnow-widget-button ${styles.boxnowSelectBtn}`}>
+        <button type="button" className={`boxnow-widget-button ${styles.boxnowSelectBtn}`}>
           {selectedLocker ? '📍 Change Locker' : '📍 Select a Locker'}
-        </a>
+        </button>
 
         {selectedLocker ? (
           <div className={styles.selectedLockerInfo}>

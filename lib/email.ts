@@ -8,6 +8,9 @@ export async function sendOrderConfirmation(orderData: {
   customerName: string;
   items: any[];
   total: number;
+  shippingCost?: number;
+  deliveryMethod?: string;
+  boxnowLockerAddress?: string | null;
 }) {
   try {
     const { data, error } = await resend.emails.send({
@@ -172,12 +175,17 @@ export async function sendOrderConfirmation(orderData: {
                 <div class="total-section">
                   <div class="total-row">
                     <span>Subtotal:</span>
-                    <span>€${(orderData.total - 4.99).toFixed(2)}</span>
+                    <span>€${(orderData.total - (orderData.shippingCost ?? 4.99)).toFixed(2)}</span>
                   </div>
                   <div class="total-row">
-                    <span>Shipping:</span>
-                    <span>€4.99</span>
+                    <span>Shipping (${orderData.deliveryMethod === 'boxnow' ? 'BOX NOW Locker' : 'GLS Standard'}):</span>
+                    <span>€${(orderData.shippingCost ?? 4.99).toFixed(2)}</span>
                   </div>
+                  ${orderData.deliveryMethod === 'boxnow' && orderData.boxnowLockerAddress ? `
+                  <div class="total-row" style="color:#555;font-size:13px;">
+                    <span>Locker address:</span>
+                    <span>${orderData.boxnowLockerAddress}</span>
+                  </div>` : ''}
                   <div class="total-row grand-total">
                     <span>Total:</span>
                     <span>€${orderData.total.toFixed(2)}</span>

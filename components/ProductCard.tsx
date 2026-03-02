@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
@@ -16,6 +17,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stock <= 0;
   const hasDiscount = product.discountAmount > 0;
   const isLowStock = product.stock > 0 && product.stock <= 3;
+  const [added, setAdded] = useState(false);
 
   return (
     <div className={`${styles.productCard} ${isOutOfStock ? styles.outOfStock : ''}`}>
@@ -72,16 +74,18 @@ export default function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       <button
-        className={styles.addToCartBtn}
+        className={`${styles.addToCartBtn} ${added ? styles.addedToCart : ''}`}
         onClick={(e) => {
           e.preventDefault();
-          if (!isOutOfStock) {
+          if (!isOutOfStock && !added) {
             addItem(product);
+            setAdded(true);
+            setTimeout(() => setAdded(false), 1200);
           }
         }}
         disabled={isOutOfStock}
       >
-        {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
+        {isOutOfStock ? 'OUT OF STOCK' : added ? 'ADDED TO CART' : 'ADD TO CART'}
       </button>
     </div>
   );

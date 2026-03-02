@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useCart } from '@/lib/store';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -8,11 +9,52 @@ import { calculateShipping } from '@/lib/shipping';
 import Footer from '@/components/Footer';
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotalPrice } = useCart();
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    getTotalPrice,
+    promoCode,
+    promoDiscount,
+    promoFreeShipping,
+    applyPromo,
+    removePromo,
+  } = useCart();
+
+  const [promoInput, setPromoInput] = useState('');
+  const [promoStatus, setPromoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [promoMessage, setPromoMessage] = useState('');
 
   const subtotal = getTotalPrice();
-  const shippingCost = calculateShipping();
-  const total = subtotal + shippingCost;
+  const baseShipping = calculateShipping();
+  const shippingCost = promoFreeShipping ? 0 : baseShipping;
+  const total = subtotal - promoDiscount + shippingCost;
+
+  async function handleApplyPromo(e: React.FormEvent) {
+    e.preventDefault();
+    if (!promoInput.trim()) return;
+    setPromoStatus('loading');
+    try {
+      const res = await fetch('/api/promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoInput, subtotal }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        applyPromo(data.code, data.discountAmount, data.freeShipping);
+        setPromoStatus('success');
+        setPromoMessage(data.message);
+        setPromoInput('');
+      } else {
+        setPromoStatus('error');
+        setPromoMessage(data.message);
+      }
+    } catch {
+      setPromoStatus('error');
+      setPromoMessage('Something went wrong. Please try again.');
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -103,8 +145,57 @@ export default function CartPage() {
 
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>Shipping</span>
-              <span className={styles.summaryValue}>€{shippingCost.toFixed(2)}</span>
+              <span className={styles.summaryValue}>
+                {promoFreeShipping ? (
+                  <>
+                    <s className={styles.strikethrough}>€{baseShipping.toFixed(2)}</s> FREE
+                  </>
+                ) : (
+                  `€${shippingCost.toFixed(2)}`
+                )}
+              </span>
             </div>
+
+            {/* Promo code */}
+            {!promoCode ? (
+              <form onSubmit={handleApplyPromo} className={styles.promoForm}>
+                <input
+                  type="text"
+                  placeholder="Promo code"
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                  className={styles.promoInput}
+                />
+                <button
+                  type="submit"
+                  className={styles.promoBtn}
+                  disabled={promoStatus === 'loading'}
+                >
+                  {promoStatus === 'loading' ? '...' : 'APPLY'}
+                </button>
+                {promoStatus === 'error' && (
+                  <p className={styles.promoError}>{promoMessage}</p>
+                )}
+              </form>
+            ) : (
+              <div className={styles.promoApplied}>
+                <span className={styles.promoAppliedText}>
+                  <strong>{promoCode}</strong> — {promoMessage}
+                </span>
+                <button onClick={removePromo} className={styles.promoRemove}>
+                  Remove
+                </button>
+              </div>
+            )}
+
+            {promoDiscount > 0 && (
+              <div className={styles.summaryRow}>
+                <span className={styles.summaryLabel}>Discount</span>
+                <span className={`${styles.summaryValue} ${styles.discountValue}`}>
+                  -€{promoDiscount.toFixed(2)}
+                </span>
+              </div>
+            )}
 
             <hr className={styles.summaryDivider} />
 

@@ -1,0 +1,122 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  position: relative;
+  background: var(--color-white);
+  padding: 48px 44px;
+  max-width: 420px;
+  width: 90%;
+  border-radius: 4px;
+  text-align: center;
+  animation: slideUp 0.35s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #aaa;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.closeBtn:hover { color: var(--color-dark); }
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--color-light);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.heading {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 12px;
+}
+
+.subtext {
+  font-size: 14px;
+  color: #777;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus { border-color: var(--color-dark); }
+
+.submitBtn {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.submitBtn:hover { background-color: var(--color-light); }
+
+.skipBtn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 16px;
+  text-decoration: underline;
+}
+
+.skipBtn:hover { color: var(--color-dark); }
+
+.thankYou {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-dark);
+  padding: 20px 0;
+}

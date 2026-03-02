@@ -66,32 +66,36 @@ model Review {
 model Order {
   id              String   @id @default(cuid())
   orderNumber     String   @unique
-  
+
   // Customer Info
   customerName    String
   customerEmail   String
   customerPhone   String?
-  
+
   // Shipping Address
   shippingAddress String
   shippingCity    String
   shippingZip     String
   shippingCountry String
-  
+
   // Order Details
   items           Json     // Store cart items as JSON
   subtotal        Float
   shippingCost    Float    @default(0)
   total           Float
-  
+
+  // Promo
+  promoCode       String?
+  promoDiscount   Float    @default(0)
+
   // Payment Info
   stripeSessionId String?  @unique
   stripePaymentId String?
   paymentStatus   String   @default("pending") // pending, paid, failed, refunded
-  
+
   // Order Status
   orderStatus     String   @default("processing") // processing, shipped, delivered, cancelled
-  
+
   // Delivery method
   shippingMethod      String   @default("gls")  // "gls" or "boxnow"
   boxnowLockerId      String?
@@ -103,16 +107,44 @@ model Order {
 
   // Tracking
   trackingNumber  String?
-  
+
   // Timestamps
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   paidAt          DateTime?
   shippedAt       DateTime?
   deliveredAt     DateTime?
-  
+
   @@index([customerEmail])
   @@index([orderNumber])
   @@index([paymentStatus])
   @@index([orderStatus])
+}
+
+model PromoCode {
+  id                 String    @id @default(cuid())
+  code               String    @unique
+  discountType       String    // "percent" | "fixed"
+  discountValue      Float
+  maxDiscountAmount  Float?
+  minOrderValue      Float     @default(0)
+  startsAt           DateTime?
+  endsAt             DateTime?
+  usageLimitTotal    Int?
+  usageLimitPerUser  Int?
+  timesUsed          Int       @default(0)
+  freeShipping       Boolean   @default(false)
+  appliesToSaleItems Boolean   @default(true)
+  stackable          Boolean   @default(false)
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+
+  @@index([code])
+  @@index([isActive])
+}
+
+model EmailCapture {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }

@@ -6,7 +6,7 @@ import { calculateShipping, isCountryAllowed, ShippingMethod } from '@/lib/shipp
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, customerInfo } = body;
+    const { items, customerInfo, promoCode: promoCodeInput } = body;
 
     const shippingMethod: ShippingMethod = customerInfo?.shippingMethod || 'gls';
 
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Calculate totals using DB prices (not client prices)
+    // Calculate subtotal using DB prices (not client prices)
     let subtotal = 0;
     const validatedItems = items.map((item: any) => {
       const dbProduct = productMap.get(item.product.id)!;
@@ -98,8 +98,55 @@ export async function POST(request: Request) {
       };
     });
 
-    const shippingCost = calculateShipping(shippingMethod);
-    const total = subtotal + shippingCost;
+    // Validate promo code server-side (authoritative check)
+    let promoDiscount = 0;
+    let validatedPromoCode: string | null = null;
+    let promoFreeShipping = false;
+
+    if (promoCodeInput) {
+      const promo = await prisma.promoCode.findUnique({
+        where: { code: promoCodeInput.toUpperCase() },
+      });
+
+      const now = new Date();
+      const isValid =
+        promo &&
+        promo.isActive &&
+        (!promo.startsAt || now >= promo.startsAt) &&
+        (!promo.endsAt || now <= promo.endsAt) &&
+        (promo.usageLimitTotal === null || promo.timesUsed < promo.usageLimitTotal) &&
+        subtotal >= promo.minOrderValue;
+
+      if (isValid && promo) {
+        if (promo.usageLimitPerUser !== null) {
+          const userUsageCount = await prisma.order.count({
+            where: { customerEmail: customerInfo.email, promoCode: promo.code },
+          });
+          if (userUsageCount >= promo.usageLimitPerUser) {
+            return NextResponse.json(
+              { error: 'You have already used this promo code the maximum number of times.' },
+              { status: 400 }
+            );
+          }
+        }
+
+        if (promo.discountType === 'percent') {
+          promoDiscount = (subtotal * promo.discountValue) / 100;
+          if (promo.maxDiscountAmount !== null) {
+            promoDiscount = Math.min(promoDiscount, promo.maxDiscountAmount);
+          }
+        } else {
+          promoDiscount = promo.discountValue;
+        }
+        promoDiscount = parseFloat(Math.min(promoDiscount, subtotal).toFixed(2));
+        validatedPromoCode = promo.code;
+        promoFreeShipping = promo.freeShipping;
+      }
+    }
+
+    const baseShipping = calculateShipping(shippingMethod);
+    const shippingCost = promoFreeShipping ? 0 : baseShipping;
+    const total = subtotal - promoDiscount + shippingCost;
 
     // Generate order number
     const orderNumber = `PLA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -131,6 +178,8 @@ export async function POST(request: Request) {
         subtotal,
         shippingCost,
         total,
+        promoCode: validatedPromoCode,
+        promoDiscount,
         paymentStatus: 'pending',
         orderStatus: 'processing',
       } as any,
@@ -162,8 +211,8 @@ export async function POST(request: Request) {
       });
     }
 
-    // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
+    // Create Stripe checkout session, adding a coupon if promo discount applies
+    const sessionParams: any = {
       payment_method_types: ['card'],
       mode: 'payment',
       customer_email: customerInfo.email,
@@ -174,11 +223,38 @@ export async function POST(request: Request) {
         orderId: order.id,
         orderNumber: order.orderNumber,
       },
-    });
+    };
+
+    if (promoDiscount > 0) {
+      const coupon = await stripe.coupons.create({
+        amount_off: Math.round(promoDiscount * 100),
+        currency: 'eur',
+        duration: 'once',
+        name: `Promo: ${validatedPromoCode}`,
+      });
+      sessionParams.discounts = [{ coupon: coupon.id }];
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     await prisma.order.update({
       where: { id: order.id },
       data: { stripeSessionId: session.id },
+    });
+
+    // Increment promo usage counter
+    if (validatedPromoCode) {
+      await prisma.promoCode.update({
+        where: { code: validatedPromoCode },
+        data: { timesUsed: { increment: 1 } },
+      });
+    }
+
+    // Capture customer email
+    await prisma.emailCapture.upsert({
+      where: { email: customerInfo.email },
+      update: {},
+      create: { email: customerInfo.email },
     });
 
     return NextResponse.json({

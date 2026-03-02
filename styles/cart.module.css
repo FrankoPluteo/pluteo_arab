@@ -346,3 +346,98 @@
     font-size: 14px;
   }
 }
+
+/* Promo code */
+.promoForm {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.promoInput {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.promoInput:focus {
+  border-color: var(--color-dark);
+}
+
+.promoBtn {
+  padding: 10px 16px;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.promoBtn:hover {
+  background-color: var(--color-light);
+}
+
+.promoBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.promoError {
+  width: 100%;
+  font-size: 12px;
+  color: #e63946;
+  margin-top: 2px;
+}
+
+.promoApplied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0faf0;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+
+.promoAppliedText {
+  color: #155724;
+}
+
+.promoRemove {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.promoRemove:hover {
+  color: #e63946;
+}
+
+.discountValue {
+  color: #2a9d4e;
+}
+
+.strikethrough {
+  color: #aaa;
+  font-weight: 400;
+  margin-right: 4px;
+}

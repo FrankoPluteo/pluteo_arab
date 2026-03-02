@@ -16,7 +16,7 @@ interface CheckoutFormProps {
 }
 
 export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormProps) {
-  const { items, getTotalPrice, clearCart } = useCart();
+  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('gls');
@@ -27,8 +27,9 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
   setSelectedLockerRef.current = setSelectedLocker;
 
   const subtotal = getTotalPrice();
-  const shippingCost = calculateShipping(shippingMethod);
-  const total = subtotal + shippingCost;
+  const baseShipping = calculateShipping(shippingMethod);
+  const shippingCost = promoFreeShipping ? 0 : baseShipping;
+  const total = subtotal - promoDiscount + shippingCost;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -97,6 +98,7 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items,
+          promoCode: promoCode ?? undefined,
           customerInfo: {
             ...formData,
             shippingMethod,

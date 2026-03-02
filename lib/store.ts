@@ -4,10 +4,15 @@ import { Product, CartItem } from '@/types';
 
 interface CartStore {
   items: CartItem[];
+  promoCode: string | null;
+  promoDiscount: number;
+  promoFreeShipping: boolean;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  applyPromo: (code: string, discount: number, freeShipping: boolean) => void;
+  removePromo: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
 }
@@ -16,6 +21,9 @@ export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      promoCode: null,
+      promoDiscount: 0,
+      promoFreeShipping: false,
 
       addItem: (product) => {
         const items = get().items;
@@ -51,7 +59,14 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () =>
+        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false }),
+
+      applyPromo: (code, discount, freeShipping) =>
+        set({ promoCode: code, promoDiscount: discount, promoFreeShipping: freeShipping }),
+
+      removePromo: () =>
+        set({ promoCode: null, promoDiscount: 0, promoFreeShipping: false }),
 
       getTotalPrice: () => {
         return get().items.reduce((total, item) => {

@@ -254,6 +254,7 @@
   background: #f5f0ef;
   border-radius: 8px;
   border: 1px solid #e0d5d3;
+  z-index: 99;
 }
 
 .boxnowSelectBtn {

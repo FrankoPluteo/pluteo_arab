@@ -11,7 +11,7 @@ import { calculateShipping, ShippingMethod } from '@/lib/shipping';
 export default function CheckoutPage() {
   const { items, getTotalPrice } = useCart();
   const router = useRouter();
-  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('gls');
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
 
   useEffect(() => {
     if (items.length === 0) {

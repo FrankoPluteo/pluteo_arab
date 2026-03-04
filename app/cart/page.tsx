@@ -28,7 +28,7 @@ export default function CartPage() {
   const subtotal = getTotalPrice();
   const baseShipping = calculateShipping();
   const shippingCost = promoFreeShipping ? 0 : baseShipping;
-  const total = subtotal - promoDiscount + shippingCost;
+  const total = subtotal - promoDiscount;
 
   async function handleApplyPromo(e: React.FormEvent) {
     e.preventDefault();
@@ -144,16 +144,7 @@ export default function CartPage() {
             </div>
 
             <div className={styles.summaryRow}>
-              <span className={styles.summaryLabel}>Shipping</span>
-              <span className={styles.summaryValue}>
-                {promoFreeShipping ? (
-                  <>
-                    <s className={styles.strikethrough}>€{baseShipping.toFixed(2)}</s> FREE
-                  </>
-                ) : (
-                  `€${shippingCost.toFixed(2)}`
-                )}
-              </span>
+                
             </div>
 
             {/* Promo code */}

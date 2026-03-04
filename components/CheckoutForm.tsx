@@ -19,7 +19,7 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
   const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('gls');
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [selectedLocker, setSelectedLocker] = useState<SelectedLocker | null>(null);
 
   // Keep a stable ref to the setter so the widget callback never goes stale
@@ -154,7 +154,7 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
             <div className={styles.deliveryCardTitle}>BOX NOW Locker</div>
             <div className={styles.deliveryCardDesc}>Pick up at a convenient locker near you</div>
           </div>
-          <div className={styles.deliveryCardPrice}>€2.49</div>
+          <div className={styles.deliveryCardPrice}>FREE</div>
         </label>
 
         {/* GLS */}

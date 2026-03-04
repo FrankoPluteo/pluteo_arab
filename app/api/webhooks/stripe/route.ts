@@ -84,11 +84,19 @@ export async function POST(request: Request) {
             orderNumber: order.orderNumber,
             customerEmail: order.customerEmail,
             customerName: order.customerName,
+            customerPhone: order.customerPhone,
             items,
             total: order.total,
+            subtotal: (order as any).subtotal,
             shippingCost: order.shippingCost,
             deliveryMethod: deliveryMethod || 'gls',
             boxnowLockerAddress: (order as any).boxnowLockerAddress,
+            shippingAddress: order.shippingAddress,
+            shippingCity: (order as any).shippingCity,
+            shippingZip: (order as any).shippingZip,
+            promoCode: (order as any).promoCode,
+            promoDiscount: (order as any).promoDiscount,
+            paidAt: order.paidAt,
           });
 
           console.log('Order updated, stock decreased, and email sent successfully');

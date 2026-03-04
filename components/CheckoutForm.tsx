@@ -137,24 +137,6 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
       <h2 className={styles.sectionTitle}>Delivery Method</h2>
 
       <div className={styles.deliveryMethods}>
-        {/* GLS */}
-        <label
-          className={`${styles.deliveryCard} ${shippingMethod === 'gls' ? styles.deliveryCardActive : ''}`}
-        >
-          <input
-            type="radio"
-            name="shippingMethod"
-            value="gls"
-            checked={shippingMethod === 'gls'}
-            onChange={() => handleMethodChange('gls')}
-            className={styles.deliveryRadio}
-          />
-          <div className={styles.deliveryCardContent}>
-            <div className={styles.deliveryCardTitle}>GLS Standard Delivery</div>
-            <div className={styles.deliveryCardDesc}>2–5 business days · Delivered to your door</div>
-          </div>
-          <div className={styles.deliveryCardPrice}>€4.99</div>
-        </label>
 
         {/* BoxNow */}
         <label
@@ -173,6 +155,25 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
             <div className={styles.deliveryCardDesc}>Pick up at a convenient locker near you</div>
           </div>
           <div className={styles.deliveryCardPrice}>€2.49</div>
+        </label>
+
+        {/* GLS */}
+        <label
+          className={`${styles.deliveryCard} ${shippingMethod === 'gls' ? styles.deliveryCardActive : ''}`}
+        >
+          <input
+            type="radio"
+            name="shippingMethod"
+            value="gls"
+            checked={shippingMethod === 'gls'}
+            onChange={() => handleMethodChange('gls')}
+            className={styles.deliveryRadio}
+          />
+          <div className={styles.deliveryCardContent}>
+            <div className={styles.deliveryCardTitle}>GLS Standard Delivery</div>
+            <div className={styles.deliveryCardDesc}>2–5 business days · Delivered to your door</div>
+          </div>
+          <div className={styles.deliveryCardPrice}>€4.99</div>
         </label>
       </div>
 

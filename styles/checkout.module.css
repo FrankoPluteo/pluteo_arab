@@ -33,7 +33,6 @@
 }
 
 .sectionTitle {
-  display: none;
   font-size: 22px;
   font-weight: 700;
   color: var(--color-dark);
@@ -189,7 +188,6 @@
 
 /* ── Delivery method cards ── */
 .deliveryMethods {
-  display: none;
   flex-direction: column;
   gap: 14px;
   margin-bottom: 10px;

@@ -132,10 +132,6 @@ export async function sendOrderConfirmation(orderData: {
                   <td style="padding:10px 0 4px 0;font-size:13px;color:#777;">Subtotal</td>
                   <td style="padding:10px 0 4px 0;font-size:13px;color:#777;text-align:right;">&euro;${subtotal.toFixed(2)}</td>
                 </tr>
-                <tr>
-                  <td style="padding:3px 0;font-size:11px;color:#bbb;">PDV / VAT (10% included)</td>
-                  <td style="padding:3px 0;font-size:11px;color:#bbb;text-align:right;">&euro;${vatAmount.toFixed(2)}</td>
-                </tr>
                 ${
                   promoDiscount > 0
                     ? `<tr>

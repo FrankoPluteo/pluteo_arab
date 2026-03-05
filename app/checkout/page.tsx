@@ -12,12 +12,21 @@ export default function CheckoutPage() {
   const { items, getTotalPrice } = useCart();
   const router = useRouter();
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !isRedirecting) {
       router.push('/cart');
     }
-  }, [items, router]);
+  }, [items, router, isRedirecting]);
+
+  if (isRedirecting) {
+    return (
+      <div className={styles.redirectingOverlay}>
+        <p className={styles.redirectingText}>Loading... please wait</p>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return null;
@@ -36,7 +45,7 @@ export default function CheckoutPage() {
 
         <div className={styles.checkoutLayout}>
           <div className={styles.formSection}>
-            <CheckoutForm onShippingMethodChange={setShippingMethod} />
+            <CheckoutForm onShippingMethodChange={setShippingMethod} onRedirecting={() => setIsRedirecting(true)} />
           </div>
 
           <div className={styles.summarySection}>

@@ -13,9 +13,10 @@ interface SelectedLocker {
 
 interface CheckoutFormProps {
   onShippingMethodChange: (method: ShippingMethod) => void;
+  onRedirecting?: () => void;
 }
 
-export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormProps) {
+export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: CheckoutFormProps) {
   const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -117,6 +118,7 @@ export default function CheckoutForm({ onShippingMethodChange }: CheckoutFormPro
       }
 
       if (data.url) {
+        onRedirecting?.();
         clearCart();
         window.location.href = data.url;
       } else {

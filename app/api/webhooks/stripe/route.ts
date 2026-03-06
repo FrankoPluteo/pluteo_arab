@@ -41,16 +41,42 @@ export async function POST(request: Request) {
             },
           });
 
-          // Decrease stock for purchased items
           const items = JSON.parse(order.items as string);
+          const cartSessionId = session.metadata?.cartSessionId;
+
+          // Handle stock: reservation was already deducted when item was added to cart.
+          // If the reservation still exists, just delete it (stock already correct).
+          // If it expired and was cleaned up, stock was restored, so deduct it now.
           for (const item of items) {
-            await prisma.product.update({
-              where: { id: item.product.id },
-              data: { stock: { decrement: item.quantity } },
-            });
+            if (cartSessionId) {
+              const reservation = await prisma.cartReservation.findUnique({
+                where: {
+                  cartSessionId_productId: {
+                    cartSessionId,
+                    productId: item.product.id,
+                  },
+                },
+              });
+
+              if (reservation) {
+                // Reservation is still active — just delete it, stock is already decremented
+                await prisma.cartReservation.delete({ where: { id: reservation.id } });
+              } else {
+                // Reservation expired and stock was restored — deduct stock now
+                await prisma.product.update({
+                  where: { id: item.product.id },
+                  data: { stock: { decrement: item.quantity } },
+                });
+              }
+            } else {
+              // No cartSessionId (legacy order) — deduct stock as before
+              await prisma.product.update({
+                where: { id: item.product.id },
+                data: { stock: { decrement: item.quantity } },
+              });
+            }
           }
 
-          // Create BoxNow delivery request if the order uses BoxNow
           const deliveryMethod = (order as any).shippingMethod;
           const boxnowLockerId = (order as any).boxnowLockerId;
 
@@ -74,12 +100,10 @@ export async function POST(request: Request) {
                 console.log('BoxNow parcel created:', boxnowResult.parcels[0].id);
               }
             } catch (boxnowError) {
-              // Don't fail the webhook — order is paid, BoxNow issue can be resolved manually
               console.error('BoxNow delivery request failed (non-fatal):', boxnowError);
             }
           }
 
-          // Send confirmation email
           await sendOrderConfirmation({
             orderNumber: order.orderNumber,
             customerEmail: order.customerEmail,
@@ -99,7 +123,7 @@ export async function POST(request: Request) {
             paidAt: order.paidAt,
           });
 
-          console.log('Order updated, stock decreased, and email sent successfully');
+          console.log('Order updated, reservations released, and email sent successfully');
         } catch (dbError) {
           console.error('Database update error:', dbError);
         }

@@ -2,8 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product, CartItem } from '@/types';
 
+function generateSessionId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
 interface CartStore {
   items: CartItem[];
+  cartSessionId: string;
   promoCode: string | null;
   promoDiscount: number;
   promoFreeShipping: boolean;
@@ -21,6 +26,7 @@ export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      cartSessionId: generateSessionId(),
       promoCode: null,
       promoDiscount: 0,
       promoFreeShipping: false,
@@ -28,7 +34,6 @@ export const useCart = create<CartStore>()(
       addItem: (product) => {
         const items = get().items;
         const existingItem = items.find((item) => item.product.id === product.id);
-
         if (existingItem) {
           set({
             items: items.map((item) =>
@@ -51,7 +56,6 @@ export const useCart = create<CartStore>()(
           get().removeItem(productId);
           return;
         }
-
         set({
           items: get().items.map((item) =>
             item.product.id === productId ? { ...item, quantity } : item

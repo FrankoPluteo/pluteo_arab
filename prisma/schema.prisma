@@ -19,31 +19,48 @@ model Brand {
 }
 
 model Product {
-  id                String   @id @default(cuid())
+  id                String            @id @default(cuid())
   name              String
   brandId           String
-  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brand             Brand             @relation(fields: [brandId], references: [id], onDelete: Cascade)
   size              Int
   price             Float
   images            String[]
   concentration     String
   gender            String
-  description       String   @db.Text
-  discountAmount    Float    @default(0)
-  isFeatured        Boolean  @default(false)
-  isBestSeller      Boolean  @default(false)
-  stock             Int      @default(0)
-  fragranceProfiles String[] // NEW: Array of profiles like ["Fresh", "Woody", "Citrus"]
+  description       String            @db.Text
+  discountAmount    Float             @default(0)
+  isFeatured        Boolean           @default(false)
+  isBestSeller      Boolean           @default(false)
+  stock             Int               @default(0)
+  fragranceProfiles String[]
   topNotes          String[]
   heartNotes        String[]
   baseNotes         String[]
   reviews           Review[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  reservations      CartReservation[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
   @@index([brandId])
   @@index([isFeatured])
   @@index([isBestSeller])
+}
+
+model CartReservation {
+  id            String   @id @default(cuid())
+  cartSessionId String
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity      Int
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([cartSessionId, productId])
+  @@index([cartSessionId])
+  @@index([productId])
+  @@index([expiresAt])
 }
 
 model Review {
@@ -52,7 +69,7 @@ model Review {
   product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   reviewerName  String   @default("")
   reviewerEmail String
-  rating        Int      // 1-5
+  rating        Int
   title         String   @default("")
   comment       String   @default("") @db.Text
   isVerified    Boolean  @default(false)
@@ -67,37 +84,30 @@ model Order {
   id              String   @id @default(cuid())
   orderNumber     String   @unique
 
-  // Customer Info
   customerName    String
   customerEmail   String
   customerPhone   String?
 
-  // Shipping Address
   shippingAddress String
   shippingCity    String
   shippingZip     String
   shippingCountry String
 
-  // Order Details
-  items           Json     // Store cart items as JSON
+  items           Json
   subtotal        Float
   shippingCost    Float    @default(0)
   total           Float
 
-  // Promo
   promoCode       String?
   promoDiscount   Float    @default(0)
 
-  // Payment Info
   stripeSessionId String?  @unique
   stripePaymentId String?
-  paymentStatus   String   @default("pending") // pending, paid, failed, refunded
+  paymentStatus   String   @default("pending")
 
-  // Order Status
-  orderStatus     String   @default("processing") // processing, shipped, delivered, cancelled
+  orderStatus     String   @default("processing")
 
-  // Delivery method
-  shippingMethod      String   @default("gls")  // "gls" or "boxnow"
+  shippingMethod      String   @default("gls")
   boxnowLockerId      String?
   boxnowLockerName    String?
   boxnowLockerAddress String?
@@ -105,10 +115,8 @@ model Order {
   boxnowParcelId      String?
   boxnowStatus        String?
 
-  // Tracking
   trackingNumber  String?
 
-  // Timestamps
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   paidAt          DateTime?
@@ -124,7 +132,7 @@ model Order {
 model PromoCode {
   id                 String    @id @default(cuid())
   code               String    @unique
-  discountType       String    // "percent" | "fixed"
+  discountType       String
   discountValue      Float
   maxDiscountAmount  Float?
   minOrderValue      Float     @default(0)

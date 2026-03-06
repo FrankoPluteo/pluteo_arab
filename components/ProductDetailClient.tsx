@@ -12,7 +12,11 @@ interface ProductDetailClientProps {
 
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addError, setAddError] = useState('');
+
   const addItem = useCart((state) => state.addItem);
+  const cartSessionId = useCart((state) => state.cartSessionId);
 
   const finalPrice = product.price - product.discountAmount;
   const hasDiscount = product.discountAmount > 0;
@@ -21,12 +25,33 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const isLowStock = product.stock > 0 && product.stock <= 3;
   const isOutOfStock = product.stock === 0;
 
+  async function handleAddToCart() {
+    setAddError('');
+    setIsAdding(true);
+    try {
+      const res = await fetch('/api/cart/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartSessionId, productId: product.id, delta: 1 }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAddError(data.error || 'Could not add to cart. Please try again.');
+        return;
+      }
+
+      addItem(product);
+    } finally {
+      setIsAdding(false);
+    }
+  }
+
   return (
     <div className={styles.productContainer}>
       <div className={styles.productLayout}>
         {/* Image Section */}
         <div className={styles.imageSection}>
-          {/* Mobile Slider */}
           {hasImages && (
             <div className={styles.imageSlider}>
               {images.map((img, index) => (
@@ -37,7 +62,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             </div>
           )}
 
-          {/* Desktop Main Image */}
           <div className={styles.mainImage}>
             {hasImages && images[selectedImage] ? (
               <img src={images[selectedImage]} alt={`${product.brand?.name || ''} ${product.name} — ${product.concentration} ${product.size}ml Arabian perfume`} />
@@ -46,7 +70,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             )}
           </div>
 
-          {/* Desktop Thumbnails */}
           {hasImages && images.length > 1 && (
             <div className={styles.thumbnails}>
               {images.map((img, index) => (
@@ -105,17 +128,19 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           )}
 
           {isOutOfStock && (
-            <div className={styles.outOfStockBanner}>
-              Out of Stock
-            </div>
+            <div className={styles.outOfStockBanner}>Out of Stock</div>
+          )}
+
+          {addError && (
+            <p style={{ color: '#e63946', fontSize: '14px', marginTop: '8px' }}>{addError}</p>
           )}
 
           <button
-            onClick={() => addItem(product)}
+            onClick={handleAddToCart}
             className={styles.addToCartButton}
-            disabled={isOutOfStock}
+            disabled={isOutOfStock || isAdding}
           >
-            {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
+            {isOutOfStock ? 'OUT OF STOCK' : isAdding ? 'ADDING...' : 'ADD TO CART'}
           </button>
 
           {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) && (

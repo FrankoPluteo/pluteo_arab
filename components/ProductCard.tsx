@@ -13,14 +13,38 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
+  const cartSessionId = useCart((state) => state.cartSessionId);
+
   const finalPrice = product.price - product.discountAmount;
   const isOutOfStock = product.stock <= 0;
   const hasDiscount = product.discountAmount > 0;
   const isLowStock = product.stock > 0 && product.stock <= 3;
   const [added, setAdded] = useState(false);
+  const [outOfStock, setOutOfStock] = useState(isOutOfStock);
+
+  async function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    if (outOfStock || added) return;
+
+    const res = await fetch('/api/cart/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cartSessionId, productId: product.id, delta: 1 }),
+    });
+
+    if (!res.ok) {
+      // Stock was taken between page load and click
+      setOutOfStock(true);
+      return;
+    }
+
+    addItem(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1200);
+  }
 
   return (
-    <div className={`${styles.productCard} ${isOutOfStock ? styles.outOfStock : ''}`}>
+    <div className={`${styles.productCard} ${outOfStock ? styles.outOfStock : ''}`}>
       <Link href={`/products/${product.id}`} className={styles.productLink}>
         <div className={styles.productImage}>
           {product.images[0] ? (
@@ -28,7 +52,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           ) : (
             <div className={styles.noImage}>No image</div>
           )}
-          
+
           {product.brand.logoUrl && (
             <div className={styles.brandLogo}>
               <img src={product.brand.logoUrl} alt={product.brand.name} />
@@ -36,16 +60,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           <div className={styles.badgeContainer}>
-            {hasDiscount && !isOutOfStock && (
+            {hasDiscount && !outOfStock && (
               <div className={styles.saleBadge}>SALE</div>
             )}
-            
-            {isLowStock && (
+            {isLowStock && !outOfStock && (
               <div className={styles.lowStockBadge}>ALMOST GONE</div>
             )}
           </div>
-          
-          {isOutOfStock && (
+
+          {outOfStock && (
             <div className={styles.outOfStockBadge}>OUT OF STOCK</div>
           )}
         </div>
@@ -66,7 +89,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <div className={styles.productPricing}>
             {product.discountAmount > 0 && (
-            <span className={styles.originalPrice}>€{product.price.toFixed(2)}</span>
+              <span className={styles.originalPrice}>€{product.price.toFixed(2)}</span>
             )}
             <span className={styles.finalPrice}>€{finalPrice.toFixed(2)}</span>
           </div>
@@ -75,17 +98,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       <button
         className={`${styles.addToCartBtn} ${added ? styles.addedToCart : ''}`}
-        onClick={(e) => {
-          e.preventDefault();
-          if (!isOutOfStock && !added) {
-            addItem(product);
-            setAdded(true);
-            setTimeout(() => setAdded(false), 1200);
-          }
-        }}
-        disabled={isOutOfStock}
+        onClick={handleAddToCart}
+        disabled={outOfStock}
       >
-        {isOutOfStock ? 'OUT OF STOCK' : added ? 'ADDED TO CART' : 'ADD TO CART'}
+        {outOfStock ? 'OUT OF STOCK' : added ? 'ADDED TO CART' : 'ADD TO CART'}
       </button>
     </div>
   );

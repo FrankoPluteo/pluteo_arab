@@ -6,7 +6,7 @@ import { calculateShipping, isCountryAllowed, ShippingMethod } from '@/lib/shipp
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, customerInfo, promoCode: promoCodeInput } = body;
+    const { items, customerInfo, promoCode: promoCodeInput, cartSessionId } = body;
 
     const shippingMethod: ShippingMethod = customerInfo?.shippingMethod || 'gls';
 
@@ -18,7 +18,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Customer information is required' }, { status: 400 });
     }
 
-    // BoxNow-specific validations
     if (shippingMethod === 'boxnow') {
       if (!customerInfo.boxnowLockerId) {
         return NextResponse.json(
@@ -34,7 +33,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // GLS-specific validations
     if (shippingMethod === 'gls') {
       if (!isCountryAllowed(customerInfo.country)) {
         return NextResponse.json(
@@ -59,7 +57,8 @@ export async function POST(request: Request) {
 
     const productMap = new Map<string, any>(dbProducts.map((p: any) => [p.id, p]));
 
-    // Validate all products exist and have stock
+    // Validate all products exist and check stock / reservation
+    const now = new Date();
     for (const item of items) {
       const dbProduct = productMap.get(item.product.id);
       if (!dbProduct) {
@@ -68,15 +67,42 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-      if (dbProduct.stock < item.quantity) {
-        return NextResponse.json(
-          { error: `"${dbProduct.name}" does not have enough stock.` },
-          { status: 400 }
-        );
+
+      if (cartSessionId) {
+        // New flow: validate the reservation is still valid
+        const reservation = await prisma.cartReservation.findUnique({
+          where: {
+            cartSessionId_productId: { cartSessionId, productId: item.product.id },
+          },
+        });
+
+        if (!reservation || reservation.expiresAt < now) {
+          return NextResponse.json(
+            {
+              error: `Your reservation for "${dbProduct.name}" has expired. Please add it to your cart again.`,
+            },
+            { status: 400 }
+          );
+        }
+
+        if (reservation.quantity < item.quantity) {
+          return NextResponse.json(
+            { error: `Cart quantity mismatch for "${dbProduct.name}". Please refresh your cart.` },
+            { status: 400 }
+          );
+        }
+      } else {
+        // Fallback (no session id): check stock directly
+        if (dbProduct.stock < item.quantity) {
+          return NextResponse.json(
+            { error: `"${dbProduct.name}" does not have enough stock.` },
+            { status: 400 }
+          );
+        }
       }
     }
 
-    // Calculate subtotal using DB prices (not client prices)
+    // Calculate subtotal using DB prices
     let subtotal = 0;
     const validatedItems = items.map((item: any) => {
       const dbProduct = productMap.get(item.product.id)!;
@@ -98,7 +124,7 @@ export async function POST(request: Request) {
       };
     });
 
-    // Validate promo code server-side (authoritative check)
+    // Validate promo code server-side
     let promoDiscount = 0;
     let validatedPromoCode: string | null = null;
     let promoFreeShipping = false;
@@ -108,12 +134,12 @@ export async function POST(request: Request) {
         where: { code: promoCodeInput.toUpperCase() },
       });
 
-      const now = new Date();
+      const nowCheck = new Date();
       const isValid =
         promo &&
         promo.isActive &&
-        (!promo.startsAt || now >= promo.startsAt) &&
-        (!promo.endsAt || now <= promo.endsAt) &&
+        (!promo.startsAt || nowCheck >= promo.startsAt) &&
+        (!promo.endsAt || nowCheck <= promo.endsAt) &&
         (promo.usageLimitTotal === null || promo.timesUsed < promo.usageLimitTotal) &&
         subtotal >= promo.minOrderValue;
 
@@ -148,10 +174,8 @@ export async function POST(request: Request) {
     const shippingCost = promoFreeShipping ? 0 : baseShipping;
     const total = subtotal - promoDiscount + shippingCost;
 
-    // Generate order number
     const orderNumber = `PLA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-    // Resolve shipping address fields
     const shippingAddress =
       shippingMethod === 'boxnow'
         ? `BOX NOW: ${customerInfo.boxnowLockerAddress || customerInfo.boxnowLockerId}`
@@ -159,7 +183,6 @@ export async function POST(request: Request) {
     const shippingCity = shippingMethod === 'boxnow' ? '' : customerInfo.city;
     const shippingZip = shippingMethod === 'boxnow' ? '' : customerInfo.zip;
 
-    // Create order in database
     const order = await prisma.order.create({
       data: {
         orderNumber,
@@ -185,7 +208,6 @@ export async function POST(request: Request) {
       } as any,
     });
 
-    // Build Stripe line items
     const lineItems: any[] = validatedItems.map((item: any) => ({
       price_data: {
         currency: 'eur',
@@ -211,7 +233,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // Create Stripe checkout session, adding a coupon if promo discount applies
     const sessionParams: any = {
       payment_method_types: ['card'],
       mode: 'payment',
@@ -222,6 +243,7 @@ export async function POST(request: Request) {
       metadata: {
         orderId: order.id,
         orderNumber: order.orderNumber,
+        cartSessionId: cartSessionId || '',
       },
     };
 
@@ -242,7 +264,6 @@ export async function POST(request: Request) {
       data: { stripeSessionId: session.id },
     });
 
-    // Increment promo usage counter
     if (validatedPromoCode) {
       await prisma.promoCode.update({
         where: { code: validatedPromoCode },
@@ -250,7 +271,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // Capture customer email
     await prisma.emailCapture.upsert({
       where: { email: customerInfo.email },
       update: {},

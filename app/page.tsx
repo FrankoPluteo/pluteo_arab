@@ -9,6 +9,7 @@ import armafimg from '../public/armaf.jpg';
 import wallpaperhome from '../public/wallpaperhome.webp';
 import Footer from '@/components/Footer';
 import Image from "next/image";
+import boxnowpromophoto from '../public/BOX-NOW_Badge_Besplatna_dostava_Simple_Golden2.png';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -58,6 +59,12 @@ export default async function HomePage() {
 
       {/* Hero — full width, full viewport height */}
       <div className={styles.homeBackground}>
+        <Image
+          className={styles.boxnowpromophoto}
+          src={boxnowpromophoto}
+          alt="boxnow"
+          priority
+        />
         <Image
           className={styles.wallpaperhome}
           src={wallpaperhome}

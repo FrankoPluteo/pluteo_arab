@@ -190,6 +190,14 @@
   align-items: stretch;
 }
 
+.boxnowpromophoto{
+  position: absolute;
+  width: 200px;
+  height: auto;
+  right: 5%;
+  bottom: 10%;
+}
+
 /* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 1200px) {
   .productsGrid {

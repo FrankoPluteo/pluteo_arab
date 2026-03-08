@@ -23,6 +23,15 @@ async function getAccessToken(): Promise<string> {
   return data.access_token;
 }
 
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (phone.startsWith('+')) return phone.replace(/\s/g, '');
+  if (digits.startsWith('00385')) return '+' + digits.slice(2);
+  if (digits.startsWith('385')) return '+' + digits;
+  if (digits.startsWith('0')) return '+385' + digits.slice(1);
+  return '+385' + digits;
+}
+
 export async function createBoxNowDeliveryRequest(params: {
   orderNumber: string;
   customerName: string;
@@ -49,7 +58,7 @@ export async function createBoxNowDeliveryRequest(params: {
         locationId: BOXNOW_WAREHOUSE_ID,
       },
       destination: {
-        contactNumber: params.customerPhone,
+        contactNumber: normalizePhone(params.customerPhone),
         contactEmail: params.customerEmail,
         contactName: params.customerName,
         locationId: params.lockerId,
@@ -59,7 +68,8 @@ export async function createBoxNowDeliveryRequest(params: {
           id: params.orderNumber,
           name: 'Parfem',
           value: params.invoiceValue,
-          weight: null,
+          weight: 0.5,
+          compartmentSize: 2,
         },
       ],
     }),

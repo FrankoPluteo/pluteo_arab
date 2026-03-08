@@ -69,6 +69,7 @@ export async function createBoxNowDeliveryRequest(params: {
           name: 'Parfem',
           value: params.invoiceValue,
           weight: 0.5,
+          size: 2,
         },
       ],
     }),

@@ -20,8 +20,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.3);
-  opacity: 0.5;
+  filter: brightness(0.3) opacity(0.5);
 }
 
 .logolongimg {

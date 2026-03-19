@@ -11,8 +11,7 @@ import Footer from '@/components/Footer';
 import Image from "next/image";
 import boxnowpromophoto from '../public/BOX-NOW_Badge_Besplatna_dostava_Simple_Golden2.png';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
 
 function HomeJsonLd() {
   const jsonLd = {
@@ -37,21 +36,23 @@ function HomeJsonLd() {
 }
 
 export default async function HomePage() {
-  const featuredProducts = await withReviewAggregates(
-    await prisma.product.findMany({
+  const [rawFeatured, rawBestSellers] = await Promise.all([
+    prisma.product.findMany({
       where: { isFeatured: true },
       include: { brand: true },
       take: 4,
-    })
-  );
-
-  const bestSellers = await withReviewAggregates(
-    await prisma.product.findMany({
+    }),
+    prisma.product.findMany({
       where: { isBestSeller: true },
       include: { brand: true },
       take: 4,
-    })
-  );
+    }),
+  ]);
+
+  const [featuredProducts, bestSellers] = await Promise.all([
+    withReviewAggregates(rawFeatured),
+    withReviewAggregates(rawBestSellers),
+  ]);
 
   return (
     <div>

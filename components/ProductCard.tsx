@@ -48,14 +48,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/products/${product.id}`} className={styles.productLink}>
         <div className={styles.productImage}>
           {product.images[0] ? (
-            <img src={product.images[0]} alt={product.name} />
+            <img src={product.images[0]} alt={product.name} loading="lazy" />
           ) : (
             <div className={styles.noImage}>No image</div>
           )}
 
           {product.brand.logoUrl && (
             <div className={styles.brandLogo}>
-              <img src={product.brand.logoUrl} alt={product.brand.name} />
+              <img src={product.brand.logoUrl} alt={product.brand.name} loading="lazy" />
             </div>
           )}
 

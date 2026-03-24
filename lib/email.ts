@@ -298,9 +298,6 @@ export async function sendFirst50Newsletter(to: string) {
               <p style="margin:0 0 18px 0;font-size:13px;color:#666;line-height:1.9;">
                 You joined Pluteo before the world knew our name. You were curious enough to leave your email, to believe in something still taking shape. That kind of trust is rare, and we don't take it lightly.
               </p>
-              <p style="margin:0 0 32px 0;font-size:13px;color:#666;line-height:1.9;">
-                Pluteo was born from a love of fine fragrance and a belief that luxury scent should be accessible — not locked away behind impossible prices. We are building something beautiful, one bottle at a time, and you are part of that story from its very first chapter.
-              </p>
 
               <!-- Divider -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
@@ -319,8 +316,9 @@ export async function sendFirst50Newsletter(to: string) {
                       <span style="font-size:22px;font-weight:700;letter-spacing:6px;color:#ffffff;">FIRST50</span>
                     </div>
                     <p style="margin:0;font-size:11px;color:#aaa;line-height:1.7;">
-                      Valid on: Effects of Uniq &middot; Odyssey Homme &middot; Atlantis &middot; Enigma Quatre &middot; Enigma Une &middot; Francique 107.9 &middot; Paradigm
+                      <strong style="color:#3d2c2c;">Valid on: Effects of Uniq &middot; Odyssey Homme &middot; Atlantis &middot; Enigma Quatre &middot; Enigma Une &middot; Francique 107.9 &middot; Paradigm</strong>
                     </p>
+
                     <p style="margin:8px 0 0 0;font-size:11px;color:#bbb;">At least one of these must be in your cart.</p>
                   </td>
                 </tr>

@@ -238,7 +238,8 @@ export async function POST(request: Request) {
         boxnowLockerId: shippingMethod === 'boxnow' ? customerInfo.boxnowLockerId : null,
         boxnowLockerAddress:
           shippingMethod === 'boxnow' ? customerInfo.boxnowLockerAddress : null,
-        items: JSON.stringify(testerItem ? [...validatedItems, testerItem] : validatedItems),
+        items: JSON.stringify(validatedItems),
+        testerItem: testerItem ? JSON.stringify(testerItem) : undefined,
         subtotal,
         shippingCost,
         total,

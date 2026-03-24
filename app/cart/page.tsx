@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import styles from '@/styles/cart.module.css';
 import { calculateShipping } from '@/lib/shipping';
 import Footer from '@/components/Footer';
+import TesterModal from '@/components/TesterModal';
 
 function formatTime(ms: number): string {
   if (ms <= 0) return '00:00';
@@ -35,6 +36,7 @@ export default function CartPage() {
   const [promoStatus, setPromoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [promoMessage, setPromoMessage] = useState('');
   const [stockError, setStockError] = useState('');
+  const [showTesterModal, setShowTesterModal] = useState(false);
 
   const [cartExpiresAt, setCartExpiresAt] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -354,9 +356,13 @@ export default function CartPage() {
               <span className={styles.summaryValue}>€{total.toFixed(2)}</span>
             </div>
 
-            <Link href="/checkout" className={styles.checkoutButton}>
+            <button
+              className={styles.checkoutButton}
+              onClick={() => setShowTesterModal(true)}
+              type="button"
+            >
               PROCEED TO CHECKOUT
-            </Link>
+            </button>
 
             <Link href="/products" className={styles.continueShoppingLink}>
               Continue Shopping
@@ -366,6 +372,10 @@ export default function CartPage() {
       </div>
 
       <Navbar />
+
+      {showTesterModal && (
+        <TesterModal onClose={() => setShowTesterModal(false)} />
+      )}
     </div>
   );
 }

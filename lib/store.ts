@@ -12,6 +12,7 @@ interface CartStore {
   promoCode: string | null;
   promoDiscount: number;
   promoFreeShipping: boolean;
+  selectedTester: Product | null;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -20,6 +21,7 @@ interface CartStore {
   removePromo: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
+  setTester: (product: Product | null) => void;
 }
 
 export const useCart = create<CartStore>()(
@@ -30,6 +32,7 @@ export const useCart = create<CartStore>()(
       promoCode: null,
       promoDiscount: 0,
       promoFreeShipping: false,
+      selectedTester: null,
 
       addItem: (product) => {
         const items = get().items;
@@ -64,7 +67,9 @@ export const useCart = create<CartStore>()(
       },
 
       clearCart: () =>
-        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false }),
+        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false, selectedTester: null }),
+
+      setTester: (product) => set({ selectedTester: product }),
 
       applyPromo: (code, discount, freeShipping) =>
         set({ promoCode: code, promoDiscount: discount, promoFreeShipping: freeShipping }),

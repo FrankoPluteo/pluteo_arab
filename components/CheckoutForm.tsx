@@ -17,7 +17,7 @@ interface CheckoutFormProps {
 }
 
 export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: CheckoutFormProps) {
-  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping } = useCart();
+  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, selectedTester } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
@@ -99,6 +99,9 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items,
+          tester: selectedTester
+            ? { product: selectedTester, quantity: 1, isTester: true }
+            : null,
           promoCode: promoCode ?? undefined,
           customerInfo: {
             ...formData,

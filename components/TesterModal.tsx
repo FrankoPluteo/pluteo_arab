@@ -50,7 +50,7 @@ export default function TesterModal({ onClose }: TesterModalProps) {
         </button>
 
         <p className={styles.eyebrow}>Complimentary Gift</p>
-        <h2 className={styles.heading}>Add a Free Tester</h2>
+        <h2 className={styles.heading}>Add a Free Tester (2ml)</h2>
         <p className={styles.subtext}>
           Choose one free tester bottle to include with your order — on us.
           This is completely optional.

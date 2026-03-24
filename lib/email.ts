@@ -83,7 +83,7 @@ export async function sendOrderConfirmation(orderData: {
           <tr>
             <td style="background:linear-gradient(135deg,#6c534e 0%,#A67F8E 100%);padding:40px 32px;text-align:center;">
               <h1 style="margin:0 0 10px 0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:1px;">Thank You for Your Order</h1>
-              <p style="margin:0;color:rgba(255,255,255,0.82);font-size:13px;letter-spacing:0.5px;">Order confirmed &nbsp;·&nbsp; #${orderData.orderNumber}</p>
+              <p style="margin:0;color:rgba(255,255,255,0.82);font-size:13px;letter-spacing:0.5px;">Order confirmed &nbsp;&middot;&nbsp; #${orderData.orderNumber}</p>
             </td>
           </tr>
 
@@ -116,8 +116,8 @@ export async function sendOrderConfirmation(orderData: {
                     return `
                 <tr>
                   <td style="padding:14px 8px 14px 0;border-bottom:1px solid #f0e8e6;vertical-align:top;">
-                    <div style="font-size:13px;font-weight:600;color:#3d2c2c;">${item.product.brand.name} – ${item.product.name}</div>
-                    <div style="font-size:11px;color:#aaa;margin-top:3px;">${item.product.concentration} &nbsp;·&nbsp; ${item.product.size} ml</div>
+                    <div style="font-size:13px;font-weight:600;color:#3d2c2c;">${item.product.brand.name} \u2013 ${item.product.name}</div>
+                    <div style="font-size:11px;color:#aaa;margin-top:3px;">${item.product.concentration} &nbsp;&middot;&nbsp; ${item.product.size} ml</div>
                   </td>
                   <td style="padding:14px 8px;border-bottom:1px solid #f0e8e6;text-align:center;vertical-align:top;font-size:13px;color:#666;">&times;${item.quantity}</td>
                   <td style="padding:14px 0 14px 8px;border-bottom:1px solid #f0e8e6;text-align:right;vertical-align:top;font-size:13px;font-weight:600;color:#3d2c2c;">&euro;${lineTotal}</td>
@@ -246,6 +246,133 @@ export async function sendOrderConfirmation(orderData: {
     return { success: true, data };
   } catch (error) {
     console.error('Failed to send email:', error);
+    return { success: false, error };
+  }
+}
+
+export async function sendEarlySubscriberPromo({
+  to,
+  promoCode,
+  discountLabel,
+  expiresAt,
+}: {
+  to: string;
+  promoCode: string;
+  discountLabel: string;
+  expiresAt: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Pluteo <orders@pluteo.shop>',
+      to: [to],
+      subject: 'A gift for being early — your exclusive Pluteo code',
+      html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Exclusive Pluteo Code</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f0ee;font-family:'Montserrat',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f0ee;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;">
+
+          <!-- Brand Bar -->
+          <tr>
+            <td style="background-color:#ffffff;padding:20px 32px;border-bottom:1px solid #f0e8e6;text-align:center;">
+              <span style="font-size:22px;font-weight:700;letter-spacing:5px;color:#3d2c2c;">PLUTEO</span>
+            </td>
+          </tr>
+
+          <!-- Gradient Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#6c534e 0%,#A67F8E 100%);padding:44px 32px;text-align:center;">
+              <p style="margin:0 0 10px 0;font-size:11px;font-weight:600;letter-spacing:3px;color:rgba(255,255,255,0.65);text-transform:uppercase;">Early Access</p>
+              <h1 style="margin:0 0 10px 0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:1px;">A gift for being early.</h1>
+              <p style="margin:0;color:rgba(255,255,255,0.78);font-size:13px;line-height:1.7;">You subscribed before we launched. Here&rsquo;s a thank you.</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding:40px 32px 32px 32px;">
+
+              <!-- Intro -->
+              <p style="margin:0 0 28px 0;font-size:13px;color:#666;line-height:1.9;">You were one of the first to believe in what we&rsquo;re building. As a token of our appreciation, we&rsquo;ve reserved an exclusive discount just for you.</p>
+
+              <!-- Promo Code Block -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+                <tr>
+                  <td style="background-color:#faf7f6;border:1px solid #ede5e3;padding:28px 24px;text-align:center;">
+                    <p style="margin:0 0 10px 0;font-size:10px;font-weight:700;letter-spacing:3px;color:#A67F8E;text-transform:uppercase;">Your Code</p>
+                    <p style="margin:0 0 12px 0;font-size:28px;font-weight:700;letter-spacing:6px;color:#3d2c2c;">${promoCode}</p>
+                    <p style="margin:0;font-size:13px;color:#6c534e;font-weight:600;">${discountLabel}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:36px;">
+                <tr>
+                  <td align="center">
+                    <a href="https://pluteo.shop/products" style="display:inline-block;padding:14px 38px;background-color:#6c534e;color:#ffffff;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Shop Now</a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Terms -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #f0e8e6;padding-top:24px;">
+                <tr>
+                  <td style="padding-top:24px;">
+                    <p style="margin:0 0 8px 0;font-size:11px;color:#aaa;line-height:1.7;">
+                      <strong style="color:#3d2c2c;">Valid on: Effects of Uniq &middot; Odyssey Homme &middot; Atlantis &middot; Enigma Quatre &middot; Enigma Une &middot; Francique 107.9 &middot; Paradigm</strong>
+                    </p>
+                    <p style="margin:0;font-size:11px;color:#aaa;line-height:1.7;">Expires: ${expiresAt} &middot; Single use &middot; Cannot be combined with other offers.</p>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9f5f4;padding:22px 32px;border-top:1px solid #ede5e3;text-align:center;">
+              <img
+                src="https://pluteo.shop/Pluteo%20Logo%20Icon.svg"
+                alt="Pluteo"
+                width="30"
+                height="17"
+                style="display:block;margin:0 auto 12px auto;opacity:0.35;"
+              />
+              <p style="margin:0 0 4px 0;font-size:10px;color:#c0afab;letter-spacing:0.5px;">Vonta Grupa d.o.o &nbsp;&middot;&nbsp; Dre&#382;nik 6, 10257 Zagreb &nbsp;&middot;&nbsp; OIB: 87510848203</p>
+              <p style="margin:0 0 12px 0;font-size:10px;color:#c0afab;letter-spacing:0.5px;">IBAN: HR5524020061101312303</p>
+              <p style="margin:0;font-size:10px;color:#cbbfbc;">&copy; 2026 Pluteo &nbsp;&middot;&nbsp; <a href="https://pluteo.shop" style="color:#cbbfbc;text-decoration:none;">pluteo.shop</a></p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+      `,
+    });
+
+    if (error) {
+      console.error('Promo email error:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Failed to send promo email:', error);
     return { success: false, error };
   }
 }

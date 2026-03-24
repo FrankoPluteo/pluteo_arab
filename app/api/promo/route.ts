@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
-  const { code, subtotal, customerEmail } = await request.json();
+  const { code, subtotal, customerEmail, cartItems } = await request.json();
 
   if (!code) {
     return NextResponse.json({ valid: false, message: 'Enter a promo code.' });
@@ -45,6 +45,22 @@ export async function POST(request: Request) {
       return NextResponse.json({
         valid: false,
         message: 'You have already used this promo code the maximum number of times.',
+      });
+    }
+  }
+
+  // Check product restriction
+  if (promo.requiredProductNames.length > 0) {
+    const cartProductNames: string[] = (cartItems || []).map(
+      (item: any) => item.product?.name ?? item.name ?? ''
+    );
+    const hasRequired = promo.requiredProductNames.some((required) =>
+      cartProductNames.some((name) => name.toLowerCase() === required.toLowerCase())
+    );
+    if (!hasRequired) {
+      return NextResponse.json({
+        valid: false,
+        message: 'This promo code only applies to selected products. Make sure one of the eligible perfumes is in your cart.',
       });
     }
   }

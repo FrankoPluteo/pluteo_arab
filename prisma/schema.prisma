@@ -130,22 +130,23 @@ model Order {
 }
 
 model PromoCode {
-  id                 String    @id @default(cuid())
-  code               String    @unique
-  discountType       String
-  discountValue      Float
-  maxDiscountAmount  Float?
-  minOrderValue      Float     @default(0)
-  startsAt           DateTime?
-  endsAt             DateTime?
-  usageLimitTotal    Int?
-  usageLimitPerUser  Int?
-  timesUsed          Int       @default(0)
-  freeShipping       Boolean   @default(false)
-  appliesToSaleItems Boolean   @default(true)
-  stackable          Boolean   @default(false)
-  isActive           Boolean   @default(true)
-  createdAt          DateTime  @default(now())
+  id                   String    @id @default(cuid())
+  code                 String    @unique
+  discountType         String
+  discountValue        Float
+  maxDiscountAmount    Float?
+  minOrderValue        Float     @default(0)
+  startsAt             DateTime?
+  endsAt               DateTime?
+  usageLimitTotal      Int?
+  usageLimitPerUser    Int?
+  timesUsed            Int       @default(0)
+  freeShipping         Boolean   @default(false)
+  appliesToSaleItems   Boolean   @default(true)
+  stackable            Boolean   @default(false)
+  isActive             Boolean   @default(true)
+  requiredProductNames String[]  // <-- NEW: cart must contain at least one of these
+  createdAt            DateTime  @default(now())
 
   @@index([code])
   @@index([isActive])

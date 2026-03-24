@@ -187,7 +187,11 @@ export default function CartPage() {
       const res = await fetch('/api/promo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: promoInput, subtotal }),
+        body: JSON.stringify({
+          code: promoInput,
+          subtotal,
+          cartItems: items.map((item) => ({ product: { name: item.product.name } })),
+        }),
       });
       const data = await res.json();
       if (data.valid) {

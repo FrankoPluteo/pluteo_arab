@@ -156,6 +156,20 @@ export async function POST(request: Request) {
           }
         }
 
+        // Check product restriction
+        if (promo.requiredProductNames.length > 0) {
+          const cartProductNames = validatedItems.map((item: any) => item.product.name.toLowerCase());
+          const hasRequired = promo.requiredProductNames.some((required) =>
+            cartProductNames.includes(required.toLowerCase())
+          );
+          if (!hasRequired) {
+            return NextResponse.json(
+              { error: 'Promo code FIRST50 requires at least one eligible product in your cart.' },
+              { status: 400 }
+            );
+          }
+        }
+
         if (promo.discountType === 'percent') {
           promoDiscount = (subtotal * promo.discountValue) / 100;
           if (promo.maxDiscountAmount !== null) {
@@ -169,6 +183,7 @@ export async function POST(request: Request) {
         promoFreeShipping = promo.freeShipping;
       }
     }
+
 
     const baseShipping = calculateShipping(shippingMethod);
     const shippingCost = promoFreeShipping ? 0 : baseShipping;

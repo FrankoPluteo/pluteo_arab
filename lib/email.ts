@@ -249,3 +249,133 @@ export async function sendOrderConfirmation(orderData: {
     return { success: false, error };
   }
 }
+
+export async function sendFirst50Newsletter(to: string) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Pluteo <orders@pluteo.shop>',
+      to: [to],
+      subject: 'You were one of the first 50 — here\'s your gift from Pluteo',
+      html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Gift From Pluteo</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f0ee;font-family:'Montserrat',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f0ee;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;">
+
+          <!-- Brand Bar -->
+          <tr>
+            <td style="background-color:#ffffff;padding:20px 32px;border-bottom:1px solid #f0e8e6;text-align:center;">
+              <span style="font-size:22px;font-weight:700;letter-spacing:5px;color:#3d2c2c;">PLUTEO</span>
+            </td>
+          </tr>
+
+          <!-- Gradient Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#6c534e 0%,#A67F8E 100%);padding:48px 32px;text-align:center;">
+              <h1 style="margin:0 0 12px 0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:1px;">You were one of the first 50.</h1>
+              <p style="margin:0;color:rgba(255,255,255,0.85);font-size:14px;letter-spacing:0.5px;line-height:1.7;">And that means everything to us.</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding:40px 32px 32px 32px;">
+
+              <p style="margin:0 0 20px 0;font-size:15px;color:#3d2c2c;font-weight:600;line-height:1.6;">Dear friend,</p>
+
+              <p style="margin:0 0 18px 0;font-size:13px;color:#666;line-height:1.9;">
+                Every great story has a beginning. Ours starts here — with you.
+              </p>
+              <p style="margin:0 0 18px 0;font-size:13px;color:#666;line-height:1.9;">
+                You joined Pluteo before the world knew our name. You were curious enough to leave your email, to believe in something still taking shape. That kind of trust is rare, and we don't take it lightly.
+              </p>
+              <p style="margin:0 0 32px 0;font-size:13px;color:#666;line-height:1.9;">
+                Pluteo was born from a love of fine fragrance and a belief that luxury scent should be accessible — not locked away behind impossible prices. We are building something beautiful, one bottle at a time, and you are part of that story from its very first chapter.
+              </p>
+
+              <!-- Divider -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+                <tr>
+                  <td style="border-top:1px solid #ede5e3;"></td>
+                </tr>
+              </table>
+
+              <!-- Promo Code Block -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,#fdf9f8 0%,#f5eeec 100%);border:1px solid #ede5e3;margin-bottom:32px;">
+                <tr>
+                  <td style="padding:28px 32px;text-align:center;">
+                    <p style="margin:0 0 6px 0;font-size:10px;font-weight:700;letter-spacing:3px;color:#A67F8E;text-transform:uppercase;">Your exclusive gift</p>
+                    <p style="margin:0 0 18px 0;font-size:13px;color:#777;line-height:1.7;">As a thank you for being among our very first 50, we're giving you <strong style="color:#3d2c2c;">20% off</strong> on a selection of our finest perfumes.</p>
+                    <div style="display:inline-block;background-color:#3d2c2c;padding:14px 36px;margin-bottom:16px;">
+                      <span style="font-size:22px;font-weight:700;letter-spacing:6px;color:#ffffff;">FIRST50</span>
+                    </div>
+                    <p style="margin:0;font-size:11px;color:#aaa;line-height:1.7;">
+                      Valid on: Effects of Uniq &middot; Odyssey Homme &middot; Atlantis &middot; Enigma Quatre &middot; Enigma Une &middot; Francique 107.9 &middot; Paradigm
+                    </p>
+                    <p style="margin:8px 0 0 0;font-size:11px;color:#bbb;">At least one of these must be in your cart.</p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 32px 0;font-size:13px;color:#666;line-height:1.9;">
+                We are just getting started. New fragrances, new stories, and more surprises are on their way. Thank you for being here at the beginning — it truly means the world.
+              </p>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:8px;">
+                <tr>
+                  <td align="center">
+                    <a href="https://pluteo.shop/products" style="display:inline-block;padding:14px 40px;background-color:#6c534e;color:#ffffff;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;">Shop Now</a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9f5f4;padding:22px 32px;border-top:1px solid #ede5e3;text-align:center;">
+              <img
+                src="https://pluteo.shop/Pluteo%20Logo%20Icon.svg"
+                alt="Pluteo"
+                width="30"
+                height="17"
+                style="display:block;margin:0 auto 12px auto;opacity:0.35;"
+              />
+              <p style="margin:0 0 4px 0;font-size:10px;color:#c0afab;letter-spacing:0.5px;">Vonta Grupa d.o.o &nbsp;&middot;&nbsp; Dre&#382;nik 6, 10257 Zagreb &nbsp;&middot;&nbsp; OIB: 87510848203</p>
+              <p style="margin:0 0 12px 0;font-size:10px;color:#c0afab;letter-spacing:0.5px;">IBAN: HR5524020061101312303</p>
+              <p style="margin:0;font-size:10px;color:#cbbfbc;">&copy; 2026 Pluteo &nbsp;&middot;&nbsp; <a href="https://pluteo.shop" style="color:#cbbfbc;text-decoration:none;">pluteo.shop</a></p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+      `,
+    });
+
+    if (error) {
+      console.error(`Email error for ${to}:`, error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error(`Failed to send to ${to}:`, err);
+    return { success: false, error: err };
+  }
+}

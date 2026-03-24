@@ -6,7 +6,7 @@ import { calculateShipping, isCountryAllowed, ShippingMethod } from '@/lib/shipp
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, customerInfo, promoCode: promoCodeInput, cartSessionId } = body;
+    const { items, tester, customerInfo, promoCode: promoCodeInput, cartSessionId } = body;
 
     const shippingMethod: ShippingMethod = customerInfo?.shippingMethod || 'gls';
 
@@ -124,6 +124,32 @@ export async function POST(request: Request) {
       };
     });
 
+    // Validate and append tester item (free, no reservation required)
+    let testerItem: any = null;
+    if (tester?.product?.id) {
+      const dbTester = await prisma.product.findUnique({
+        where: { id: tester.product.id },
+        include: { brand: true },
+      });
+      if (dbTester) {
+        testerItem = {
+          product: {
+            id: dbTester.id,
+            name: dbTester.name,
+            brand: { name: dbTester.brand.name },
+            size: dbTester.size,
+            price: dbTester.price,
+            discountAmount: dbTester.discountAmount,
+            concentration: dbTester.concentration,
+            images: dbTester.images,
+          },
+          quantity: 1,
+          unitPrice: 0,
+          isTester: true,
+        };
+      }
+    }
+
     // Validate promo code server-side
     let promoDiscount = 0;
     let validatedPromoCode: string | null = null;
@@ -213,6 +239,7 @@ export async function POST(request: Request) {
         boxnowLockerAddress:
           shippingMethod === 'boxnow' ? customerInfo.boxnowLockerAddress : null,
         items: JSON.stringify(validatedItems),
+        testerItem: testerItem ? JSON.stringify(testerItem) : undefined,
         subtotal,
         shippingCost,
         total,
@@ -234,6 +261,20 @@ export async function POST(request: Request) {
       },
       quantity: item.quantity,
     }));
+
+    if (testerItem) {
+      lineItems.push({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: `[FREE TESTER] ${testerItem.product.brand.name} - ${testerItem.product.name}`,
+            description: `${testerItem.product.concentration} - ${testerItem.product.size}ml`,
+          },
+          unit_amount: 0,
+        },
+        quantity: 1,
+      });
+    }
 
     if (shippingCost > 0) {
       const shippingLabel =

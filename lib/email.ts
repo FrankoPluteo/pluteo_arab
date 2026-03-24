@@ -8,6 +8,7 @@ export async function sendOrderConfirmation(orderData: {
   customerName: string;
   customerPhone?: string | null;
   items: any[];
+  testerItem?: any | null;
   total: number;
   subtotal?: number;
   shippingCost?: number;
@@ -124,6 +125,16 @@ export async function sendOrderConfirmation(orderData: {
                 </tr>`;
                   })
                   .join('')}
+                ${orderData.testerItem ? `
+                <tr>
+                  <td style="padding:10px 8px 10px 0;border-bottom:1px solid #f0e8e6;vertical-align:top;">
+                    <div style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#A67F8E;text-transform:uppercase;background:#fdf4f7;border:1px solid #e8d5dd;border-radius:3px;padding:2px 6px;margin-bottom:4px;">FREE TESTER</div>
+                    <div style="font-size:12px;color:#666;">${orderData.testerItem.product.brand.name} – ${orderData.testerItem.product.name}</div>
+                    <div style="font-size:10px;color:#bbb;margin-top:2px;">${orderData.testerItem.product.concentration} &nbsp;·&nbsp; ${orderData.testerItem.product.size} ml</div>
+                  </td>
+                  <td style="padding:10px 8px;border-bottom:1px solid #f0e8e6;text-align:center;vertical-align:top;font-size:12px;color:#bbb;">&times;1</td>
+                  <td style="padding:10px 0 10px 8px;border-bottom:1px solid #f0e8e6;text-align:right;vertical-align:top;font-size:12px;font-weight:600;color:#7a9e7a;">FREE</td>
+                </tr>` : ''}
               </table>
 
               <!-- Pricing Breakdown -->

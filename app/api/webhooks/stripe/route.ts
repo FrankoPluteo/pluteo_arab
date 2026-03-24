@@ -42,6 +42,9 @@ export async function POST(request: Request) {
           });
 
           const items = JSON.parse(order.items as string);
+          const testerItem = (order as any).testerItem
+            ? JSON.parse((order as any).testerItem as string)
+            : null;
           const cartSessionId = session.metadata?.cartSessionId;
 
           // Handle stock: reservation was already deducted when item was added to cart.
@@ -110,6 +113,7 @@ export async function POST(request: Request) {
             customerName: order.customerName,
             customerPhone: order.customerPhone,
             items,
+            testerItem,
             total: order.total,
             subtotal: (order as any).subtotal,
             shippingCost: order.shippingCost,

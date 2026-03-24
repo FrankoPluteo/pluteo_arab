@@ -94,6 +94,7 @@ model Order {
   shippingCountry String
 
   items           Json
+  testerItem      Json?
   subtotal        Float
   shippingCost    Float    @default(0)
   total           Float

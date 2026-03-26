@@ -32,14 +32,31 @@ export async function POST(request: Request) {
         console.log('Checkout session completed:', session.id);
 
         try {
-          const order = await prisma.order.update({
-            where: { stripeSessionId: session.id },
+          // Bug 3 fix: use updateMany with a guard on current status so only the FIRST
+          // webhook delivery transitions the order to 'paid'.  Stripe retries return the
+          // same event, so count === 0 means we already processed this session — skip.
+          const { count } = await prisma.order.updateMany({
+            where: { stripeSessionId: session.id, paymentStatus: { not: 'paid' } },
             data: {
               paymentStatus: 'paid',
               stripePaymentId: session.payment_intent as string,
               paidAt: new Date(),
             },
           });
+
+          if (count === 0) {
+            console.log('Webhook already processed for session (idempotent skip):', session.id);
+            break;
+          }
+
+          const order = await prisma.order.findUnique({
+            where: { stripeSessionId: session.id },
+          });
+
+          if (!order) {
+            console.error('Order not found after update for session:', session.id);
+            break;
+          }
 
           const items = JSON.parse(order.items as string);
           const testerItem = (order as any).testerItem
@@ -78,6 +95,15 @@ export async function POST(request: Request) {
                 data: { stock: { decrement: item.quantity } },
               });
             }
+          }
+
+          // Bug 5 fix: increment promo usage only after payment is confirmed, not at
+          // checkout-session creation time.  Abandoned checkouts no longer inflate timesUsed.
+          if ((order as any).promoCode) {
+            await prisma.promoCode.update({
+              where: { code: (order as any).promoCode },
+              data: { timesUsed: { increment: 1 } },
+            });
           }
 
           const deliveryMethod = (order as any).shippingMethod;

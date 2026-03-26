@@ -320,12 +320,8 @@ export async function POST(request: Request) {
       data: { stripeSessionId: session.id },
     });
 
-    if (validatedPromoCode) {
-      await prisma.promoCode.update({
-        where: { code: validatedPromoCode },
-        data: { timesUsed: { increment: 1 } },
-      });
-    }
+    // Bug 5 fix: timesUsed is now incremented in the Stripe webhook (checkout.session.completed)
+    // after payment is confirmed, so abandoned checkouts no longer inflate the usage count.
 
     await prisma.emailCapture.upsert({
       where: { email: customerInfo.email },

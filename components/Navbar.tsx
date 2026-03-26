@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/store';
@@ -46,9 +47,11 @@ export default function Navbar() {
       </div>
 
       <Link className={styles.logoiconimg} href="/">
-        <img
-          src={logoicon.src}
+        <Image
+          src={logoicon}
           alt="Pluteo logo"
+          width={70}
+          height={40}
           className={isTransparent ? styles.logoInverted : ''}
         />
       </Link>

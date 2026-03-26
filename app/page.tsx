@@ -74,7 +74,14 @@ export default async function HomePage() {
           quality={85}
         />
         <h1 className="sr-only">Pluteo — Premium Arabian Perfumes &amp; Oud Fragrances in Croatia</h1>
-        <img className={styles.logolongimg} src={logolong.src} alt="Pluteo — Arabian Perfume Shop Croatia" />
+        <Image
+          className={styles.logolongimg}
+          src={logolong}
+          alt="Pluteo — Arabian Perfume Shop Croatia"
+          width={493}
+          height={310}
+          priority
+        />
         <Link href="/products" className={styles.goToShop}>SHOP</Link>
 
         <div className={styles.taglines}>
@@ -110,19 +117,37 @@ export default async function HomePage() {
       {/* Brand Section — full width, 3 touching panels */}
       <div className={styles.brandSection}>
         <div className={styles.brandBox}>
-          <img className={styles.brandimage} src={lattafaimg.src} alt="Lattafa perfumes — luxury Arabian fragrances" />
+          <Image
+            fill
+            src={lattafaimg}
+            alt="Lattafa perfumes — luxury Arabian fragrances"
+            style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
           <div className={styles.categoryOverlay} />
           <Link href="/products?brand=Lattafa" className={styles.brandLink}>LATTAFA</Link>
         </div>
 
         <div className={styles.brandBox}>
-          <img className={styles.brandimage} src={armafimg.src} alt="Armaf perfumes — premium oriental fragrances" />
+          <Image
+            fill
+            src={armafimg}
+            alt="Armaf perfumes — premium oriental fragrances"
+            style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
           <div className={styles.categoryOverlay} />
           <Link href="/products?brand=Armaf" className={styles.brandLink}>ARMAF</Link>
         </div>
 
         <div className={styles.brandBox}>
-          <img className={styles.brandimage} src={frenchavenueimg.src} alt="French Avenue perfumes — modern luxury scents" />
+          <Image
+            fill
+            src={frenchavenueimg}
+            alt="French Avenue perfumes — modern luxury scents"
+            style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
           <div className={styles.categoryOverlay} />
           <Link href="/products?brand=French Avenue" className={styles.brandLink}>FRENCH AVENUE</Link>
         </div>

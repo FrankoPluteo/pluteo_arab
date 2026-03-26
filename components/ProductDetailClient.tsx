@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import ReviewSummary from './ReviewSummary';
@@ -56,7 +57,16 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <div className={styles.imageSlider}>
               {images.map((img, index) => (
                 <div key={index} className={styles.slideImage}>
-                  <img src={img} alt={`${product.brand?.name || ''} ${product.name} — Arabian perfume ${index + 1}`} />
+                  <div className={styles.slideImageWrap}>
+                    <Image
+                      src={img}
+                      alt={`${product.brand?.name || ''} ${product.name} — Arabian perfume ${index + 1}`}
+                      fill
+                      style={{ objectFit: 'contain' }}
+                      loading="lazy"
+                      sizes="100vw"
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -64,7 +74,15 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
           <div className={styles.mainImage}>
             {hasImages && images[selectedImage] ? (
-              <img src={images[selectedImage]} alt={`${product.brand?.name || ''} ${product.name} — ${product.concentration} ${product.size}ml Arabian perfume`} />
+              <div className={styles.mainImageWrap}>
+                <Image
+                  src={images[selectedImage]}
+                  alt={`${product.brand?.name || ''} ${product.name} — ${product.concentration} ${product.size}ml Arabian perfume`}
+                  fill
+                  style={{ objectFit: 'contain' }}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </div>
             ) : (
               <div className={styles.noImage}>No image available</div>
             )}
@@ -78,7 +96,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   className={`${styles.thumbnail} ${selectedImage === index ? styles.active : ''}`}
                   onClick={() => setSelectedImage(index)}
                 >
-                  <img src={img} alt={`${product.name} view ${index + 1}`} />
+                  <Image
+                    src={img}
+                    alt={`${product.name} view ${index + 1}`}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    loading="lazy"
+                    sizes="80px"
+                  />
                 </div>
               ))}
             </div>
@@ -91,6 +116,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <div className={styles.brandHeader}>
               {product.brand?.logoUrl && (
                 <div className={styles.brandLogoContainer}>
+                  {/* Keep plain <img> — brand logo URLs may be from any domain */}
                   <img
                     src={product.brand.logoUrl}
                     alt={product.brand.name}

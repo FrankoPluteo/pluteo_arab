@@ -14,12 +14,7 @@
 }
 
 .wallpaperhome {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  /* position/size handled by Next.js <Image fill> inline styles */
   filter: brightness(0.3) opacity(0.5);
 }
 

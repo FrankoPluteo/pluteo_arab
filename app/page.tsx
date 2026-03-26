@@ -3,9 +3,9 @@ import { prisma, withReviewAggregates } from '@/lib/prisma';
 import ProductCard from '@/components/ProductCard';
 import styles from '@/styles/home.module.css';
 import logolong from '../public/Pluteo Logo Long.svg';
-import lattafaimg from '../public/lattafa.jpg';
-import frenchavenueimg from '../public/frenchavenue.jpg';
-import armafimg from '../public/armaf.jpg';
+import lattafaimg from '../public/lattafa.webp';
+import frenchavenueimg from '../public/frenchavenue.webp';
+import armafimg from '../public/armaf.webp';
 import wallpaperhome from '../public/wallpaperhome.webp';
 import Footer from '@/components/Footer';
 import Image from "next/image";
@@ -65,13 +65,17 @@ export default async function HomePage() {
           src={boxnowpromophoto}
           alt="boxnow"
           priority
+          sizes="200px"
         />
         <Image
-          className={styles.wallpaperhome}
+          fill
           src={wallpaperhome}
           alt="Premium Arabian perfumes and oud fragrances — Pluteo Croatia"
           priority
-          quality={85}
+          quality={65}
+          sizes="100vw"
+          style={{ objectFit: 'cover' }}
+          className={styles.wallpaperhome}
         />
         <h1 className="sr-only">Pluteo — Premium Arabian Perfumes &amp; Oud Fragrances in Croatia</h1>
         <Image

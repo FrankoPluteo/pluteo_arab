@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import StarRating from './StarRating';
@@ -48,13 +49,23 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/products/${product.id}`} className={styles.productLink}>
         <div className={styles.productImage}>
           {product.images[0] ? (
-            <img src={product.images[0]} alt={product.name} loading="lazy" />
+            <div className={styles.productImageWrap}>
+              <Image
+                src={product.images[0]}
+                alt={product.name}
+                fill
+                style={{ objectFit: 'contain' }}
+                loading="lazy"
+                sizes="(max-width: 768px) 80vw, (max-width: 1200px) 33vw, 25vw"
+              />
+            </div>
           ) : (
             <div className={styles.noImage}>No image</div>
           )}
 
           {product.brand.logoUrl && (
             <div className={styles.brandLogo}>
+              {/* Keep plain <img> — brand logo URLs may be from any domain */}
               <img src={product.brand.logoUrl} alt={product.brand.name} loading="lazy" />
             </div>
           )}

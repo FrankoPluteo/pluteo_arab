@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import EmailModal from '@/components/EmailModal';
@@ -56,7 +57,13 @@ export default function RootLayout({
     <html lang="en" translate="no">
       <head>
         <meta name="google" content="notranslate" />
-        <script
+      </head>
+      <body className={inter.className}>
+        {/* Meta Pixel — afterInteractive defers load until page is interactive,
+            eliminating the render-blocking penalty from the inline <head> script */}
+        <Script
+          id="meta-pixel"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               !function(f,b,e,v,n,t,s)
@@ -81,8 +88,6 @@ export default function RootLayout({
             src="https://www.facebook.com/tr?id=4497298900555732&ev=PageView&noscript=1"
           />
         </noscript>
-      </head>
-      <body className={inter.className}>
         <Navbar />
         <EmailModal />
         <main className="min-h-screen">

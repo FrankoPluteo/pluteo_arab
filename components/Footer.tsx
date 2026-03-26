@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from '@/styles/footer.module.css';
 import logoicon from '../public/pluteo_logo_short_white.svg'
 
@@ -7,7 +8,7 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
         <div className={styles.footerSection}>
-        <Link className={styles.logoiconimg} href="/"><img src={logoicon.src} alt="Pluteo logo" /></Link>
+        <Link className={styles.logoiconimg} href="/"><Image src={logoicon} alt="Pluteo logo" width={100} height={57} /></Link>
           <p className={styles.footerDescription}>
             Premium Arabian perfumes for the modern connoisseur. 
             Discover authentic fragrances from the finest brands.

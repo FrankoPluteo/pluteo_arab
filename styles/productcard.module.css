@@ -32,16 +32,16 @@
   justify-content: center;
 }
 
-.productImage img {
+/* Inner wrapper creates the 80% inset so the product photo sits centred
+   with breathing room, matching the original design intent */
+.productImageWrap {
   position: absolute;
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-  display: block;
+  inset: 10%;
 }
 
-.productCard:hover .productImage img {
+.productCard:hover .productImageWrap img {
   transform: scale(1.05);
+  transition: transform 0.3s ease;
 }
 
 .noImage {

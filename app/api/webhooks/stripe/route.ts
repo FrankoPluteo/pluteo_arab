@@ -65,29 +65,24 @@ export async function POST(request: Request) {
           const cartSessionId = session.metadata?.cartSessionId;
 
           // Handle stock: reservation was already deducted when item was added to cart.
-          // If the reservation still exists, just delete it (stock already correct).
-          // If it expired and was cleaned up, stock was restored, so deduct it now.
+          // Use deleteMany (atomic) instead of findUnique+delete to eliminate the race
+          // where background cleanup could delete the reservation between our read and
+          // our delete, causing the catch to swallow the error and stock to never be
+          // decremented.  deleteMany.count tells us whether we deleted anything.
           for (const item of items) {
             if (cartSessionId) {
-              const reservation = await prisma.cartReservation.findUnique({
-                where: {
-                  cartSessionId_productId: {
-                    cartSessionId,
-                    productId: item.product.id,
-                  },
-                },
+              const { count } = await prisma.cartReservation.deleteMany({
+                where: { cartSessionId, productId: item.product.id },
               });
 
-              if (reservation) {
-                // Reservation is still active — just delete it, stock is already decremented
-                await prisma.cartReservation.delete({ where: { id: reservation.id } });
-              } else {
-                // Reservation expired and stock was restored — deduct stock now
+              if (count === 0) {
+                // Reservation already expired and stock was restored — deduct stock now
                 await prisma.product.update({
                   where: { id: item.product.id },
                   data: { stock: { decrement: item.quantity } },
                 });
               }
+              // count > 0: reservation was active, stock already decremented — nothing more to do
             } else {
               // No cartSessionId (legacy order) — deduct stock as before
               await prisma.product.update({
@@ -166,10 +161,42 @@ export async function POST(request: Request) {
         console.log('Payment failed:', paymentIntent.id);
 
         try {
-          await prisma.order.updateMany({
-            where: { stripePaymentId: paymentIntent.id },
-            data: { paymentStatus: 'failed' },
+          // stripePaymentId is only written on checkout.session.completed (successful payment),
+          // so matching by stripePaymentId here always returns 0 rows.  Instead, look up the
+          // checkout session linked to this payment intent and match by stripeSessionId.
+          // Note: in Stripe Checkout, this event fires on each card decline attempt; the user
+          // may still retry with a different card within the same session.
+          const sessions = await stripe.checkout.sessions.list({
+            payment_intent: paymentIntent.id as string,
+            limit: 1,
           });
+          const linkedSession = sessions.data[0];
+          if (linkedSession) {
+            await prisma.order.updateMany({
+              where: { stripeSessionId: linkedSession.id, paymentStatus: 'pending' },
+              data: { paymentStatus: 'failed' },
+            });
+          }
+        } catch (dbError) {
+          console.error('Database update error:', dbError);
+        }
+
+        break;
+      }
+
+      case 'checkout.session.expired': {
+        // Fired when a Stripe Checkout session is never completed (user abandoned, or 24 h
+        // elapsed).  Without this handler, orders for expired sessions stay 'pending' forever.
+        const session = event.data.object;
+        console.log('Checkout session expired:', session.id);
+
+        try {
+          await prisma.order.updateMany({
+            where: { stripeSessionId: session.id, paymentStatus: 'pending' },
+            data: { paymentStatus: 'expired' },
+          });
+          // CartReservations for this session have a 15-min TTL and will have been cleaned up
+          // by background expiry long before Stripe's 24-h session timeout — no stock action needed.
         } catch (dbError) {
           console.error('Database update error:', dbError);
         }

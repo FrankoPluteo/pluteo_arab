@@ -159,7 +159,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             <div className={styles.deliveryCardTitle}>BOX NOW Locker</div>
             <div className={styles.deliveryCardDesc}>Pick up at a convenient locker near you</div>
           </div>
-          <div className={styles.deliveryCardPrice}>FREE</div>
+          <div className={styles.deliveryCardPrice}>€2.69</div>
         </label>
 
         {/* GLS */}

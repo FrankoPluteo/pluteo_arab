@@ -27,7 +27,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     inStock: searchParams.get('inStock') || '',
-    sortBy: searchParams.get('sortBy') || 'createdAt-asc',
+    sortBy: searchParams.get('sortBy') || 'brand-order',
   });
 
   const applyFilters = () => {
@@ -52,7 +52,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
       minPrice: '',
       maxPrice: '',
       inStock: '',
-      sortBy: 'createdAt-asc',
+      sortBy: 'brand-order',
     });
     router.push('/products');
     setIsOpen(false);
@@ -101,6 +101,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
                 value={filters.sortBy}
                 onChange={(e) => handleChange('sortBy', e.target.value)}
               >
+                <option value="brand-order">By Brand</option>
                 <option value="createdAt-asc">Oldest First</option>
                 <option value="createdAt-desc">Newest First</option>
                 <option value="price-asc">Price: Low to High</option>

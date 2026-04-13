@@ -25,6 +25,7 @@ export const metadata: Metadata = {
 };
 
 const ITEMS_PER_PAGE = 9;
+const BRAND_ORDER = ['Lattafa', 'French Avenue', 'Armaf'];
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -98,9 +99,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   }
   
   // Build orderBy based on sortBy parameter
-  let orderBy: any = { createdAt: 'asc' };
-  
-  if (params.sortBy) {
+  // null means use in-memory brand ordering (Lattafa → French Avenue → Armaf)
+  let orderBy: any = null;
+
+  if (params.sortBy && params.sortBy !== 'brand-order') {
     const [field, direction] = params.sortBy.split('-');
     orderBy = { [field]: direction };
   }
@@ -141,15 +143,30 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
     
     // Get products for current page
-    const products = await withReviewAggregates(
-      await prisma.product.findMany({
+    let products;
+    if (!orderBy) {
+      // Brand ordering: fetch all filtered products, sort in-memory, then paginate
+      const allFiltered = await prisma.product.findMany({
         where,
         include: { brand: true },
-        orderBy,
-        skip,
-        take: ITEMS_PER_PAGE,
-      })
-    );
+      });
+      allFiltered.sort((a, b) => {
+        const aIdx = BRAND_ORDER.indexOf(a.brand.name);
+        const bIdx = BRAND_ORDER.indexOf(b.brand.name);
+        return (aIdx === -1 ? BRAND_ORDER.length : aIdx) - (bIdx === -1 ? BRAND_ORDER.length : bIdx);
+      });
+      products = await withReviewAggregates(allFiltered.slice(skip, skip + ITEMS_PER_PAGE));
+    } else {
+      products = await withReviewAggregates(
+        await prisma.product.findMany({
+          where,
+          include: { brand: true },
+          orderBy,
+          skip,
+          take: ITEMS_PER_PAGE,
+        })
+      );
+    }
 
     
     return (

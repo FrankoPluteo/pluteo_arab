@@ -61,13 +61,6 @@ export default async function HomePage() {
       {/* Hero — full width, full viewport height */}
       <div className={styles.homeBackground}>
         <Image
-          className={styles.boxnowpromophoto}
-          src={boxnowpromophoto}
-          alt="boxnow"
-          priority
-          sizes="200px"
-        />
-        <Image
           fill
           src={wallpaperhome}
           alt="Premium Arabian perfumes and oud fragrances — Pluteo Croatia"

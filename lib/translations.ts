@@ -144,6 +144,7 @@ export const translations = {
       ],
       browseCollection: 'Browse our full collection of Arabian perfumes',
       readyToDiscover: 'Ready to discover your signature scent?',
+      ctaSuffix: 'and find the luxury fragrance that speaks to you.',
     },
 
     checkout: {
@@ -242,6 +243,26 @@ export const translations = {
 
     legal: {
       title: 'Legal & Shipping Info',
+      pageTitle: 'LEGAL INFORMATION',
+      leadText: 'Shipping, returns, and company details for your peace of mind',
+      shippingTitle: 'Shipping',
+      shippingBody1: 'All orders are shipped via GLS courier service within Croatia. Shipping is a fixed price of 4.99 € per order, regardless of the number of items.',
+      shippingBody2: 'Estimated delivery time is 2–5 business days from the date of order confirmation. You will receive a tracking number via email once your order has been dispatched.',
+      returnsTitle: 'Returns & Refunds',
+      returnsBody1: 'If your package arrives damaged, you are entitled to return it for a full refund. Please contact us within 14 days of receiving your order with photos of the damaged item and packaging.',
+      returnsBody2Prefix: 'To initiate a return, email us at',
+      returnsBody2Suffix: 'with your order number and a description of the issue. We will provide return instructions and process your refund promptly.',
+      companyTitle: 'Company Information',
+      companyIntro: 'This webshop is operated by:',
+      companyNameLabel: 'Company:',
+      companyLocationLabel: 'Location:',
+      companyEmailLabel: 'Email:',
+      contactTitle: 'Contact',
+      contactBody1: 'For any questions regarding your order, shipping, returns, or general inquiries, feel free to reach out to us:',
+      contactEmailLabel: 'Email:',
+      contactFormPrefix: 'You can also use our',
+      contactFormLink: 'contact form',
+      contactFormSuffix: 'and we will get back to you within 24 hours.',
     },
 
     orderSuccess: {
@@ -400,6 +421,7 @@ export const translations = {
       ],
       browseCollection: 'Pregledajte cijelu kolekciju arapskih parfema',
       readyToDiscover: 'Spremni otkriti svoj potpis u mirisu?',
+      ctaSuffix: 'i pronađite luksuzni miris koji govori o vama.',
     },
 
     checkout: {
@@ -498,6 +520,26 @@ export const translations = {
 
     legal: {
       title: 'Pravne Info i Dostava',
+      pageTitle: 'PRAVNE INFORMACIJE',
+      leadText: 'Podaci o dostavi, povratima i tvrtki za vaš mir',
+      shippingTitle: 'Dostava',
+      shippingBody1: 'Sve narudžbe šaljemo putem GLS kurirske službe unutar Hrvatske. Dostava je fiksna cijena 4,99 € po narudžbi, bez obzira na broj artikala.',
+      shippingBody2: 'Procijenjeno vrijeme dostave je 2–5 radnih dana od datuma potvrde narudžbe. Primit ćete broj za praćenje putem e-pošte kada vaša narudžba bude otpremljena.',
+      returnsTitle: 'Povrati i Povrat Novca',
+      returnsBody1: 'Ako vaš paket stigne oštećen, imate pravo na povrat uz puni povrat novca. Molimo kontaktirajte nas u roku od 14 dana od primitka narudžbe s fotografijama oštećene robe i pakiranja.',
+      returnsBody2Prefix: 'Za pokretanje povrata, pošaljite nam e-poštu na',
+      returnsBody2Suffix: 's brojem narudžbe i opisom problema. Pružit ćemo upute za povrat i brzo obraditi vaš povrat novca.',
+      companyTitle: 'Podaci o Tvrtki',
+      companyIntro: 'Ovaj webshop vodi:',
+      companyNameLabel: 'Tvrtka:',
+      companyLocationLabel: 'Lokacija:',
+      companyEmailLabel: 'E-pošta:',
+      contactTitle: 'Kontakt',
+      contactBody1: 'Za sva pitanja u vezi s vašom narudžbom, dostavom, povratima ili općim upitima, slobodno nas kontaktirajte:',
+      contactEmailLabel: 'E-pošta:',
+      contactFormPrefix: 'Možete koristiti i naš',
+      contactFormLink: 'kontaktni obrazac',
+      contactFormSuffix: 'i odgovorit ćemo vam u roku od 24 sata.',
     },
 
     orderSuccess: {

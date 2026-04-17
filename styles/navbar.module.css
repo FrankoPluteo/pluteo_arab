@@ -59,6 +59,37 @@
   filter: brightness(0) invert(1);
 }
 
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.langToggle {
+  background: none;
+  border: none;
+  font-family: Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  padding: 0;
+}
+
+.langToggle:hover {
+  color: var(--color-light);
+  transform: translateY(-2px);
+}
+
+.navbarTransparent .langToggle {
+  color: white;
+}
+
+.navbarSolid .langToggle {
+  color: var(--color-dark);
+}
+
 .cartLink {
   position: relative;
   display: flex;

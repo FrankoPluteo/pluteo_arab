@@ -1,0 +1,98 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: var(--color-white);
+  padding: 48px 44px 40px;
+  max-width: 400px;
+  width: 90%;
+  border-radius: 4px;
+  text-align: center;
+  animation: slideUp 0.35s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.logo {
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--color-light);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 6px;
+}
+
+.subtext {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 32px;
+}
+
+.options {
+  display: flex;
+  gap: 16px;
+}
+
+.optionBtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.optionBtn:hover {
+  border-color: var(--color-dark);
+  background: #faf9f8;
+}
+
+.flag {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.langName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dark);
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 40px 28px 32px;
+  }
+}

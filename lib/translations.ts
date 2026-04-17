@@ -217,11 +217,27 @@ export const translations = {
     reviews: {
       title: 'Customer Reviews',
       noReviews: 'No reviews yet. Be the first to review!',
-      writeReview: 'Write a Review',
-      submit: 'Submit Review',
-      yourName: 'Your Name',
-      yourReview: 'Your Review',
+      writeReviewBtn: 'WRITE A REVIEW',
+      formTitle: 'Write a Review',
       rating: 'Rating',
+      email: 'Email',
+      emailPlaceholder: 'Your email (not displayed publicly)',
+      name: 'Name',
+      namePlaceholder: 'Your name (optional)',
+      titleLabel: 'Title',
+      titlePlaceholder: 'Summary of your review (optional)',
+      reviewLabel: 'Review',
+      reviewPlaceholder: 'Tell others about your experience (optional)',
+      cancel: 'Cancel',
+      submitting: 'Submitting...',
+      submit: 'Submit Review',
+      thankYou: 'Thank you for your review!',
+      outOf5: 'out of 5',
+      reviewCountText: (n: number) => n === 1 ? 'review' : 'reviews',
+      selectRatingError: 'Please select a rating.',
+      enterEmailError: 'Please enter your email.',
+      failedToSubmit: 'Failed to submit review.',
+      somethingWentWrong: 'Something went wrong. Please try again.',
     },
 
     legal: {
@@ -230,8 +246,10 @@ export const translations = {
 
     orderSuccess: {
       title: 'Order Confirmed!',
-      message: 'Thank you for your purchase. You will receive a confirmation email shortly.',
+      message: "Thank you for your purchase. We've sent a confirmation email with your order details.",
       continueShopping: 'Continue Shopping',
+      backToHome: 'Back to Home',
+      loading: 'Loading...',
     },
 
     languageSwitcher: {
@@ -455,11 +473,27 @@ export const translations = {
     reviews: {
       title: 'Recenzije Kupaca',
       noReviews: 'Još nema recenzija. Budite prvi!',
-      writeReview: 'Napišite Recenziju',
-      submit: 'Pošalji Recenziju',
-      yourName: 'Vaše Ime',
-      yourReview: 'Vaša Recenzija',
+      writeReviewBtn: 'NAPIŠITE RECENZIJU',
+      formTitle: 'Napišite Recenziju',
       rating: 'Ocjena',
+      email: 'E-pošta',
+      emailPlaceholder: 'Vaša e-pošta (neće biti javno prikazana)',
+      name: 'Ime',
+      namePlaceholder: 'Vaše ime (nije obavezno)',
+      titleLabel: 'Naslov',
+      titlePlaceholder: 'Kratki sažetak recenzije (nije obavezno)',
+      reviewLabel: 'Recenzija',
+      reviewPlaceholder: 'Podijelite vaše iskustvo (nije obavezno)',
+      cancel: 'Odustani',
+      submitting: 'Šaljem...',
+      submit: 'Pošalji Recenziju',
+      thankYou: 'Hvala na vašoj recenziji!',
+      outOf5: 'od 5',
+      reviewCountText: (n: number) => n === 1 ? 'recenzija' : (n >= 2 && n <= 4) ? 'recenzije' : 'recenzija',
+      selectRatingError: 'Molimo odaberite ocjenu.',
+      enterEmailError: 'Molimo unesite vašu e-poštu.',
+      failedToSubmit: 'Nije uspjelo slanje recenzije.',
+      somethingWentWrong: 'Nešto je pošlo po krivu. Molimo pokušajte ponovno.',
     },
 
     legal: {
@@ -468,8 +502,10 @@ export const translations = {
 
     orderSuccess: {
       title: 'Narudžba Potvrđena!',
-      message: 'Hvala na kupnji. Uskoro ćete primiti potvrdni e-mail.',
+      message: 'Hvala na kupnji. Poslali smo vam e-mail potvrdu s detaljima narudžbe.',
       continueShopping: 'Nastavi Kupovinu',
+      backToHome: 'Natrag na Početnu',
+      loading: 'Učitavanje...',
     },
 
     languageSwitcher: {

@@ -213,6 +213,15 @@ export const translations = {
       pageTitle: 'ALL FRAGRANCES',
       noProducts: 'No products found.',
       showing: (count: number) => `Showing ${count} products`,
+      searchInfo: (term: string) => `Showing results for: "${term}"`,
+      pageInfo: (from: number, to: number, total: number) => `Showing ${from}–${to} of ${total} products`,
+      noProductsSearch: (term: string) => `No products found for "${term}". Try adjusting your search or filters.`,
+      noProductsFilter: 'No products found. Try adjusting your filters.',
+    },
+
+    pagination: {
+      previous: 'Previous',
+      next: 'Next',
     },
 
     reviews: {
@@ -300,14 +309,14 @@ export const translations = {
     },
 
     home: {
-      shop: 'KUPUJ',
+      shop: 'POGLEDAJ PONUDU',
       tagline1: 'DUGOTRAJNI',
       tagline2: 'LUKSUZNI',
       tagline3: 'BOGATI',
       mensPerfumes: 'MUŠKI PARFEMI',
       womensPerfumes: 'ŽENSKI PARFEMI',
-      featuredTitle: 'ZA ONE KOJI ŽELE BITI PRIMIJEĆENI',
-      bestSellers: 'NAJPRODAVANIJI MIRISI',
+      featuredTitle: 'IZDVOJENI PARFEMI',
+      bestSellers: 'NAJPRODAVANIJI PARFEMI',
     },
 
     product: {
@@ -490,6 +499,15 @@ export const translations = {
       pageTitle: 'SVI MIRISI',
       noProducts: 'Nema pronađenih proizvoda.',
       showing: (count: number) => `Prikazuje se ${count} proizvoda`,
+      searchInfo: (term: string) => `Rezultati za: "${term}"`,
+      pageInfo: (from: number, to: number, total: number) => `Prikazuje se ${from}–${to} od ${total} proizvoda`,
+      noProductsSearch: (term: string) => `Nema rezultata za "${term}". Pokušajte prilagoditi pretragu ili filtere.`,
+      noProductsFilter: 'Nema pronađenih proizvoda. Pokušajte prilagoditi filtere.',
+    },
+
+    pagination: {
+      previous: 'Prethodno',
+      next: 'Sljedeće',
     },
 
     reviews: {

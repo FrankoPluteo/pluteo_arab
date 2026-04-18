@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
+import { useLanguage } from '@/lib/languageContext';
 import StarRating from './StarRating';
 import styles from '@/styles/productcard.module.css';
 
@@ -15,6 +16,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
+  const { t } = useLanguage();
 
   const finalPrice = product.price - product.discountAmount;
   const isOutOfStock = product.stock <= 0;
@@ -34,7 +36,6 @@ export default function ProductCard({ product }: ProductCardProps) {
     });
 
     if (!res.ok) {
-      // Stock was taken between page load and click
       setOutOfStock(true);
       return;
     }
@@ -60,7 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               />
             </div>
           ) : (
-            <div className={styles.noImage}>No image</div>
+            <div className={styles.noImage}>{t.product.noImage}</div>
           )}
 
           {product.brand.logoUrl && (
@@ -72,15 +73,15 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <div className={styles.badgeContainer}>
             {hasDiscount && !outOfStock && (
-              <div className={styles.saleBadge}>SALE</div>
+              <div className={styles.saleBadge}>{t.product.sale}</div>
             )}
             {isLowStock && !outOfStock && (
-              <div className={styles.lowStockBadge}>ALMOST GONE</div>
+              <div className={styles.lowStockBadge}>{t.product.almostGone}</div>
             )}
           </div>
 
           {outOfStock && (
-            <div className={styles.outOfStockBadge}>OUT OF STOCK</div>
+            <div className={styles.outOfStockBadge}>{t.product.outOfStock}</div>
           )}
         </div>
 
@@ -112,7 +113,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         onClick={handleAddToCart}
         disabled={outOfStock}
       >
-        {outOfStock ? 'OUT OF STOCK' : added ? 'ADDED TO CART' : 'ADD TO CART'}
+        {outOfStock ? t.product.outOfStock : added ? t.product.addedToCart : t.product.addToCart}
       </button>
     </div>
   );

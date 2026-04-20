@@ -92,21 +92,24 @@
 
 .cartLink {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 1000;
 }
 
 .cartBadge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
   background-color: var(--color-dark);
   color: var(--color-white);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: 10px;
-  min-width: 18px;
+  min-width: 16px;
   text-align: center;
+  line-height: 1.4;
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -126,13 +129,4 @@
     display: none;
   }
 
-  .cartLink {
-    flex-direction: column;
-    gap: 2px;
-    align-items: center;
-  }
-
-  .cartBadge {
-    position: static;
-  }
 }

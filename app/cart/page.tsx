@@ -8,6 +8,7 @@ import styles from '@/styles/cart.module.css';
 import { calculateShipping } from '@/lib/shipping';
 import Footer from '@/components/Footer';
 import TesterModal from '@/components/TesterModal';
+import { useLanguage } from '@/lib/languageContext';
 
 function formatTime(ms: number): string {
   if (ms <= 0) return '00:00';
@@ -32,6 +33,7 @@ export default function CartPage() {
     removePromo,
   } = useCart();
 
+  const { t } = useLanguage();
   const [promoInput, setPromoInput] = useState('');
   const [promoStatus, setPromoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [promoMessage, setPromoMessage] = useState('');
@@ -166,7 +168,7 @@ export default function CartPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      setStockError(data.error || 'Not enough stock available.');
+      setStockError(data.error || t.cart.notEnoughStock);
       return;
     }
 
@@ -207,7 +209,7 @@ export default function CartPage() {
       }
     } catch {
       setPromoStatus('error');
-      setPromoMessage('Something went wrong. Please try again.');
+      setPromoMessage(t.cart.somethingWentWrong);
     }
   }
 
@@ -217,10 +219,10 @@ export default function CartPage() {
         <Navbar />
         <div className={styles.cartContainer}>
           <div className={styles.emptyCart}>
-            <h2>Your Cart is Empty</h2>
-            <p>Start shopping to add items to your cart</p>
+            <h2>{t.cart.empty.heading}</h2>
+            <p>{t.cart.empty.subheading}</p>
             <Link href="/products" className={styles.continueShoppingLink}>
-              Continue Shopping
+              {t.cart.empty.continueShopping}
             </Link>
           </div>
         </div>
@@ -233,11 +235,11 @@ export default function CartPage() {
       <Navbar />
 
       <div className={styles.cartContainer}>
-        <h1 className={styles.pageTitle}>SHOPPING CART</h1>
+        <h1 className={styles.pageTitle}>{t.cart.title}</h1>
 
         {timeLeft !== null && timeLeft > 0 && (
           <div className={styles.reservationTimer}>
-            <span>&#x23F1; Items reserved for: <strong>{formatTime(timeLeft)}</strong></span>
+            <span>&#x23F1; {t.cart.itemsReservedFor} <strong>{formatTime(timeLeft)}</strong></span>
           </div>
         )}
 
@@ -275,7 +277,7 @@ export default function CartPage() {
                       onClick={() => handleRemoveItem(item.product.id, item.quantity)}
                       className={styles.removeButton}
                     >
-                      Remove
+                      {t.cart.remove}
                     </button>
 
                     <div className={styles.quantityControl}>
@@ -300,10 +302,10 @@ export default function CartPage() {
           </div>
 
           <div className={styles.orderSummary}>
-            <h2>ORDER SUMMARY</h2>
+            <h2>{t.cart.orderSummary}</h2>
 
             <div className={styles.summaryRow}>
-              <span className={styles.summaryLabel}>Subtotal</span>
+              <span className={styles.summaryLabel}>{t.cart.subtotal}</span>
               <span className={styles.summaryValue}>€{subtotal.toFixed(2)}</span>
             </div>
 
@@ -313,7 +315,7 @@ export default function CartPage() {
               <form onSubmit={handleApplyPromo} className={styles.promoForm}>
                 <input
                   type="text"
-                  placeholder="Promo code"
+                  placeholder={t.cart.promoPlaceholder}
                   value={promoInput}
                   onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
                   className={styles.promoInput}
@@ -323,7 +325,7 @@ export default function CartPage() {
                   className={styles.promoBtn}
                   disabled={promoStatus === 'loading'}
                 >
-                  {promoStatus === 'loading' ? '...' : 'APPLY'}
+                  {promoStatus === 'loading' ? '...' : t.cart.apply}
                 </button>
                 {promoStatus === 'error' && (
                   <p className={styles.promoError}>{promoMessage}</p>
@@ -335,14 +337,14 @@ export default function CartPage() {
                   <strong>{promoCode}</strong> — {promoMessage}
                 </span>
                 <button onClick={removePromo} className={styles.promoRemove}>
-                  Remove
+                  {t.cart.remove}
                 </button>
               </div>
             )}
 
             {promoDiscount > 0 && (
               <div className={styles.summaryRow}>
-                <span className={styles.summaryLabel}>Discount</span>
+                <span className={styles.summaryLabel}>{t.cart.discount}</span>
                 <span className={`${styles.summaryValue} ${styles.discountValue}`}>
                   -€{promoDiscount.toFixed(2)}
                 </span>
@@ -352,7 +354,7 @@ export default function CartPage() {
             <hr className={styles.summaryDivider} />
 
             <div className={`${styles.summaryRow} ${styles.totalRow}`}>
-              <span className={styles.summaryLabel}>Total</span>
+              <span className={styles.summaryLabel}>{t.cart.total}</span>
               <span className={styles.summaryValue}>€{total.toFixed(2)}</span>
             </div>
 
@@ -361,11 +363,11 @@ export default function CartPage() {
               onClick={() => setShowTesterModal(true)}
               type="button"
             >
-              PROCEED TO CHECKOUT
+              {t.cart.proceedToCheckout}
             </button>
 
             <Link href="/products" className={styles.continueShoppingLink}>
-              Continue Shopping
+              {t.cart.continueShopping}
             </Link>
           </div>
         </div>

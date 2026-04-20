@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/store';
+import { useLanguage } from '@/lib/languageContext';
 import { Product } from '@/types';
 import styles from '@/styles/testermodal.module.css';
 
@@ -16,6 +17,7 @@ export default function TesterModal({ onClose }: TesterModalProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch('/api/products')
@@ -49,15 +51,12 @@ export default function TesterModal({ onClose }: TesterModalProps) {
           &times;
         </button>
 
-        <p className={styles.eyebrow}>Complimentary Gift</p>
-        <h2 className={styles.heading}>Add a Free Tester (2ml)</h2>
-        <p className={styles.subtext}>
-          Choose one free tester bottle to include with your order — on us.
-          This is completely optional.
-        </p>
+        <p className={styles.eyebrow}>{t.testerModal.eyebrow}</p>
+        <h2 className={styles.heading}>{t.testerModal.heading}</h2>
+        <p className={styles.subtext}>{t.testerModal.subtext}</p>
 
         {loading ? (
-          <div className={styles.loading}>Loading products…</div>
+          <div className={styles.loading}>{t.testerModal.loading}</div>
         ) : (
           <div className={styles.productList}>
             {products.map((product) => {
@@ -90,7 +89,7 @@ export default function TesterModal({ onClose }: TesterModalProps) {
                   {isSelected ? (
                     <span className={styles.checkmark}>✓</span>
                   ) : (
-                    <span className={styles.freeBadge}>FREE</span>
+                    <span className={styles.freeBadge}>{t.testerModal.free}</span>
                   )}
                 </button>
               );
@@ -106,11 +105,14 @@ export default function TesterModal({ onClose }: TesterModalProps) {
             type="button"
           >
             {selectedProduct
-              ? `ADD ${selectedProduct.brand?.name.toUpperCase()} — ${selectedProduct.name.toUpperCase()}`
-              : 'SELECT A TESTER ABOVE'}
+              ? t.testerModal.confirmWith(
+                  selectedProduct.brand?.name.toUpperCase() ?? '',
+                  selectedProduct.name.toUpperCase()
+                )
+              : t.testerModal.selectAbove}
           </button>
           <button className={styles.skipBtn} onClick={handleSkip} type="button">
-            No thanks, proceed without a tester
+            {t.testerModal.skip}
           </button>
         </div>
       </div>

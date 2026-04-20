@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
+import { useLanguage } from '@/lib/languageContext';
 import ReviewSummary from './ReviewSummary';
 import styles from '@/styles/productdetails.module.css';
 
@@ -18,6 +19,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
+  const { t } = useLanguage();
 
   const finalPrice = product.price - product.discountAmount;
   const hasDiscount = product.discountAmount > 0;
@@ -38,7 +40,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       const data = await res.json();
 
       if (!res.ok) {
-        setAddError(data.error || 'Could not add to cart. Please try again.');
+        setAddError(data.error || t.product.couldNotAddToCart);
         return;
       }
 
@@ -84,7 +86,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 />
               </div>
             ) : (
-              <div className={styles.noImage}>No image available</div>
+              <div className={styles.noImage}>{t.product.noImageAvailable}</div>
             )}
           </div>
 
@@ -139,7 +141,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <span className={styles.finalPrice}>{finalPrice.toFixed(2)} &euro;</span>
             {hasDiscount && (
               <span className={styles.discount}>
-                Save {product.discountAmount.toFixed(2)} &euro;
+                {t.product.save} {product.discountAmount.toFixed(2)} &euro;
               </span>
             )}
           </div>
@@ -148,13 +150,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <div className={styles.lowStock}>
               <span className={styles.lowStockIcon}>&#9888;</span>
               <span className={styles.lowStockText}>
-                Only {product.stock} left — almost gone!
+                {t.product.lowStockMessage(product.stock)}
               </span>
             </div>
           )}
 
           {isOutOfStock && (
-            <div className={styles.outOfStockBanner}>Out of Stock</div>
+            <div className={styles.outOfStockBanner}>{t.product.outOfStockBanner}</div>
           )}
 
           {addError && (
@@ -166,26 +168,26 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             className={styles.addToCartButton}
             disabled={isOutOfStock || isAdding}
           >
-            {isOutOfStock ? 'OUT OF STOCK' : isAdding ? 'ADDING...' : 'ADD TO CART'}
+            {isOutOfStock ? t.product.outOfStock : isAdding ? t.product.adding : t.product.addToCart}
           </button>
 
           {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) && (
             <div className={styles.notesSection}>
               {product.topNotes && product.topNotes.length > 0 && (
                 <div className={styles.noteGroup}>
-                  <h4>Top Notes</h4>
+                  <h4>{t.product.topNotes}</h4>
                   <p>{product.topNotes.join(', ')}</p>
                 </div>
               )}
               {product.heartNotes && product.heartNotes.length > 0 && (
                 <div className={styles.noteGroup}>
-                  <h4>Heart Notes</h4>
+                  <h4>{t.product.heartNotes}</h4>
                   <p>{product.heartNotes.join(', ')}</p>
                 </div>
               )}
               {product.baseNotes && product.baseNotes.length > 0 && (
                 <div className={styles.noteGroup}>
-                  <h4>Base Notes</h4>
+                  <h4>{t.product.baseNotes}</h4>
                   <p>{product.baseNotes.join(', ')}</p>
                 </div>
               )}
@@ -193,20 +195,20 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           )}
 
           <div className={styles.description}>
-            <h3>Description</h3>
+            <h3>{t.product.description}</h3>
             <p>{product.description}</p>
           </div>
 
           {product.fragranceProfiles && product.fragranceProfiles.length > 0 && (
             <div className={styles.description}>
-              <h3>Fragrance Profile</h3>
+              <h3>{t.product.fragranceProfile}</h3>
               <p>{product.fragranceProfiles.join(', ')}</p>
             </div>
           )}
 
           <div className={styles.productInfo}>
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Gender</span>
+              <span className={styles.infoLabel}>{t.product.gender}</span>
               <span className={styles.infoValue}>{product.gender}</span>
             </div>
           </div>

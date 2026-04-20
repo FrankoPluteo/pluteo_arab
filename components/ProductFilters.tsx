@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { useLanguage } from '@/lib/languageContext';
 import styles from '@/styles/filters.module.css';
 
 interface FilterOptions {
@@ -18,12 +19,13 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
-  
+  const { t } = useLanguage();
+
   const [filters, setFilters] = useState({
     gender: searchParams.get('gender') || '',
     brand: searchParams.get('brand') || '',
     concentration: searchParams.get('concentration') || '',
-    fragranceProfile: searchParams.get('fragranceProfile') || '', // Single selection
+    fragranceProfile: searchParams.get('fragranceProfile') || '',
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     inStock: searchParams.get('inStock') || '',
@@ -32,13 +34,9 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
 
   const applyFilters = () => {
     const params = new URLSearchParams();
-    
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, value);
-      }
+      if (value) params.set(key, value);
     });
-    
     router.push(`/products?${params.toString()}`);
     setIsOpen(false);
   };
@@ -62,19 +60,18 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
     setFilters({ ...filters, [key]: value });
   };
 
-  // Count active filters
-  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => 
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) =>
     value && key !== 'sortBy'
   ).length;
 
   return (
     <div className={styles.filtersWrapper}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
+      <button
+        onClick={() => setIsOpen(!isOpen)}
         className={styles.toggleButton}
       >
         <span>
-          Filters & Sort
+          {t.filters.filtersAndSort}
           {activeFiltersCount > 0 && (
             <span className={styles.filterBadge}>{activeFiltersCount}</span>
           )}
@@ -87,78 +84,69 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
       {isOpen && (
         <div className={styles.filtersContainer}>
           <div className={styles.filtersHeader}>
-            <h3>Filters & Sort</h3>
+            <h3>{t.filters.filtersAndSort}</h3>
             <button onClick={clearFilters} className={styles.clearButton}>
-              Clear All
+              {t.filters.clearAll}
             </button>
           </div>
 
           <div className={styles.filtersGrid}>
-            {/* Sort By */}
             <div className={styles.filterGroup}>
-              <label>Sort By</label>
+              <label>{t.filters.sortBy}</label>
               <select
                 value={filters.sortBy}
                 onChange={(e) => handleChange('sortBy', e.target.value)}
               >
-                <option value="brand-order">By Brand</option>
-                <option value="createdAt-asc">Oldest First</option>
-                <option value="createdAt-desc">Newest First</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="name-asc">Name: A-Z</option>
-                <option value="name-desc">Name: Z-A</option>
+                <option value="brand-order">{t.filters.byBrand}</option>
+                <option value="createdAt-asc">{t.filters.oldestFirst}</option>
+                <option value="createdAt-desc">{t.filters.newestFirst}</option>
+                <option value="price-asc">{t.filters.priceLowToHigh}</option>
+                <option value="price-desc">{t.filters.priceHighToLow}</option>
+                <option value="name-asc">{t.filters.nameAZ}</option>
+                <option value="name-desc">{t.filters.nameZA}</option>
               </select>
             </div>
 
-            {/* Gender */}
             <div className={styles.filterGroup}>
-              <label>Gender</label>
+              <label>{t.filters.gender}</label>
               <select
                 value={filters.gender}
                 onChange={(e) => handleChange('gender', e.target.value)}
               >
-                <option value="">All</option>
-                <option value="male">Men</option>
-                <option value="female">Women</option>
+                <option value="">{t.filters.all}</option>
+                <option value="male">{t.filters.men}</option>
+                <option value="female">{t.filters.women}</option>
               </select>
             </div>
 
-            {/* Brand */}
             <div className={styles.filterGroup}>
-              <label>Brand</label>
+              <label>{t.filters.brand}</label>
               <select
                 value={filters.brand}
                 onChange={(e) => handleChange('brand', e.target.value)}
               >
-                <option value="">All Brands</option>
+                <option value="">{t.filters.allBrands}</option>
                 {options.brands.map((brand) => (
-                  <option key={brand} value={brand}>
-                    {brand}
-                  </option>
+                  <option key={brand} value={brand}>{brand}</option>
                 ))}
               </select>
             </div>
 
-            {/* Fragrance Profile - Dropdown */}
             <div className={styles.filterGroup}>
-              <label>Fragrance Profile</label>
+              <label>{t.filters.fragranceProfile}</label>
               <select
                 value={filters.fragranceProfile}
                 onChange={(e) => handleChange('fragranceProfile', e.target.value)}
               >
-                <option value="">All</option>
+                <option value="">{t.filters.all}</option>
                 {options.fragranceProfiles.map((profile) => (
-                  <option key={profile} value={profile}>
-                    {profile}
-                  </option>
+                  <option key={profile} value={profile}>{profile}</option>
                 ))}
               </select>
             </div>
 
-            {/* Price Range */}
             <div className={styles.filterGroup}>
-              <label>Min Price ($)</label>
+              <label>{t.filters.minPrice}</label>
               <input
                 type="number"
                 value={filters.minPrice}
@@ -169,7 +157,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
             </div>
 
             <div className={styles.filterGroup}>
-              <label>Max Price ($)</label>
+              <label>{t.filters.maxPrice}</label>
               <input
                 type="number"
                 value={filters.maxPrice}
@@ -179,7 +167,6 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
               />
             </div>
 
-            {/* In Stock */}
             <div className={styles.filterGroup}>
               <label className={styles.checkboxLabel}>
                 <input
@@ -187,13 +174,13 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
                   checked={filters.inStock === 'true'}
                   onChange={(e) => handleChange('inStock', e.target.checked ? 'true' : '')}
                 />
-                In Stock Only
+                {t.filters.inStockOnly}
               </label>
             </div>
           </div>
 
           <button onClick={applyFilters} className={styles.applyButton}>
-            Apply Filters
+            {t.filters.applyFilters}
           </button>
         </div>
       )}

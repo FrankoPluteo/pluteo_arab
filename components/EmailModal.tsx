@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/lib/languageContext';
 import styles from '@/styles/emailmodal.module.css';
 
 export default function EmailModal() {
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const captured = localStorage.getItem('email_captured');
@@ -44,14 +46,12 @@ export default function EmailModal() {
         <button className={styles.closeBtn} onClick={handleDismiss}>×</button>
 
         {submitted ? (
-          <p className={styles.thankYou}>You&apos;re in. Welcome.</p>
+          <p className={styles.thankYou}>{t.emailModal.thankYou}</p>
         ) : (
           <>
-            <p className={styles.eyebrow}>EXCLUSIVE ACCESS</p>
-            <h2 className={styles.heading}>Stay in the loop.</h2>
-            <p className={styles.subtext}>
-              Enter your email for promo codes, early deals, and members-only discounts.
-            </p>
+            <p className={styles.eyebrow}>{t.emailModal.eyebrow}</p>
+            <h2 className={styles.heading}>{t.emailModal.heading}</h2>
+            <p className={styles.subtext}>{t.emailModal.subtext}</p>
             <form onSubmit={handleSubmit} className={styles.form}>
               <input
                 type="email"
@@ -62,11 +62,11 @@ export default function EmailModal() {
                 className={styles.input}
               />
               <button type="submit" className={styles.submitBtn}>
-                CONTINUE
+                {t.emailModal.submit}
               </button>
             </form>
             <button className={styles.skipBtn} onClick={handleDismiss}>
-              No thanks
+              {t.emailModal.noThanks}
             </button>
           </>
         )}

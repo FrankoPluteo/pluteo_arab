@@ -27,7 +27,7 @@
 .goToShop {
   position: relative;
   z-index: 1;
-  width: 120px;
+  width: auto;
   text-decoration: none;
   font-family: Montserrat, sans-serif;
   background-color: var(--color-white);

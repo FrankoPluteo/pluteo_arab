@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/lib/store';
+import { useLanguage } from '@/lib/languageContext';
 import styles from '@/styles/checkout.module.css';
 import { calculateShipping, ShippingMethod } from '@/lib/shipping';
 
@@ -22,6 +23,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [selectedLocker, setSelectedLocker] = useState<SelectedLocker | null>(null);
+  const { t } = useLanguage();
 
   // Keep a stable ref to the setter so the widget callback never goes stale
   const setSelectedLockerRef = useRef(setSelectedLocker);
@@ -81,11 +83,11 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
     if (shippingMethod === 'boxnow') {
       if (!selectedLocker) {
-        setError('Please select a BOX NOW locker before proceeding.');
+        setError(t.checkout.selectLockerError);
         return;
       }
       if (!formData.phone) {
-        setError('Phone number is required for BOX NOW delivery.');
+        setError(t.checkout.phoneRequiredError);
         return;
       }
     }
@@ -117,7 +119,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
+        throw new Error(data.error || t.checkout.somethingWentWrong);
       }
 
       if (data.url) {
@@ -125,11 +127,11 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         clearCart();
         window.location.href = data.url;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error(t.checkout.somethingWentWrong);
       }
     } catch (err: any) {
       console.error('Checkout error:', err);
-      setError(err.message || 'Something went wrong. Please try again.');
+      setError(err.message || t.checkout.somethingWentWrong);
       setLoading(false);
     }
   };
@@ -139,10 +141,9 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
   return (
     <form onSubmit={handleSubmit} className={styles.checkoutForm}>
       {/* ── Delivery method selection ── */}
-      <h2 className={styles.sectionTitle}>Delivery Method</h2>
+      <h2 className={styles.sectionTitle}>{t.checkout.deliveryMethod}</h2>
 
       <div className={styles.deliveryMethods}>
-
         {/* BoxNow */}
         <label
           className={`${styles.deliveryCard} ${shippingMethod === 'boxnow' ? styles.deliveryCardActive : ''}`}
@@ -156,8 +157,8 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             className={styles.deliveryRadio}
           />
           <div className={styles.deliveryCardContent}>
-            <div className={styles.deliveryCardTitle}>BOX NOW Locker</div>
-            <div className={styles.deliveryCardDesc}>Pick up at a convenient locker near you</div>
+            <div className={styles.deliveryCardTitle}>{t.checkout.boxnowTitle}</div>
+            <div className={styles.deliveryCardDesc}>{t.checkout.boxnowDesc}</div>
           </div>
           <div className={styles.deliveryCardPrice}>€2.69</div>
         </label>
@@ -175,8 +176,8 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             className={styles.deliveryRadio}
           />
           <div className={styles.deliveryCardContent}>
-            <div className={styles.deliveryCardTitle}>GLS Standard Delivery</div>
-            <div className={styles.deliveryCardDesc}>2–5 business days · Delivered to your door</div>
+            <div className={styles.deliveryCardTitle}>{t.checkout.glsTitle}</div>
+            <div className={styles.deliveryCardDesc}>{t.checkout.glsDesc}</div>
           </div>
           <div className={styles.deliveryCardPrice}>€4.99</div>
         </label>
@@ -193,33 +194,31 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         <div id="boxnowmap" />
 
         <button type="button" className={`boxnow-map-widget-button ${styles.boxnowSelectBtn}`}>
-          {selectedLocker ? '📍 Change Locker' : '📍 Select a Locker'}
+          {selectedLocker ? t.checkout.changeLocker : t.checkout.selectLocker}
         </button>
 
         {selectedLocker ? (
           <div className={styles.selectedLockerInfo}>
-            <span className={styles.selectedLockerLabel}>Selected Locker</span>
+            <span className={styles.selectedLockerLabel}>{t.checkout.selectedLockerLabel}</span>
             <span>
               {selectedLocker.address}
               {selectedLocker.postalCode && `, ${selectedLocker.postalCode}`}
             </span>
           </div>
         ) : (
-          <p className={styles.boxnowHint}>
-            Click the button above to choose your nearest BOX NOW locker on the map.
-          </p>
+          <p className={styles.boxnowHint}>{t.checkout.boxnowHint}</p>
         )}
       </div>
 
       {/* ── Contact / shipping info ── */}
       <h2 className={styles.sectionTitle}>
-        {shippingMethod === 'gls' ? 'Shipping Information' : 'Your Contact Information'}
+        {shippingMethod === 'gls' ? t.checkout.shippingInfo : t.checkout.contactInfo}
       </h2>
 
       {error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.formGroup}>
-        <label htmlFor="name">Full Name *</label>
+        <label htmlFor="name">{t.checkout.fullName} *</label>
         <input
           type="text"
           id="name"
@@ -231,7 +230,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       </div>
 
       <div className={styles.formGroup}>
-        <label htmlFor="email">Email *</label>
+        <label htmlFor="email">{t.checkout.email} *</label>
         <input
           type="email"
           id="email"
@@ -244,11 +243,11 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
       <div className={styles.formGroup}>
         <label htmlFor="phone">
-          Phone{' '}
+          {t.checkout.phone}{' '}
           {shippingMethod === 'boxnow' ? (
             '*'
           ) : (
-            <span style={{ color: '#999', fontWeight: 400 }}>(optional)</span>
+            <span style={{ color: '#999', fontWeight: 400 }}>{t.checkout.phoneOptional}</span>
           )}
         </label>
         <input
@@ -262,7 +261,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         />
         {shippingMethod === 'boxnow' && (
           <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-            BOX NOW will SMS you when your parcel arrives at the locker.
+            {t.checkout.phoneHint}
           </p>
         )}
       </div>
@@ -271,7 +270,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       {shippingMethod === 'gls' && (
         <>
           <div className={styles.formGroup}>
-            <label htmlFor="address">Address *</label>
+            <label htmlFor="address">{t.checkout.address} *</label>
             <input
               type="text"
               id="address"
@@ -279,13 +278,13 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
               value={formData.address}
               onChange={handleChange}
               required
-              placeholder="Street and number"
+              placeholder={t.checkout.streetPlaceholder}
             />
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="city">City *</label>
+              <label htmlFor="city">{t.checkout.city} *</label>
               <input
                 type="text"
                 id="city"
@@ -296,7 +295,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="zip">ZIP Code *</label>
+              <label htmlFor="zip">{t.checkout.zipCode} *</label>
               <input
                 type="text"
                 id="zip"
@@ -310,7 +309,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="country">Country</label>
+            <label htmlFor="country">{t.checkout.country}</label>
             <select
               id="country"
               name="country"
@@ -321,17 +320,17 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
               <option value="HR">Croatia 🇭🇷</option>
             </select>
             <p style={{ fontSize: '13px', color: '#666', marginTop: '8px' }}>
-              We currently ship within Croatia only
+              {t.checkout.shipsWithin}
             </p>
           </div>
         </>
       )}
 
       <button type="submit" className={styles.submitButton} disabled={loading}>
-        {loading ? 'Processing...' : `Pay €${total.toFixed(2)}`}
+        {loading ? t.checkout.processing : t.checkout.pay(total)}
       </button>
 
-      <p className={styles.secureText}>🔒 Secure checkout powered by Stripe</p>
+      <p className={styles.secureText}>{t.checkout.secureCheckout}</p>
     </form>
   );
 }

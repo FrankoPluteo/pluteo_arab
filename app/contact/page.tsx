@@ -7,8 +7,10 @@ import Footer from '@/components/Footer';
 import styles from '@/styles/staticpage.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/languageContext';
 
 export default function ContactPage() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -54,49 +56,43 @@ export default function ContactPage() {
         <div className={styles.logoContainer}>
           <Image src={logoIcon} alt="Pluteo" width={60} height={60} />
         </div>
-        <h1 className={styles.pageTitle}>CONTACT US</h1>
+        <h1 className={styles.pageTitle}>{t.contact.title}</h1>
 
         <div className={styles.contactGrid}>
           <div className={styles.contactInfo}>
-            <h2 className={styles.sectionTitle}>Get In Touch</h2>
-            <p className={styles.bodyText}>
-              Have a question about our products or need assistance with your order? We&apos;re here to help!
-            </p>
+            <h2 className={styles.sectionTitle}>{t.contact.getInTouch}</h2>
+            <p className={styles.bodyText}>{t.contact.haveAQuestion}</p>
 
             <div className={styles.contactDetails}>
               <div className={styles.contactItem}>
-                <h3>Email</h3>
+                <h3>{t.contact.email}</h3>
                 <a href="mailto:pluteoinfo@gmail.com">pluteoinfo@gmail.com</a>
               </div>
 
               <div className={styles.contactItem}>
-                <h3>Shipping</h3>
-                <p>We currently ship within Croatia only.</p>
-                <p>Delivery: 2-5 business days</p>
-                <p><Link href="/legal">View shipping & return policy</Link></p>
+                <h3>{t.contact.shipping}</h3>
+                <p>{t.contact.shipsWithin}</p>
+                <p>{t.contact.deliveryTime}</p>
+                <p><Link href="/legal">{t.contact.viewShippingPolicy}</Link></p>
               </div>
 
             </div>
           </div>
 
           <div className={styles.contactForm}>
-            <h2 className={styles.sectionTitle}>Send Us a Message</h2>
+            <h2 className={styles.sectionTitle}>{t.contact.sendMessage}</h2>
 
             {status === 'success' && (
-              <div className={styles.successMessage}>
-                Thank you for your message! We&apos;ll get back to you within 24 hours.
-              </div>
+              <div className={styles.successMessage}>{t.contact.successMessage}</div>
             )}
 
             {status === 'error' && (
-              <div className={styles.errorMessage}>
-                Something went wrong. Please try again or email us directly at pluteoinfo@gmail.com
-              </div>
+              <div className={styles.errorMessage}>{t.contact.errorMessage}</div>
             )}
 
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
-                <label htmlFor="name">Name *</label>
+                <label htmlFor="name">{t.contact.name} *</label>
                 <input
                   type="text"
                   id="name"
@@ -109,7 +105,7 @@ export default function ContactPage() {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="email">Email *</label>
+                <label htmlFor="email">{t.contact.emailLabel} *</label>
                 <input
                   type="email"
                   id="email"
@@ -122,7 +118,7 @@ export default function ContactPage() {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="subject">Subject *</label>
+                <label htmlFor="subject">{t.contact.subject} *</label>
                 <select
                   id="subject"
                   name="subject"
@@ -131,17 +127,17 @@ export default function ContactPage() {
                   required
                   disabled={status === 'sending'}
                 >
-                  <option value="">Select a subject</option>
-                  <option value="order">Order Inquiry</option>
-                  <option value="product">Product Question</option>
-                  <option value="shipping">Shipping & Delivery</option>
-                  <option value="return">Returns & Exchanges</option>
-                  <option value="other">Other</option>
+                  <option value="">{t.contact.selectSubject}</option>
+                  <option value="order">{t.contact.orderInquiry}</option>
+                  <option value="product">{t.contact.productQuestion}</option>
+                  <option value="shipping">{t.contact.shippingDelivery}</option>
+                  <option value="return">{t.contact.returnsExchanges}</option>
+                  <option value="other">{t.contact.other}</option>
                 </select>
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="message">Message *</label>
+                <label htmlFor="message">{t.contact.message} *</label>
                 <textarea
                   id="message"
                   name="message"
@@ -158,7 +154,7 @@ export default function ContactPage() {
                 className={styles.submitButton}
                 disabled={status === 'sending'}
               >
-                {status === 'sending' ? 'Sending...' : 'Send Message'}
+                {status === 'sending' ? t.contact.sending : t.contact.send}
               </button>
             </form>
           </div>

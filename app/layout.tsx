@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import Navbar from '@/components/Navbar';
-import EmailModal from '@/components/EmailModal';
+import ClientProviders from '@/components/ClientProviders';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -88,11 +88,12 @@ export default function RootLayout({
             src="https://www.facebook.com/tr?id=4497298900555732&ev=PageView&noscript=1"
           />
         </noscript>
-        <Navbar />
-        <EmailModal />
-        <main className="min-h-screen">
-          {children}
-        </main>
+        <ClientProviders>
+          <Navbar />
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </ClientProviders>
       </body>
     </html>
   );

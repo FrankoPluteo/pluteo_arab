@@ -290,7 +290,7 @@ export const translations = {
   hr: {
     nav: {
       home: 'POČETNA',
-      shop: 'TRGOVINA',
+      shop: 'PONUDA',
       about: 'O NAMA',
       contact: 'KONTAKT',
       cart: 'KOŠARICA',
@@ -321,7 +321,7 @@ export const translations = {
 
     product: {
       outOfStock: 'RASPRODANO',
-      almostGone: 'GOTOVO NEMA',
+      almostGone: 'GOTOVO NESTALO',
       sale: 'AKCIJA',
       addToCart: 'DODAJ U KOŠARICU',
       addedToCart: 'DODANO U KOŠARICU',

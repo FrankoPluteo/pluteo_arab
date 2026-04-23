@@ -291,7 +291,7 @@ export const translations = {
     nav: {
       home: 'POČETNA',
       shop: 'PONUDA',
-      about: 'O NAMA',
+      about: 'PLUTEO',
       contact: 'KONTAKT',
       cart: 'KOŠARICA',
     },

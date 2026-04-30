@@ -29,14 +29,19 @@ model Product {
   concentration     String
   gender            String
   description       String            @db.Text
+  descriptionHr     String?           @db.Text
   discountAmount    Float             @default(0)
   isFeatured        Boolean           @default(false)
   isBestSeller      Boolean           @default(false)
   stock             Int               @default(0)
   fragranceProfiles String[]
+  fragranceProfilesHr String[]
   topNotes          String[]
+  topNotesHr        String[]
   heartNotes        String[]
+  heartNotesHr      String[]
   baseNotes         String[]
+  baseNotesHr       String[]
   reviews           Review[]
   reservations      CartReservation[]
   createdAt         DateTime          @default(now())

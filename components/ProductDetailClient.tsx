@@ -19,7 +19,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const finalPrice = product.price - product.discountAmount;
   const hasDiscount = product.discountAmount > 0;
@@ -27,6 +27,31 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const hasImages = images.length > 0;
   const isLowStock = product.stock > 0 && product.stock <= 3;
   const isOutOfStock = product.stock === 0;
+
+  const displayDescription =
+  language === 'hr' && product.descriptionHr
+    ? product.descriptionHr
+    : product.description;
+
+  const displayTopNotes =
+    language === 'hr' && product.topNotesHr?.length
+      ? product.topNotesHr
+      : product.topNotes;
+
+  const displayHeartNotes =
+    language === 'hr' && product.heartNotesHr?.length
+      ? product.heartNotesHr
+      : product.heartNotes;
+
+  const displayBaseNotes =
+    language === 'hr' && product.baseNotesHr?.length
+      ? product.baseNotesHr
+      : product.baseNotes;
+
+  const displayFragranceProfiles =
+    language === 'hr' && product.fragranceProfilesHr?.length
+      ? product.fragranceProfilesHr
+      : product.fragranceProfiles;
 
   async function handleAddToCart() {
     setAddError('');
@@ -171,24 +196,24 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             {isOutOfStock ? t.product.outOfStock : isAdding ? t.product.adding : t.product.addToCart}
           </button>
 
-          {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) && (
+          {(displayTopNotes?.length || displayHeartNotes?.length || displayBaseNotes?.length) && (
             <div className={styles.notesSection}>
-              {product.topNotes && product.topNotes.length > 0 && (
+              {displayTopNotes && displayTopNotes.length > 0 && (
                 <div className={styles.noteGroup}>
                   <h4>{t.product.topNotes}</h4>
-                  <p>{product.topNotes.join(', ')}</p>
+                  <p>{displayTopNotes.join(', ')}</p>
                 </div>
               )}
-              {product.heartNotes && product.heartNotes.length > 0 && (
+              {displayHeartNotes && displayHeartNotes.length > 0 && (
                 <div className={styles.noteGroup}>
                   <h4>{t.product.heartNotes}</h4>
-                  <p>{product.heartNotes.join(', ')}</p>
+                  <p>{displayHeartNotes.join(', ')}</p>
                 </div>
               )}
-              {product.baseNotes && product.baseNotes.length > 0 && (
+              {displayBaseNotes && displayBaseNotes.length > 0 && (
                 <div className={styles.noteGroup}>
                   <h4>{t.product.baseNotes}</h4>
-                  <p>{product.baseNotes.join(', ')}</p>
+                  <p>{displayBaseNotes.join(', ')}</p>
                 </div>
               )}
             </div>
@@ -196,13 +221,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
           <div className={styles.description}>
             <h3>{t.product.description}</h3>
-            <p>{product.description}</p>
+            <p>{displayDescription}</p>
           </div>
 
-          {product.fragranceProfiles && product.fragranceProfiles.length > 0 && (
+          {displayFragranceProfiles && displayFragranceProfiles.length > 0 && (
             <div className={styles.description}>
               <h3>{t.product.fragranceProfile}</h3>
-              <p>{product.fragranceProfiles.join(', ')}</p>
+              <p>{displayFragranceProfiles.join(', ')}</p>
             </div>
           )}
 

@@ -25,6 +25,11 @@ export default function AddProductPage() {
     topNotes: '',
     heartNotes: '',
     baseNotes: '',
+    descriptionHr: '',
+    topNotesHr: '',
+    heartNotesHr: '',
+    baseNotesHr: '',
+    fragranceProfilesHr: '',
   });
 
   const handleChange = (e: any) => {
@@ -61,6 +66,11 @@ export default function AddProductPage() {
           topNotes: formData.topNotes.split(',').map(s => s.trim()),
           heartNotes: formData.heartNotes.split(',').map(s => s.trim()),
           baseNotes: formData.baseNotes.split(',').map(s => s.trim()),
+          descriptionHr: formData.descriptionHr || null,
+          topNotesHr: formData.topNotesHr.split(',').map(s => s.trim()).filter(Boolean),
+          heartNotesHr: formData.heartNotesHr.split(',').map(s => s.trim()).filter(Boolean),
+          baseNotesHr: formData.baseNotesHr.split(',').map(s => s.trim()).filter(Boolean),
+          fragranceProfilesHr: formData.fragranceProfilesHr.split(',').map(s => s.trim()).filter(Boolean),
         }),
       });
 
@@ -263,6 +273,58 @@ export default function AddProductPage() {
               style={{ width: '100%', padding: '10px', marginTop: '5px' }}
             />
           </div>
+
+          <h2>Croatian Content (HR)</h2>
+
+          <label>
+            Description (HR)
+            <textarea
+              name="descriptionHr"
+              value={formData.descriptionHr}
+              onChange={handleChange}
+              placeholder="Croatian description..."
+            />
+          </label>
+
+          <label>
+            Top Notes (HR) — comma separated
+            <input
+              name="topNotesHr"
+              value={formData.topNotesHr}
+              onChange={handleChange}
+              placeholder="Bergamot, Limun, Cimet"
+            />
+          </label>
+
+          <label>
+            Heart Notes (HR) — comma separated
+            <input
+              name="heartNotesHr"
+              value={formData.heartNotesHr}
+              onChange={handleChange}
+              placeholder="Ruža, Jasmin"
+            />
+          </label>
+
+          <label>
+            Base Notes (HR) — comma separated
+            <input
+              name="baseNotesHr"
+              value={formData.baseNotesHr}
+              onChange={handleChange}
+              placeholder="Sandalovina, Mošus"
+            />
+          </label>
+
+          <label>
+            Fragrance Profiles (HR) — comma separated
+            <input
+              name="fragranceProfilesHr"
+              value={formData.fragranceProfilesHr}
+              onChange={handleChange}
+              placeholder="Drveni, Orijentalni"
+            />
+          </label>
 
           <div>
             <label>Product Images</label>

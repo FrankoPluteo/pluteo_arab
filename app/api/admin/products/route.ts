@@ -20,6 +20,11 @@ export async function POST(request: Request) {
       topNotes,
       heartNotes,
       baseNotes,
+      descriptionHr,
+      topNotesHr,
+      heartNotesHr,
+      baseNotesHr,
+      fragranceProfilesHr,
     } = body;
 
     // Find or create brand
@@ -54,6 +59,11 @@ export async function POST(request: Request) {
         topNotes,
         heartNotes,
         baseNotes,
+        descriptionHr: descriptionHr || null,
+        topNotesHr: topNotesHr || [],
+        heartNotesHr: heartNotesHr || [],
+        baseNotesHr: baseNotesHr || [],
+        fragranceProfilesHr: fragranceProfilesHr || [],
       },
     });
 

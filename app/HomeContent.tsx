@@ -84,7 +84,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             src={lattafaimg}
             alt="Lattafa perfumes — luxury Arabian fragrances"
             style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
-            sizes="(max-width: 768px) 100vw, 33vw"
+            sizes="(max-width: 768px) 100vw, 25vw"
           />
           <div className={styles.categoryOverlay} />
           <Link href="/products?brand=Lattafa" className={styles.brandLink}>LATTAFA</Link>
@@ -96,7 +96,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             src={armafimg}
             alt="Armaf perfumes — premium oriental fragrances"
             style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
-            sizes="(max-width: 768px) 100vw, 33vw"
+            sizes="(max-width: 768px) 100vw, 25vw"
           />
           <div className={styles.categoryOverlay} />
           <Link href="/products?brand=Armaf" className={styles.brandLink}>ARMAF</Link>
@@ -108,10 +108,15 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             src={frenchavenueimg}
             alt="French Avenue perfumes — modern luxury scents"
             style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
-            sizes="(max-width: 768px) 100vw, 33vw"
+            sizes="(max-width: 768px) 100vw, 25vw"
           />
           <div className={styles.categoryOverlay} />
           <Link href="/products?brand=French Avenue" className={styles.brandLink}>FRENCH AVENUE</Link>
+        </div>
+
+        <div className={styles.brandBox}>
+          <div className={styles.categoryOverlay} />
+          <Link href="/products?brand=Ahmed Al Maghribi" className={styles.brandLink}>AHMED AL MAGHRIBI</Link>
         </div>
       </div>
 

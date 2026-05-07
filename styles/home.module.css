@@ -100,10 +100,11 @@
 }
 
 /* ── Brand Section ────────────────────────────────────── */
-/* Full width, 3 panels touching — no gap, no margin */
+/* Full width, 4 panels touching — no gap, no margin */
+/* aspect-ratio 16/9 across 4 boxes means each box is ~4:9 tall */
 .brandSection {
   width: 100%;
-  height: 500px;
+  aspect-ratio: 16 / 9;
   display: flex;
 }
 
@@ -199,6 +200,21 @@
   }
 }
 
+@media (max-width: 900px) {
+  /* Brand panels: 2x2 grid on tablets */
+  .brandSection {
+    flex-wrap: wrap;
+    aspect-ratio: unset;
+    height: auto;
+  }
+
+  .brandBox {
+    width: 50%;
+    flex: none;
+    aspect-ratio: 1 / 1;
+  }
+}
+
 @media (max-width: 768px) {
   .homeBackground {
     height: 100svh;
@@ -238,15 +254,17 @@
     border-bottom: 1px solid var(--color-dark);
   }
 
-  /* Brand panels stack vertically on mobile */
+  /* Brand panels: 2x2 grid on mobile */
   .brandSection {
-    flex-direction: column;
-    height: 400px;
+    flex-wrap: wrap;
+    aspect-ratio: unset;
+    height: auto;
   }
 
   .brandBox {
-    width: 100%;
-    height: 200px;
+    width: 50%;
+    flex: none;
+    aspect-ratio: 1 / 1;
   }
 
   .brandLink {

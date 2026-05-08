@@ -13,6 +13,7 @@ import ahmedimg from '../public/ahmedalmaghribi.webp';
 import frenchavenueimg from '../public/frenchavenue.webp';
 import armafimg from '../public/armaf.webp';
 import wallpaperhome from '../public/wallpaperhome.webp';
+import promoImg from "../public/majcindan1.webp";
 
 interface HomeContentProps {
   featuredProducts: Product[];
@@ -62,7 +63,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           {/* Promo — desktop/laptop only, hidden on mobile */}
           <div className={styles.heroPromo}>
             <div className={styles.heroPromoFrame}>
-              {/* Drop your promo image here — Instagram story ratio (9:16) */}
+              <Image fill src={promoImg} alt="Promo" style={{ objectFit: 'cover' }} />
             </div>
             <Link href="/products?gender=female" className={styles.promoShopBtn}>
               {t.home.promoShop}
@@ -84,7 +85,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
       <div className={styles.promoSection}>
         <div className={styles.promoCard}>
           <div className={styles.promoPhotoFrame}>
-            {/* Drop your promo image here — Instagram story ratio (9:16) */}
+              <Image fill src={promoImg} alt="Promo" style={{ objectFit: 'cover' }} />
           </div>
           <Link href="/products?gender=female" className={styles.promoShopBtn}>
             {t.home.promoShop}

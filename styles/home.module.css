@@ -8,7 +8,6 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 40px;
   align-items: center;
   overflow: hidden;
 }
@@ -99,9 +98,49 @@
   color: var(--color-white);
 }
 
-/* ── Promo Box ────────────────────────────────────────── */
-.promoSection {
+/* ── Hero Content (side-by-side layout on desktop) ───── */
+.heroContent {
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 80px;
+  width: 100%;
+  padding: 0 60px 50px; /* 50px bottom clears the filterLinkBox */
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.heroPromo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Frame sized by height so 9:16 ratio fills the hero nicely */
+.heroPromoFrame {
+  height: min(calc(100vh - 200px), 500px);
+  aspect-ratio: 9 / 16;
+  width: auto;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--color-dark) 0%, var(--color-light) 100%);
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Promo Box (mobile-only standalone section) ───────── */
+/* Hidden on desktop — shown only on mobile via media query */
+.promoSection {
+  display: none;
   justify-content: center;
   align-items: center;
   padding: 70px 20px;
@@ -125,6 +164,7 @@
   box-shadow: 0 12px 40px rgba(108, 83, 78, 0.25);
 }
 
+/* Shared button — used both in hero (desktop) and standalone section (mobile) */
 .promoShopBtn {
   font-family: Montserrat, sans-serif;
   font-weight: 700;
@@ -265,7 +305,28 @@
   .homeBackground {
     height: 100svh;
     min-height: unset;
+  }
+
+  /* Collapse hero back to a vertical column on mobile */
+  .heroContent {
+    flex-direction: column;
     gap: 20px;
+    padding: 0 20px 40px;
+  }
+
+  .heroLeft {
+    gap: 20px;
+  }
+
+  /* Hide the in-hero promo on mobile */
+  .heroPromo {
+    display: none;
+  }
+
+  /* Show the standalone promo section below the hero on mobile */
+  .promoSection {
+    display: flex;
+    padding: 50px 20px;
   }
 
   .logolongimg {
@@ -298,10 +359,6 @@
   .filterLink {
     font-size: 10px;
     border-bottom: 1px solid var(--color-dark);
-  }
-
-  .promoSection {
-    padding: 50px 20px;
   }
 
   .promoPhotoFrame {

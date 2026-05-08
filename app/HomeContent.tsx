@@ -37,22 +37,37 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           className={styles.wallpaperhome}
         />
         <h1 className="sr-only">Pluteo — Premium Arabian Perfumes &amp; Oud Fragrances in Croatia</h1>
-        <Image
-          className={styles.logolongimg}
-          src={logolong}
-          alt="Pluteo — Arabian Perfume Shop Croatia"
-          width={493}
-          height={310}
-          priority
-        />
-        <Link href="/products" className={styles.goToShop}>{t.home.shop}</Link>
 
-        <div className={styles.taglines}>
-          <span className={styles.tagline}>{t.home.tagline1}</span>
-          <span className={styles.taglineDot}>&middot;</span>
-          <span className={styles.tagline}>{t.home.tagline2}</span>
-          <span className={styles.taglineDot}>&middot;</span>
-          <span className={styles.tagline}>{t.home.tagline3}</span>
+        <div className={styles.heroContent}>
+          <div className={styles.heroLeft}>
+            <Image
+              className={styles.logolongimg}
+              src={logolong}
+              alt="Pluteo — Arabian Perfume Shop Croatia"
+              width={493}
+              height={310}
+              priority
+            />
+            <Link href="/products" className={styles.goToShop}>{t.home.shop}</Link>
+
+            <div className={styles.taglines}>
+              <span className={styles.tagline}>{t.home.tagline1}</span>
+              <span className={styles.taglineDot}>&middot;</span>
+              <span className={styles.tagline}>{t.home.tagline2}</span>
+              <span className={styles.taglineDot}>&middot;</span>
+              <span className={styles.tagline}>{t.home.tagline3}</span>
+            </div>
+          </div>
+
+          {/* Promo — desktop/laptop only, hidden on mobile */}
+          <div className={styles.heroPromo}>
+            <div className={styles.heroPromoFrame}>
+              {/* Drop your promo image here — Instagram story ratio (9:16) */}
+            </div>
+            <Link href="/products?gender=female" className={styles.promoShopBtn}>
+              {t.home.promoShop}
+            </Link>
+          </div>
         </div>
 
         <div className={styles.filterLinkBox}>

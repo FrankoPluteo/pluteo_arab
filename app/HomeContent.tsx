@@ -65,6 +65,18 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
         </div>
       </div>
 
+      {/* Promo Box */}
+      <div className={styles.promoSection}>
+        <div className={styles.promoCard}>
+          <div className={styles.promoPhotoFrame}>
+            {/* Drop your promo image here — Instagram story ratio (9:16) */}
+          </div>
+          <Link href="/products?gender=female" className={styles.promoShopBtn}>
+            {t.home.promoShop}
+          </Link>
+        </div>
+      </div>
+
       {/* Featured */}
       {featuredProducts.length > 0 && (
         <div className={styles.productsSection}>

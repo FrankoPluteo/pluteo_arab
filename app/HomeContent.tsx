@@ -13,6 +13,7 @@ import ahmedimg from '../public/ahmedalmaghribi.webp';
 import frenchavenueimg from '../public/frenchavenue.webp';
 import armafimg from '../public/armaf.webp';
 import wallpaperhome from '../public/wallpaperhome.webp';
+import promoImg from "../public/majcindan1.webp";
 
 interface HomeContentProps {
   featuredProducts: Product[];
@@ -37,22 +38,37 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           className={styles.wallpaperhome}
         />
         <h1 className="sr-only">Pluteo — Premium Arabian Perfumes &amp; Oud Fragrances in Croatia</h1>
-        <Image
-          className={styles.logolongimg}
-          src={logolong}
-          alt="Pluteo — Arabian Perfume Shop Croatia"
-          width={493}
-          height={310}
-          priority
-        />
-        <Link href="/products" className={styles.goToShop}>{t.home.shop}</Link>
 
-        <div className={styles.taglines}>
-          <span className={styles.tagline}>{t.home.tagline1}</span>
-          <span className={styles.taglineDot}>&middot;</span>
-          <span className={styles.tagline}>{t.home.tagline2}</span>
-          <span className={styles.taglineDot}>&middot;</span>
-          <span className={styles.tagline}>{t.home.tagline3}</span>
+        <div className={styles.heroContent}>
+          <div className={styles.heroLeft}>
+            <Image
+              className={styles.logolongimg}
+              src={logolong}
+              alt="Pluteo — Arabian Perfume Shop Croatia"
+              width={493}
+              height={310}
+              priority
+            />
+            <Link href="/products" className={styles.goToShop}>{t.home.shop}</Link>
+
+            <div className={styles.taglines}>
+              <span className={styles.tagline}>{t.home.tagline1}</span>
+              <span className={styles.taglineDot}>&middot;</span>
+              <span className={styles.tagline}>{t.home.tagline2}</span>
+              <span className={styles.taglineDot}>&middot;</span>
+              <span className={styles.tagline}>{t.home.tagline3}</span>
+            </div>
+          </div>
+
+          {/* Promo — desktop/laptop only, hidden on mobile */}
+          <div className={styles.heroPromo}>
+            <div className={styles.heroPromoFrame}>
+              <Image fill src={promoImg} alt="Promo" style={{ objectFit: 'cover' }} />
+            </div>
+            <Link href="/products?gender=female" className={styles.promoShopBtn}>
+              {t.home.promoShop}
+            </Link>
+          </div>
         </div>
 
         <div className={styles.filterLinkBox}>
@@ -61,6 +77,18 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           </Link>
           <Link href="/products?gender=female" className={styles.filterLink}>
             {t.home.womensPerfumes}
+          </Link>
+        </div>
+      </div>
+
+      {/* Promo Box */}
+      <div className={styles.promoSection}>
+        <div className={styles.promoCard}>
+          <div className={styles.promoPhotoFrame}>
+              <Image fill src={promoImg} alt="Promo" style={{ objectFit: 'cover' }} />
+          </div>
+          <Link href="/products?gender=female" className={styles.promoShopBtn}>
+            {t.home.promoShop}
           </Link>
         </div>
       </div>

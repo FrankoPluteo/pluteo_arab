@@ -31,6 +31,7 @@ export const translations = {
       womensPerfumes: "WOMEN'S PERFUMES",
       featuredTitle: 'FOR THOSE WHO WANT TO STAND OUT',
       bestSellers: 'BEST-SELLING FRAGRANCES',
+      promoShop: 'SHOP!',
     },
 
     product: {
@@ -317,6 +318,7 @@ export const translations = {
       womensPerfumes: 'ŽENSKI PARFEMI',
       featuredTitle: 'IZDVOJENI PARFEMI',
       bestSellers: 'NAJPRODAVANIJI PARFEMI',
+      promoShop: 'POGLEDAJ!',
     },
 
     product: {

@@ -8,7 +8,6 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 40px;
   align-items: center;
   overflow: hidden;
 }
@@ -97,6 +96,92 @@
 .filterLink:hover {
   background-color: var(--color-light);
   color: var(--color-white);
+}
+
+/* ── Hero Content (side-by-side layout on desktop) ───── */
+.heroContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 80px;
+  width: 100%;
+  padding: 0 60px 50px; /* 50px bottom clears the filterLinkBox */
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.heroPromo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Frame sized by height so 9:16 ratio fills the hero nicely */
+.heroPromoFrame {
+  height: min(calc(100vh - 200px), 500px);
+  aspect-ratio: 9 / 16;
+  width: auto;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--color-dark) 0%, var(--color-light) 100%);
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Promo Box (mobile-only standalone section) ───────── */
+/* Hidden on desktop — shown only on mobile via media query */
+.promoSection {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 70px 20px;
+  background: linear-gradient(to bottom, #f9f4f5, #ffffff);
+}
+
+.promoCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.promoPhotoFrame {
+  width: 280px;
+  aspect-ratio: 9 / 16;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--color-dark) 0%, var(--color-light) 100%);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(108, 83, 78, 0.25);
+}
+
+/* Shared button — used both in hero (desktop) and standalone section (mobile) */
+.promoShopBtn {
+  font-family: Montserrat, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 5px;
+  text-decoration: none;
+  color: var(--color-white);
+  background-color: var(--color-dark);
+  padding: 12px 36px;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.promoShopBtn:hover {
+  background-color: var(--color-light);
+  transform: scale(1.05);
 }
 
 /* ── Brand Section ────────────────────────────────────── */
@@ -220,7 +305,28 @@
   .homeBackground {
     height: 100svh;
     min-height: unset;
+  }
+
+  /* Collapse hero back to a vertical column on mobile */
+  .heroContent {
+    flex-direction: column;
     gap: 20px;
+    padding: 0 20px 40px;
+  }
+
+  .heroLeft {
+    gap: 20px;
+  }
+
+  /* Hide the in-hero promo on mobile */
+  .heroPromo {
+    display: none;
+  }
+
+  /* Show the standalone promo section below the hero on mobile */
+  .promoSection {
+    display: flex;
+    padding: 50px 20px;
   }
 
   .logolongimg {
@@ -253,6 +359,16 @@
   .filterLink {
     font-size: 10px;
     border-bottom: 1px solid var(--color-dark);
+  }
+
+  .promoPhotoFrame {
+    width: 240px;
+  }
+
+  .promoShopBtn {
+    font-size: 18px;
+    letter-spacing: 4px;
+    padding: 10px 28px;
   }
 
   /* Brand panels: 2x2 grid on mobile */

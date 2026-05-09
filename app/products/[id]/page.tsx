@@ -32,7 +32,17 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     product.gender === 'men' ? 'muški' : product.gender === 'women' ? 'ženski' : 'unisex';
   const title = `${product.name} – ${brandName} | Pluteo`;
   const rawDesc = product.descriptionHr || product.description || '';
-  const description = `${brandName} ${product.name} ${product.concentration} ${product.size}ml — ${genderLabel} arabijski parfem. ${rawDesc.slice(0, 110).trimEnd()}. Brza dostava diljem Hrvatske.`;
+
+  const trimToWord = (text: string, limit: number): string => {
+    if (text.length <= limit) return text;
+    const cut = text.lastIndexOf(' ', limit);
+    return (cut > 0 ? text.slice(0, cut) : text.slice(0, limit)) + '…';
+  };
+
+  const prefix = `${brandName} ${product.name} ${product.concentration} ${product.size}ml — ${genderLabel} arabijski parfem. `;
+  const suffix = '. Brza dostava diljem Hrvatske.';
+  const descBudget = 155 - prefix.length - suffix.length;
+  const description = `${prefix}${trimToWord(rawDesc, Math.max(descBudget, 20))}${suffix}`;
 
   return {
     title,
@@ -59,7 +69,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} – ${brandName} arabijski parfem | Pluteo`,
-      description: `${rawDesc.slice(0, 150).trimEnd()}. Kupite na Pluteo.`,
+      description: `${trimToWord(rawDesc, 140)}. Kupite na Pluteo.`,
       images: product.images?.length ? [product.images[0]] : ['https://pluteo.shop/og-image.jpg'],
     },
   };

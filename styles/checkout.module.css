@@ -195,6 +195,11 @@
   color: #666;
 }
 
+.discountRow {
+  color: #2a9d5c;
+  font-weight: 600;
+}
+
 .grandTotal {
   font-size: 22px;
   font-weight: 700;

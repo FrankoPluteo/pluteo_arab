@@ -8,28 +8,29 @@ import ClientProviders from '@/components/ClientProviders';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://pluteo.shop'),
   title: {
-    default: 'Pluteo | Premium Arabian Perfumes & Oud Fragrances — Luxury Scents in Europe',
-    template: '%s | Pluteo — Arabian Perfumes & Oud Fragrances',
+    default: 'Pluteo — Premium arabijski parfemi i oud mirisi | Hrvatska',
+    template: '%s | Pluteo – Arabijski parfemi',
   },
-  description: 'Shop authentic Arabian perfumes and luxury oud fragrances from Lattafa, Armaf, and French Avenue. Long-lasting oriental scents with fast shipping across Croatia and Europe. 100% original products.',
-  keywords: 'arabian perfumes, oud perfumes, luxury fragrances, long lasting perfumes, oriental perfumes, niche perfumes, Lattafa, Armaf, French Avenue, perfume shop europe, oud fragrances, arabski parfemi, arapski parfemi, oud parfemi, parfemi hrvatska, luksuzni parfemi, orijentalni parfemi, dugotrajni parfemi, Lattafa parfemi, Armaf parfemi, niche parfemi, parfem za muškarce, parfem za žene',
+  description: 'Pluteo — premium arabijski i nišni parfemi uz brzu dostavu diljem Hrvatske. Originalni mirisi Lattafa, Armaf i French Avenue. 100% originalni proizvodi.',
+  keywords: 'arabski parfemi, arapski parfemi, oud parfemi, parfemi hrvatska, luksuzni parfemi, orijentalni parfemi, dugotrajni parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, niche parfemi, parfem za muškarce, parfem za žene, kupiti parfem online, arabian perfumes, oud perfumes',
   authors: [{ name: 'Pluteo' }],
   alternates: {
-    canonical: 'https://www.pluteo.shop',
+    canonical: 'https://pluteo.shop',
   },
   openGraph: {
-    title: 'Pluteo | Premium Arabian Perfumes & Oud Fragrances — Shipped Across Europe',
-    description: 'Discover authentic Arabian fragrances from Lattafa, Armaf, and French Avenue. Long-lasting luxury oud, musk, and oriental perfumes delivered across Croatia and Europe.',
-    url: 'https://www.pluteo.shop',
+    title: 'Pluteo — Premium arabijski parfemi i oud mirisi',
+    description: 'Otkrijte autentične arabijske parfeme Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
+    url: 'https://pluteo.shop',
     siteName: 'Pluteo',
-    locale: 'en_US',
+    locale: 'hr_HR',
     type: 'website',
   },
   twitter: {
-    card: 'summary',
-    title: 'Pluteo | Arabian & Oud Perfumes — Luxury Fragrances in Europe',
-    description: 'Authentic Arabian perfumes from Lattafa, Armaf & French Avenue. Long-lasting luxury fragrances shipped across Croatia and Europe.',
+    card: 'summary_large_image',
+    title: 'Pluteo — Arabijski i oud parfemi | Hrvatska',
+    description: 'Originalni arabijski parfemi Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
   },
   robots: {
     index: true,
@@ -54,10 +55,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" translate="no">
-      <head>
-        <meta name="google" content="notranslate" />
-      </head>
+    <html lang="hr">
+      <head />
       <body className={inter.className}>
         {/* Meta Pixel — afterInteractive defers load until page is interactive,
             eliminating the render-blocking penalty from the inline <head> script */}
@@ -88,6 +87,26 @@ export default function RootLayout({
             src="https://www.facebook.com/tr?id=4497298900555732&ev=PageView&noscript=1"
           />
         </noscript>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'Pluteo',
+              url: 'https://pluteo.shop',
+              logo: 'https://pluteo.shop/logo.png',
+              description: 'Pluteo — premium arabijski i nišni parfemi uz brzu dostavu diljem Hrvatske.',
+              contactPoint: {
+                '@type': 'ContactPoint',
+                email: 'pluteoinfo@gmail.com',
+                contactType: 'customer service',
+                areaServed: 'HR',
+                availableLanguage: 'Croatian',
+              },
+            }),
+          }}
+        />
         <ClientProviders>
           <Navbar />
           <main className="min-h-screen">

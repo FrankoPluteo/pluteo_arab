@@ -4,19 +4,50 @@ import Footer from '@/components/Footer';
 import { prisma, withReviewAggregates } from '@/lib/prisma';
 import ProductsContent from './ProductsContent';
 
-export const metadata: Metadata = {
-  title: 'Shop Arabian Perfumes & Oud Fragrances — Lattafa, Armaf, French Avenue',
-  description: 'Browse our curated collection of authentic Arabian perfumes, oud fragrances, and luxury oriental scents. Lattafa, Armaf & French Avenue — long-lasting perfumes shipped across Croatia.',
-  keywords: 'buy arabian perfumes, oud perfumes shop, lattafa perfumes, armaf perfumes, french avenue perfumes, luxury oriental fragrances, long lasting perfumes croatia, niche perfumes online',
-  alternates: {
-    canonical: 'https://www.pluteo.shop/products',
-  },
-  openGraph: {
-    title: 'Shop Arabian & Oud Perfumes | Pluteo — Croatia',
-    description: 'Browse authentic Lattafa, Armaf & French Avenue fragrances. Long-lasting luxury Arabian perfumes delivered across Croatia.',
-    url: 'https://www.pluteo.shop/products',
-  },
-};
+const BASE_URL = 'https://pluteo.shop';
+
+export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+
+  // Canonical strips sort/pagination — only brand and gender are "category" params
+  const canonicalParams = new URLSearchParams();
+  if (params.brand) canonicalParams.set('brand', params.brand);
+  if (params.gender) canonicalParams.set('gender', params.gender);
+  const canonicalSuffix = canonicalParams.toString() ? `?${canonicalParams.toString()}` : '';
+  const canonical = `${BASE_URL}/products${canonicalSuffix}`;
+
+  let title: string;
+  let description: string;
+
+  if (params.brand && !params.gender) {
+    title = `${params.brand} parfemi – kupite online | Pluteo`;
+    description = `Otkrijte kolekciju ${params.brand} parfema. Originalni arabijski i orijentalni mirisi uz brzu dostavu diljem Hrvatske.`;
+  } else if (params.gender === 'male' && !params.brand) {
+    title = 'Muški arabijski parfemi – kupite online | Pluteo';
+    description = 'Istražite našu ponudu muških arabijskih parfema. Premium orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+  } else if (params.gender === 'female' && !params.brand) {
+    title = 'Ženski arabijski parfemi – kupite online | Pluteo';
+    description = 'Istražite našu ponudu ženskih arabijskih parfema. Premium orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+  } else if (params.search) {
+    title = `Rezultati pretrage: "${params.search}" | Pluteo`;
+    description = `Rezultati pretrage arabijskih parfema za "${params.search}". Pronađite savršeni miris uz brzu dostavu diljem Hrvatske.`;
+  } else {
+    title = 'Arabijski parfemi – kupite online | Pluteo';
+    description = 'Pregledajte našu kolekciju autentičnih arabijskih parfema, oud mirisa i luksuznih orijentalnih mirisa. Lattafa, Armaf i French Avenue — brza dostava diljem Hrvatske.';
+  }
+
+  return {
+    title,
+    description,
+    keywords: 'arabski parfemi, oud parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, luksuzni orijentalni mirisi, dugotrajni parfemi hrvatska, niche parfemi online',
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+    },
+  };
+}
 
 const ITEMS_PER_PAGE = 9;
 const BRAND_ORDER = ['Lattafa', 'French Avenue', 'Armaf'];
@@ -113,9 +144,36 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       );
     }
 
+    const breadcrumbItems: { name: string; item: string }[] = [
+      { name: 'Početna', item: BASE_URL },
+      { name: 'Parfemi', item: `${BASE_URL}/products` },
+    ];
+    if (params.brand) {
+      breadcrumbItems.push({ name: params.brand, item: `${BASE_URL}/products?brand=${encodeURIComponent(params.brand)}` });
+    } else if (params.gender === 'male') {
+      breadcrumbItems.push({ name: 'Muški parfemi', item: `${BASE_URL}/products?gender=male` });
+    } else if (params.gender === 'female') {
+      breadcrumbItems.push({ name: 'Ženski parfemi', item: `${BASE_URL}/products?gender=female` });
+    }
+
+    const breadcrumbJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbItems.map((crumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+        item: crumb.item,
+      })),
+    };
+
     return (
       <div>
         <Navbar />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
         <ProductsContent
           products={products}
           totalProducts={totalProducts}

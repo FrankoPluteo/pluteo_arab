@@ -53,7 +53,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className={styles.productImageWrap}>
               <Image
                 src={product.images[0]}
-                alt={product.name}
+                alt={`${product.brand.name} ${product.name} – arabijski parfem`}
                 fill
                 style={{ objectFit: 'contain' }}
                 loading="lazy"

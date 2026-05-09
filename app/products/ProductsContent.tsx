@@ -41,10 +41,25 @@ export default function ProductsContent({
   const { t } = useLanguage();
   const ITEMS_PER_PAGE = 9;
 
+  const brandFilter = searchParams.brand;
+  const genderFilter = searchParams.gender;
+
+  let pageHeading: string;
+  if (brandFilter && !genderFilter) {
+    pageHeading = `${brandFilter} parfemi`;
+  } else if (genderFilter === 'male' && !brandFilter) {
+    pageHeading = 'Muški arabijski parfemi';
+  } else if (genderFilter === 'female' && !brandFilter) {
+    pageHeading = 'Ženski arabijski parfemi';
+  } else {
+    pageHeading = 'Arabijski parfemi';
+  }
+
   return (
     <div className={styles.productsContainer}>
+      <h1 className="sr-only">{pageHeading}</h1>
       <div className={styles.logoContainer}>
-        <Image src={logoIcon} alt="Pluteo" width={60} height={60} />
+        <Image src={logoIcon} alt="Pluteo – arabijski parfemi online shop" width={60} height={60} />
       </div>
 
       <SearchBar initialValue={search || ''} />

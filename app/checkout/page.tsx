@@ -9,7 +9,7 @@ import styles from '@/styles/checkout.module.css';
 import { calculateShipping, ShippingMethod } from '@/lib/shipping';
 
 export default function CheckoutPage() {
-  const { items, getTotalPrice } = useCart();
+  const { items, getTotalPrice, promoCode, promoDiscount, promoFreeShipping } = useCart();
   const router = useRouter();
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -33,8 +33,9 @@ export default function CheckoutPage() {
   }
 
   const subtotal = getTotalPrice();
-  const shippingCost = calculateShipping(shippingMethod);
-  const total = subtotal + shippingCost;
+  const baseShipping = calculateShipping(shippingMethod);
+  const shippingCost = promoFreeShipping ? 0 : baseShipping;
+  const total = subtotal - promoDiscount + shippingCost;
 
   return (
     <div>
@@ -75,9 +76,21 @@ export default function CheckoutPage() {
                 <span>Subtotal</span>
                 <span>€{subtotal.toFixed(2)}</span>
               </div>
+              {promoDiscount > 0 && (
+                <div className={`${styles.totalRow} ${styles.discountRow}`}>
+                  <span>Discount {promoCode ? `(${promoCode})` : ''}</span>
+                  <span>−€{promoDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className={styles.totalRow}>
                 <span>Shipping ({shippingMethod === 'boxnow' ? 'BOX NOW' : 'GLS'})</span>
-                <span>€{shippingCost.toFixed(2)}</span>
+                <span>
+                  {promoFreeShipping ? (
+                    <><s>€{baseShipping.toFixed(2)}</s> Free</>
+                  ) : (
+                    `€${shippingCost.toFixed(2)}`
+                  )}
+                </span>
               </div>
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                 <span>Total</span>

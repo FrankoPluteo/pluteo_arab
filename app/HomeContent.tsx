@@ -30,7 +30,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
         <Image
           fill
           src={wallpaperhome}
-          alt="Premium Arabian perfumes and oud fragrances — Pluteo Croatia"
+          alt="Premium arabijski parfemi i oud mirisi – Pluteo Hrvatska"
           priority
           quality={65}
           sizes="100vw"
@@ -44,7 +44,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             <Image
               className={styles.logolongimg}
               src={logolong}
-              alt="Pluteo — Arabian Perfume Shop Croatia"
+              alt="Pluteo — arabijska parfumerija, Hrvatska"
               width={493}
               height={310}
               priority
@@ -63,7 +63,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           {/* Promo — desktop/laptop only, hidden on mobile */}
           <div className={styles.heroPromo}>
             <div className={styles.heroPromoFrame}>
-              <Image fill src={promoImg} alt="Promo" style={{ objectFit: 'cover' }} />
+              <Image fill src={promoImg} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} />
             </div>
             <Link href="/products?gender=female" className={styles.promoShopBtn}>
               {t.home.promoShop}
@@ -85,7 +85,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
       <div className={styles.promoSection}>
         <div className={styles.promoCard}>
           <div className={styles.promoPhotoFrame}>
-              <Image fill src={promoImg} alt="Promo" style={{ objectFit: 'cover' }} />
+              <Image fill src={promoImg} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} />
           </div>
           <Link href="/products?gender=female" className={styles.promoShopBtn}>
             {t.home.promoShop}
@@ -111,7 +111,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           <Image
             fill
             src={lattafaimg}
-            alt="Lattafa perfumes — luxury Arabian fragrances"
+            alt="Lattafa parfemi – luksuzni arabijski mirisi"
             style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
             sizes="(max-width: 768px) 100vw, 25vw"
           />
@@ -123,7 +123,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           <Image
             fill
             src={armafimg}
-            alt="Armaf perfumes — premium oriental fragrances"
+            alt="Armaf parfemi – premium orijentalni mirisi"
             style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
             sizes="(max-width: 768px) 100vw, 25vw"
           />
@@ -135,7 +135,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           <Image
             fill
             src={frenchavenueimg}
-            alt="French Avenue perfumes — modern luxury scents"
+            alt="French Avenue parfemi – moderni luksuzni mirisi"
             style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
             sizes="(max-width: 768px) 100vw, 25vw"
           />
@@ -147,7 +147,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           <Image
             fill
             src={ahmedimg}
-            alt="Ahmed Al Maghribi perfumes — modern luxury scents"
+            alt="Ahmed Al Maghribi parfemi – luksuzni orijentalni mirisi"
             style={{ objectFit: 'cover', filter: 'brightness(0.5)' }}
             sizes="(max-width: 768px) 100vw, 25vw"
           />

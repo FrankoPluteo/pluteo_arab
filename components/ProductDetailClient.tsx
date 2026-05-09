@@ -87,7 +87,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   <div className={styles.slideImageWrap}>
                     <Image
                       src={img}
-                      alt={`${product.brand?.name || ''} ${product.name} — Arabian perfume ${index + 1}`}
+                      alt={`${product.brand?.name || ''} ${product.name} – arabijski parfem, fotografija ${index + 1}`}
                       fill
                       style={{ objectFit: 'contain' }}
                       loading="lazy"
@@ -104,7 +104,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               <div className={styles.mainImageWrap}>
                 <Image
                   src={images[selectedImage]}
-                  alt={`${product.brand?.name || ''} ${product.name} — ${product.concentration} ${product.size}ml Arabian perfume`}
+                  alt={`${product.brand?.name || ''} ${product.name} – ${product.concentration} ${product.size}ml arabijski parfem`}
                   fill
                   style={{ objectFit: 'contain' }}
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -125,7 +125,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 >
                   <Image
                     src={img}
-                    alt={`${product.name} view ${index + 1}`}
+                    alt={`${product.name} – prikaz ${index + 1}`}
                     fill
                     style={{ objectFit: 'cover' }}
                     loading="lazy"

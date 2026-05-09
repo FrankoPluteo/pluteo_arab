@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/cart', '/checkout', '/order/'],
+        disallow: ['/admin/', '/api/', '/cart', '/checkout', '/order/', '/_next/'],
       },
     ],
-    sitemap: 'https://www.pluteo.shop/sitemap.xml',
+    sitemap: 'https://pluteo.shop/sitemap.xml',
   };
 }

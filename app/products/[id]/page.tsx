@@ -23,42 +23,44 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   if (!product) {
     return {
-      title: 'Product Not Found',
+      title: 'Parfem nije pronađen',
     };
   }
 
   const brandName = product.brand?.name || '';
-  const genderLabel = product.gender === 'men' ? "Men's" : product.gender === 'women' ? "Women's" : 'Unisex';
-  const title = `${brandName} ${product.name} ${product.concentration} ${product.size}ml — ${genderLabel} Arabian Perfume`;
-  const description = `Buy ${brandName} ${product.name} ${product.concentration} ${product.size}ml. ${product.description.slice(0, 120)}. Long-lasting luxury Arabian fragrance. Fast delivery across Croatia.`;
+  const genderLabel =
+    product.gender === 'men' ? 'muški' : product.gender === 'women' ? 'ženski' : 'unisex';
+  const title = `${product.name} – ${brandName} | Pluteo`;
+  const rawDesc = product.descriptionHr || product.description || '';
+  const description = `${brandName} ${product.name} ${product.concentration} ${product.size}ml — ${genderLabel} arabijski parfem. ${rawDesc.slice(0, 110).trimEnd()}. Brza dostava diljem Hrvatske.`;
 
   return {
     title,
     description,
-    keywords: `${product.name}, ${brandName}, ${brandName} ${product.name}, arabian perfume, oud perfume, ${product.concentration}, ${genderLabel.toLowerCase()} perfume, luxury fragrance croatia, long lasting perfume, oriental perfume`,
+    keywords: `${product.name}, ${brandName}, ${brandName} ${product.name}, arabski parfem, oud parfem, ${product.concentration}, ${genderLabel} parfem, luksuzni parfem hrvatska, dugotrajni parfem, orijentalni parfem`,
     alternates: {
-      canonical: `https://www.pluteo.shop/products/${product.id}`,
+      canonical: `https://pluteo.shop/products/${product.id}`,
     },
     openGraph: {
-      title: `${brandName} ${product.name} — Buy Authentic Arabian Perfume | Pluteo`,
+      title: `${product.name} – ${brandName} — kupite originalni arabijski parfem | Pluteo`,
       description,
-      url: `https://www.pluteo.shop/products/${product.id}`,
+      url: `https://pluteo.shop/products/${product.id}`,
       siteName: 'Pluteo',
       images: product.images?.length
         ? product.images.map((img) => ({
             url: img,
             width: 800,
             height: 800,
-            alt: `${brandName} ${product.name} ${product.concentration} Arabian perfume`,
+            alt: `${brandName} ${product.name} ${product.concentration} – arabijski parfem`,
           }))
-        : [{ url: 'https://www.pluteo.shop/og-image.jpg', width: 1200, height: 630 }],
+        : [{ url: 'https://pluteo.shop/og-image.jpg', width: 1200, height: 630 }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${brandName} ${product.name} — Arabian Perfume | Pluteo`,
-      description: `${product.description.slice(0, 150)}. Shop now at Pluteo.`,
-      images: product.images?.length ? [product.images[0]] : ['https://www.pluteo.shop/og-image.jpg'],
+      title: `${product.name} – ${brandName} arabijski parfem | Pluteo`,
+      description: `${rawDesc.slice(0, 150).trimEnd()}. Kupite na Pluteo.`,
+      images: product.images?.length ? [product.images[0]] : ['https://pluteo.shop/og-image.jpg'],
     },
   };
 }
@@ -90,7 +92,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     category: 'Perfume',
     offers: {
       '@type': 'Offer',
-      url: `https://www.pluteo.shop/products/${product.id}`,
+      url: `https://pluteo.shop/products/${product.id}`,
       priceCurrency: 'EUR',
       price: finalPrice.toFixed(2),
       ...(hasDiscount && {

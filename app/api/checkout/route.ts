@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
-import { calculateShipping, isCountryAllowed, ShippingMethod } from '@/lib/shipping';
+import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMethod } from '@/lib/shipping';
 
 export async function POST(request: Request) {
   try {
@@ -212,7 +212,7 @@ export async function POST(request: Request) {
 
 
     const baseShipping = calculateShipping(shippingMethod);
-    const shippingCost = promoFreeShipping ? 0 : baseShipping;
+    const shippingCost = (promoFreeShipping || isFreeShippingEligible(subtotal)) ? 0 : baseShipping;
     const total = subtotal - promoDiscount + shippingCost;
 
     const orderNumber = `PLA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;

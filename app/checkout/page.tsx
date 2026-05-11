@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import CheckoutForm from '@/components/CheckoutForm';
 import styles from '@/styles/checkout.module.css';
-import { calculateShipping, ShippingMethod } from '@/lib/shipping';
+import { calculateShipping, isFreeShippingEligible, ShippingMethod } from '@/lib/shipping';
 
 export default function CheckoutPage() {
   const { items, getTotalPrice, promoCode, promoDiscount, promoFreeShipping } = useCart();
@@ -34,7 +34,8 @@ export default function CheckoutPage() {
 
   const subtotal = getTotalPrice();
   const baseShipping = calculateShipping(shippingMethod);
-  const shippingCost = promoFreeShipping ? 0 : baseShipping;
+  const autoFreeShipping = isFreeShippingEligible(subtotal);
+  const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
   const total = subtotal - promoDiscount + shippingCost;
 
   return (
@@ -85,8 +86,8 @@ export default function CheckoutPage() {
               <div className={styles.totalRow}>
                 <span>Shipping ({shippingMethod === 'boxnow' ? 'BOX NOW' : 'GLS'})</span>
                 <span>
-                  {promoFreeShipping ? (
-                    <><s>€{baseShipping.toFixed(2)}</s> Free</>
+                  {(promoFreeShipping || autoFreeShipping) ? (
+                    <><s style={{ color: '#aaa', marginRight: 4 }}>€{baseShipping.toFixed(2)}</s> Free</>
                   ) : (
                     `€${shippingCost.toFixed(2)}`
                   )}

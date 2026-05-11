@@ -98,6 +98,8 @@ export const translations = {
       continueShopping: 'Continue Shopping',
       notEnoughStock: 'Not enough stock available.',
       somethingWentWrong: 'Something went wrong. Please try again.',
+      freeShippingProgress: (remaining: number) => `Add €${remaining.toFixed(2)} more for free shipping!`,
+      freeShippingUnlocked: 'Free shipping unlocked on this order!',
     },
 
     contact: {
@@ -182,6 +184,7 @@ export const translations = {
       shipping: 'Shipping',
       free: 'FREE',
       total: 'Total',
+      freeShippingBadge: 'FREE (order over €40)',
     },
 
     emailModal: {
@@ -256,7 +259,7 @@ export const translations = {
       pageTitle: 'LEGAL INFORMATION',
       leadText: 'Shipping, returns, and company details for your peace of mind',
       shippingTitle: 'Shipping',
-      shippingBody1: 'All orders are shipped via GLS courier service within Croatia. Shipping is a fixed price of 4.99 € per order, regardless of the number of items.',
+      shippingBody1: 'All orders are shipped via GLS courier service within Croatia. Shipping is a fixed price of 4.99 € per order (or 2.69 € via BOX NOW locker), regardless of the number of items. Orders over €40 qualify for free shipping.',
       shippingBody2: 'Estimated delivery time is 2–5 business days from the date of order confirmation. You will receive a tracking number via email once your order has been dispatched.',
       returnsTitle: 'Returns & Refunds',
       returnsBody1: 'If your package arrives damaged, you are entitled to return it for a full refund. Please contact us within 14 days of receiving your order with photos of the damaged item and packaging.',
@@ -385,6 +388,8 @@ export const translations = {
       continueShopping: 'Nastavi Kupovinu',
       notEnoughStock: 'Nema dovoljno zaliha.',
       somethingWentWrong: 'Nešto je pošlo po krivu. Molimo pokušajte ponovno.',
+      freeShippingProgress: (remaining: number) => `Dodajte još €${remaining.toFixed(2)} za besplatnu dostavu!`,
+      freeShippingUnlocked: 'Besplatna dostava na ovu narudžbu!',
     },
 
     contact: {
@@ -469,6 +474,7 @@ export const translations = {
       shipping: 'Dostava',
       free: 'BESPLATNO',
       total: 'Ukupno',
+      freeShippingBadge: 'BESPLATNO (narudžba iznad €40)',
     },
 
     emailModal: {
@@ -543,7 +549,7 @@ export const translations = {
       pageTitle: 'PRAVNE INFORMACIJE',
       leadText: 'Podaci o dostavi, povratima i tvrtki za vaš mir',
       shippingTitle: 'Dostava',
-      shippingBody1: 'Sve narudžbe šaljemo putem GLS kurirske službe unutar Hrvatske. Dostava je fiksna cijena 4,99 € po narudžbi, bez obzira na broj artikala.',
+      shippingBody1: 'Sve narudžbe šaljemo putem GLS kurirske službe unutar Hrvatske. Dostava je fiksna cijena 4,99 € po narudžbi (ili 2,69 € putem BOX NOW ormarića), bez obzira na broj artikala. Narudžbe iznad €40 ostvaruju besplatnu dostavu.',
       shippingBody2: 'Procijenjeno vrijeme dostave je 2–5 radnih dana od datuma potvrde narudžbe. Primit ćete broj za praćenje putem e-pošte kada vaša narudžba bude otpremljena.',
       returnsTitle: 'Povrati i Povrat Novca',
       returnsBody1: 'Ako vaš paket stigne oštećen, imate pravo na povrat uz puni povrat novca. Molimo kontaktirajte nas u roku od 14 dana od primitka narudžbe s fotografijama oštećene robe i pakiranja.',

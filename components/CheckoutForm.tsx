@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import styles from '@/styles/checkout.module.css';
-import { calculateShipping, ShippingMethod } from '@/lib/shipping';
+import { calculateShipping, isFreeShippingEligible, ShippingMethod } from '@/lib/shipping';
 
 interface SelectedLocker {
   id: string;
@@ -31,7 +31,8 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
   const subtotal = getTotalPrice();
   const baseShipping = calculateShipping(shippingMethod);
-  const shippingCost = promoFreeShipping ? 0 : baseShipping;
+  const autoFreeShipping = isFreeShippingEligible(subtotal);
+  const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
   const total = subtotal - promoDiscount + shippingCost;
 
   const [formData, setFormData] = useState({
@@ -160,7 +161,11 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             <div className={styles.deliveryCardTitle}>{t.checkout.boxnowTitle}</div>
             <div className={styles.deliveryCardDesc}>{t.checkout.boxnowDesc}</div>
           </div>
-          <div className={styles.deliveryCardPrice}>€2.69</div>
+          <div className={styles.deliveryCardPrice}>
+            {autoFreeShipping ? (
+              <><s style={{ color: '#aaa', fontSize: '13px' }}>€2.69</s> {t.checkout.free}</>
+            ) : '€2.69'}
+          </div>
         </label>
 
         {/* GLS */}
@@ -179,7 +184,11 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             <div className={styles.deliveryCardTitle}>{t.checkout.glsTitle}</div>
             <div className={styles.deliveryCardDesc}>{t.checkout.glsDesc}</div>
           </div>
-          <div className={styles.deliveryCardPrice}>€4.99</div>
+          <div className={styles.deliveryCardPrice}>
+            {autoFreeShipping ? (
+              <><s style={{ color: '#aaa', fontSize: '13px' }}>€4.99</s> {t.checkout.free}</>
+            ) : '€4.99'}
+          </div>
         </label>
       </div>
 

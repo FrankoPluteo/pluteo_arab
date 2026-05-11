@@ -5,7 +5,7 @@ import { useCart } from '@/lib/store';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import styles from '@/styles/cart.module.css';
-import { calculateShipping } from '@/lib/shipping';
+import { calculateShipping, FREE_SHIPPING_THRESHOLD, isFreeShippingEligible } from '@/lib/shipping';
 import Footer from '@/components/Footer';
 import TesterModal from '@/components/TesterModal';
 import { useLanguage } from '@/lib/languageContext';
@@ -180,8 +180,11 @@ export default function CartPage() {
 
   const subtotal = getTotalPrice();
   const baseShipping = calculateShipping();
-  const shippingCost = promoFreeShipping ? 0 : baseShipping;
+  const autoFreeShipping = isFreeShippingEligible(subtotal);
+  const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
   const total = subtotal - promoDiscount;
+  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   async function handleApplyPromo(e: React.FormEvent) {
     e.preventDefault();
@@ -303,6 +306,22 @@ export default function CartPage() {
 
           <div className={styles.orderSummary}>
             <h2>{t.cart.orderSummary}</h2>
+
+            {!promoFreeShipping && (
+              <div className={styles.freeShippingBar}>
+                <p className={styles.freeShippingText}>
+                  {autoFreeShipping
+                    ? t.cart.freeShippingUnlocked
+                    : t.cart.freeShippingProgress(freeShippingRemaining)}
+                </p>
+                <div className={styles.progressBarBg}>
+                  <div
+                    className={styles.progressBarFill}
+                    style={{ width: `${freeShippingProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>{t.cart.subtotal}</span>

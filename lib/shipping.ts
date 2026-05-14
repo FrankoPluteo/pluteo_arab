@@ -11,8 +11,8 @@ export function calculateShipping(method: ShippingMethod = 'gls'): number {
   return method === 'boxnow' ? BOXNOW_SHIPPING_COST : GLS_SHIPPING_COST;
 }
 
-export function isFreeShippingEligible(subtotal: number): boolean {
-  return subtotal >= FREE_SHIPPING_THRESHOLD;
+export function isFreeShippingEligible(subtotal: number, method: ShippingMethod = 'boxnow'): boolean {
+  return method === 'boxnow' && subtotal >= FREE_SHIPPING_THRESHOLD;
 }
 
 export function isCountryAllowed(country: string): boolean {

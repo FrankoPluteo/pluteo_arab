@@ -212,7 +212,7 @@ export async function POST(request: Request) {
 
 
     const baseShipping = calculateShipping(shippingMethod);
-    const shippingCost = (promoFreeShipping || isFreeShippingEligible(subtotal)) ? 0 : baseShipping;
+    const shippingCost = (promoFreeShipping || isFreeShippingEligible(subtotal, shippingMethod)) ? 0 : baseShipping;
     const total = subtotal - promoDiscount + shippingCost;
 
     const orderNumber = `PLA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;

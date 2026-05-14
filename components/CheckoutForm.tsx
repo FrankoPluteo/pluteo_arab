@@ -31,7 +31,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
   const subtotal = getTotalPrice();
   const baseShipping = calculateShipping(shippingMethod);
-  const autoFreeShipping = isFreeShippingEligible(subtotal);
+  const autoFreeShipping = isFreeShippingEligible(subtotal, shippingMethod);
   const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
   const total = subtotal - promoDiscount + shippingCost;
 
@@ -184,11 +184,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             <div className={styles.deliveryCardTitle}>{t.checkout.glsTitle}</div>
             <div className={styles.deliveryCardDesc}>{t.checkout.glsDesc}</div>
           </div>
-          <div className={styles.deliveryCardPrice}>
-            {autoFreeShipping ? (
-              <><s style={{ color: '#aaa', fontSize: '13px' }}>€4.99</s> {t.checkout.free}</>
-            ) : '€4.99'}
-          </div>
+          <div className={styles.deliveryCardPrice}>€4.99</div>
         </label>
       </div>
 

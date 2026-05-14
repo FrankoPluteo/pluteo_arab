@@ -34,7 +34,7 @@ export default function CheckoutPage() {
 
   const subtotal = getTotalPrice();
   const baseShipping = calculateShipping(shippingMethod);
-  const autoFreeShipping = isFreeShippingEligible(subtotal);
+  const autoFreeShipping = isFreeShippingEligible(subtotal, shippingMethod);
   const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
   const total = subtotal - promoDiscount + shippingCost;
 

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 // Fallback endsAt 14 days from now if promo isn't in DB yet.
 const FALLBACK_ENDS_AT = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
-const CAMPAIGN_PRODUCTS = ['Khamrah Dukhan', 'Angham', 'Vulcan Feu'];
+const CAMPAIGN_PRODUCTS = ['Club de Nuit Woman', 'The Kingdom For Women', 'Yara'];
 
 export default async function LjetoPage() {
   const [promo, products] = await Promise.all([

@@ -6,7 +6,7 @@ import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMe
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, tester, customerInfo, promoCode: promoCodeInput, cartSessionId } = body;
+    const { items, tester, customerInfo, promoCode: promoCodeInput, cartSessionId, utm } = body;
 
     const shippingMethod: ShippingMethod = customerInfo?.shippingMethod || 'gls';
 
@@ -247,6 +247,9 @@ export async function POST(request: Request) {
         promoDiscount,
         paymentStatus: 'pending',
         orderStatus: 'processing',
+        utmSource: utm?.utm_source || null,
+        utmMedium: utm?.utm_medium || null,
+        utmCampaign: utm?.utm_campaign || null,
       } as any,
     });
 

@@ -171,6 +171,15 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             )}
           </div>
 
+          <div className={styles.discountBanner}>
+            <span className={styles.discountBannerTag}>%</span>
+            <div className={styles.discountBannerContent}>
+              <span className={styles.discountBannerLabel}>10% off your order</span>
+              <span className={styles.discountBannerCode}>PLUTEO10</span>
+            </div>
+            <span className={styles.discountBannerHint}>Use at checkout</span>
+          </div>
+
           {isLowStock && (
             <div className={styles.lowStock}>
               <span className={styles.lowStockIcon}>&#9888;</span>

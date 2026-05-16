@@ -12,8 +12,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Fallback endsAt 14 days from now if promo isn't in DB yet.
-const FALLBACK_ENDS_AT = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+// Campaign: Mon 19 May 2026 17:00 CEST → Mon 2 Jun 2026 17:00 CEST (= 15:00 UTC)
+const CAMPAIGN_ENDS_AT = '2026-06-02T15:00:00.000Z';
+const FALLBACK_ENDS_AT = CAMPAIGN_ENDS_AT;
 const CAMPAIGN_PRODUCTS = ['Club de Nuit Woman', 'The Kingdom For Women', 'Yara'];
 
 export default async function LjetoPage() {

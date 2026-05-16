@@ -7,16 +7,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const endsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+  // Campaign: Mon 19 May 2026 17:00 CEST → Mon 2 Jun 2026 17:00 CEST (= 15:00 UTC)
+  const startsAt = new Date('2026-05-19T15:00:00.000Z');
+  const endsAt   = new Date('2026-06-02T15:00:00.000Z');
 
   const promo = await prisma.promoCode.upsert({
     where: { code: 'LJETO15' },
-    update: { endsAt, isActive: true },
+    update: { startsAt, endsAt, isActive: true },
     create: {
       code: 'LJETO15',
       discountType: 'percent',
       discountValue: 15,
       minOrderValue: 0,
+      startsAt,
       endsAt,
       isActive: true,
       appliesToSaleItems: true,

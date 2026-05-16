@@ -97,6 +97,14 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     setError('');
 
     try {
+      let utmData: Record<string, string> = {};
+      try {
+        const stored = localStorage.getItem('utm');
+        if (stored) utmData = JSON.parse(stored);
+      } catch {
+        // localStorage not available — skip UTM
+      }
+
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -106,6 +114,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             ? { product: selectedTester, quantity: 1, isTester: true }
             : null,
           promoCode: promoCode ?? undefined,
+          utm: utmData,
           customerInfo: {
             ...formData,
             shippingMethod,

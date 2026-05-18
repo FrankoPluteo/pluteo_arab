@@ -15,7 +15,7 @@ Yara — nježna, cvjetna, postojana. Savršena za tople dane.
 The Kingdom For Women — elegantna i bogata. Miris koji ostaje.
 Club de Nuit Woman — zlatna klasika s karakterom.
 
-Otkrij sve na pluteo.shop →
+Otkrij sve na pluteo.shop → 
 
 Besplatna dostava iznad 40€.
 

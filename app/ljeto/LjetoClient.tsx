@@ -75,6 +75,7 @@ export default function LjetoClient({ promoEndsAt }: Props) {
           <p className={styles.promoRevealText}>Tvoj kod za 15% popusta:</p>
           <p className={styles.promoCode}>LJETO15</p>
           <p className={styles.promoSubtext}>Upiši kod pri narudžbi · vrijedi 14 dana</p>
+          <p className={styles.socialProof}>Pridruži se 200+ zadovoljnih kupaca</p>
         </div>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -90,6 +91,7 @@ export default function LjetoClient({ promoEndsAt }: Props) {
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? 'Slanje…' : 'Dobij 15% popusta'}
           </button>
+          <p className={styles.socialProof}>Pridruži se 200+ zadovoljnih kupaca</p>
           {error && <p className={styles.errorMsg}>{error}</p>}
         </form>
       )}

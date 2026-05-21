@@ -63,6 +63,8 @@ export default function LjetoClient({ promoEndsAt }: Props) {
 
   return (
     <>
+      <p className={styles.testimonial}>⭐⭐⭐⭐⭐ &ldquo;Miris je prekrasan, dostava stigla za 2 dana.&rdquo; — Maja, Zagreb</p>
+
       {/* Countdown */}
       <div className={styles.countdownWrap}>
         <span className={styles.countdownLabel}>Ponuda ističe za</span>

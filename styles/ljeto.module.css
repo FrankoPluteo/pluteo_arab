@@ -48,6 +48,15 @@
   line-height: 1.6;
 }
 
+/* ── Testimonial ─────────────────────────────────────────── */
+.testimonial {
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(245, 240, 235, 0.75);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
 /* ── Countdown ───────────────────────────────────────────── */
 .countdownWrap {
   display: flex;

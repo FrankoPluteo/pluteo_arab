@@ -14,57 +14,88 @@ export async function sendOrderConfirmation(orderData: {
   shippingCost?: number;
   deliveryMethod?: string;
   boxnowLockerAddress?: string | null;
+  boxnowLockerName?: string | null;
   shippingAddress?: string | null;
   shippingCity?: string | null;
   shippingZip?: string | null;
   promoCode?: string | null;
   promoDiscount?: number;
   paidAt?: Date | null;
+  language?: 'en' | 'hr';
 }) {
-  try {
-    const orderDate = orderData.paidAt
-      ? new Date(orderData.paidAt).toLocaleDateString('hr-HR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
-      : new Date().toLocaleDateString('hr-HR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
+  const isHr = orderData.language === 'hr';
 
-    const shipping = orderData.shippingCost ?? 0;
-    const promoDiscount = orderData.promoDiscount ?? 0;
-    const subtotal =
-      orderData.subtotal ?? orderData.total - shipping + promoDiscount;
+  const orderDate = orderData.paidAt
+    ? new Date(orderData.paidAt).toLocaleDateString('hr-HR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+    : new Date().toLocaleDateString('hr-HR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
 
-    // PDV (10%) is included in the price
-    const vatAmount = subtotal - subtotal / 1.1;
+  const shipping = orderData.shippingCost ?? 0;
+  const promoDiscount = orderData.promoDiscount ?? 0;
+  const subtotal =
+    orderData.subtotal ?? orderData.total - shipping + promoDiscount;
 
-    let deliveryAddress = '';
-    if (orderData.deliveryMethod === 'boxnow' && orderData.boxnowLockerAddress) {
-      deliveryAddress = `BOX NOW: ${orderData.boxnowLockerAddress}`;
-    } else if (orderData.shippingAddress) {
-      const parts = [
-        orderData.shippingAddress,
-        orderData.shippingCity,
-        orderData.shippingZip,
-      ].filter(Boolean);
-      deliveryAddress = parts.join(', ');
-    }
+  let deliveryAddress = '';
+  if (orderData.deliveryMethod === 'boxnow' && orderData.boxnowLockerAddress) {
+    deliveryAddress = `BOX NOW: ${orderData.boxnowLockerAddress}`;
+  } else if (orderData.shippingAddress) {
+    const parts = [
+      orderData.shippingAddress,
+      orderData.shippingCity,
+      orderData.shippingZip,
+    ].filter(Boolean);
+    deliveryAddress = parts.join(', ');
+  }
 
-    const { data, error } = await resend.emails.send({
-      from: 'Pluteo <orders@pluteo.shop>',
-      to: [orderData.customerEmail, 'pluteoinfo@gmail.com'],
-      subject: `Order Confirmation #${orderData.orderNumber}`,
-      html: `
+  const txt = {
+    subject: isHr
+      ? `Potvrda narudžbe #${orderData.orderNumber}`
+      : `Order Confirmation #${orderData.orderNumber}`,
+    headerTitle: isHr ? 'Hvala na vašoj narudžbi' : 'Thank You for Your Order',
+    headerSub: isHr
+      ? `Narudžba potvrđena &nbsp;·&nbsp; #${orderData.orderNumber}`
+      : `Order confirmed &nbsp;·&nbsp; #${orderData.orderNumber}`,
+    greeting: isHr ? `Pozdrav ${orderData.customerName},` : `Hi ${orderData.customerName},`,
+    intro: isHr
+      ? 'Vaša narudžba je potvrđena i mi je pripremamo. Dobit ćete obavijest o dostavi čim vaš paket bude na putu.'
+      : "Your order has been confirmed and we're getting it ready. You'll receive a shipping update as soon as your package is on its way.",
+    orderSummary: isHr ? 'Sažetak narudžbe' : 'Order Summary',
+    colProduct: isHr ? 'Proizvod' : 'Product',
+    colQty: isHr ? 'Kol.' : 'Qty',
+    colPrice: isHr ? 'Cijena' : 'Price',
+    freeTester: isHr ? 'BESPLATNI TESTER' : 'FREE TESTER',
+    free: isHr ? 'BESPLATNO' : 'FREE',
+    subtotalLabel: isHr ? 'Međuzbroj' : 'Subtotal',
+    promoLabel: isHr ? 'Promo' : 'Promo',
+    shippingLabel: isHr ? 'Dostava' : 'Shipping',
+    shippingMethodLabel: orderData.deliveryMethod === 'boxnow' ? 'BOX NOW Locker' : 'GLS Standard',
+    shippingFree: isHr ? 'Besplatno' : 'Free',
+    totalLabel: isHr ? 'Ukupno' : 'Total',
+    buyer: isHr ? 'Kupac' : 'Buyer',
+    delivery: isHr ? 'Dostava' : 'Delivery',
+    orderDateLabel: isHr ? 'Datum narudžbe' : 'Order date',
+    contactLabel: isHr ? 'Kontakt' : 'Contact',
+    thankYouTitle: isHr ? 'Hvala što ste odabrali Pluteo' : 'Thank you for choosing Pluteo',
+    thankYouBody: isHr
+      ? 'Cijenimo vaše povjerenje i jedva čekamo podijeliti naše mirise s vama. Ako imate pitanja, slobodno nas kontaktirajte na'
+      : 'We appreciate your trust and look forward to sharing our fragrances with you. If you have any questions, feel free to reach out at',
+    cta: isHr ? 'Nastavi kupovinu' : 'Continue Shopping',
+  };
+
+  const customerHtml = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="${isHr ? 'hr' : 'en'}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Confirmation</title>
+  <title>${txt.subject}</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f5f0ee;font-family:'Montserrat',Arial,sans-serif;">
 
@@ -83,8 +114,8 @@ export async function sendOrderConfirmation(orderData: {
           <!-- Gradient Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#6c534e 0%,#A67F8E 100%);padding:40px 32px;text-align:center;">
-              <h1 style="margin:0 0 10px 0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:1px;">Thank You for Your Order</h1>
-              <p style="margin:0;color:rgba(255,255,255,0.82);font-size:13px;letter-spacing:0.5px;">Order confirmed &nbsp;·&nbsp; #${orderData.orderNumber}</p>
+              <h1 style="margin:0 0 10px 0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:1px;">${txt.headerTitle}</h1>
+              <p style="margin:0;color:rgba(255,255,255,0.82);font-size:13px;letter-spacing:0.5px;">${txt.headerSub}</p>
             </td>
           </tr>
 
@@ -93,20 +124,20 @@ export async function sendOrderConfirmation(orderData: {
             <td style="padding:36px 32px 28px 32px;">
 
               <!-- Greeting -->
-              <p style="margin:0 0 6px 0;font-size:16px;color:#3d2c2c;font-weight:600;">Hi ${orderData.customerName},</p>
-              <p style="margin:0 0 32px 0;font-size:13px;color:#777777;line-height:1.7;">Your order has been confirmed and we're getting it ready. You'll receive a shipping update as soon as your package is on its way.</p>
+              <p style="margin:0 0 6px 0;font-size:16px;color:#3d2c2c;font-weight:600;">${txt.greeting}</p>
+              <p style="margin:0 0 32px 0;font-size:13px;color:#777777;line-height:1.7;">${txt.intro}</p>
 
               <!-- Order Items -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6px;">
                 <tr>
                   <td colspan="3" style="padding-bottom:10px;border-bottom:2px solid #6c534e;">
-                    <span style="font-size:10px;font-weight:700;letter-spacing:2.5px;color:#6c534e;text-transform:uppercase;">Order Summary</span>
+                    <span style="font-size:10px;font-weight:700;letter-spacing:2.5px;color:#6c534e;text-transform:uppercase;">${txt.orderSummary}</span>
                   </td>
                 </tr>
                 <tr style="background-color:#faf7f6;">
-                  <td style="padding:9px 8px 9px 0;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;">Product</td>
-                  <td style="padding:9px 8px;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;text-align:center;">Qty</td>
-                  <td style="padding:9px 0 9px 8px;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;text-align:right;">Price</td>
+                  <td style="padding:9px 8px 9px 0;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;">${txt.colProduct}</td>
+                  <td style="padding:9px 8px;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;text-align:center;">${txt.colQty}</td>
+                  <td style="padding:9px 0 9px 8px;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;text-align:right;">${txt.colPrice}</td>
                 </tr>
                 ${orderData.items
                   .map((item) => {
@@ -128,32 +159,32 @@ export async function sendOrderConfirmation(orderData: {
                 ${orderData.testerItem ? `
                 <tr>
                   <td style="padding:10px 8px 10px 0;border-bottom:1px solid #f0e8e6;vertical-align:top;">
-                    <div style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#A67F8E;text-transform:uppercase;background:#fdf4f7;border:1px solid #e8d5dd;border-radius:3px;padding:2px 6px;margin-bottom:4px;">FREE TESTER</div>
+                    <div style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#A67F8E;text-transform:uppercase;background:#fdf4f7;border:1px solid #e8d5dd;border-radius:3px;padding:2px 6px;margin-bottom:4px;">${txt.freeTester}</div>
                     <div style="font-size:12px;color:#666;">${orderData.testerItem.product.brand.name} – ${orderData.testerItem.product.name}</div>
                     <div style="font-size:10px;color:#bbb;margin-top:2px;">${orderData.testerItem.product.concentration} &nbsp;·&nbsp; ${orderData.testerItem.product.size} ml</div>
                   </td>
                   <td style="padding:10px 8px;border-bottom:1px solid #f0e8e6;text-align:center;vertical-align:top;font-size:12px;color:#bbb;">&times;1</td>
-                  <td style="padding:10px 0 10px 8px;border-bottom:1px solid #f0e8e6;text-align:right;vertical-align:top;font-size:12px;font-weight:600;color:#7a9e7a;">FREE</td>
+                  <td style="padding:10px 0 10px 8px;border-bottom:1px solid #f0e8e6;text-align:right;vertical-align:top;font-size:12px;font-weight:600;color:#7a9e7a;">${txt.free}</td>
                 </tr>` : ''}
               </table>
 
               <!-- Pricing Breakdown -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
                 <tr>
-                  <td style="padding:10px 0 4px 0;font-size:13px;color:#777;">Subtotal</td>
+                  <td style="padding:10px 0 4px 0;font-size:13px;color:#777;">${txt.subtotalLabel}</td>
                   <td style="padding:10px 0 4px 0;font-size:13px;color:#777;text-align:right;">&euro;${subtotal.toFixed(2)}</td>
                 </tr>
                 ${
                   promoDiscount > 0
                     ? `<tr>
-                  <td style="padding:6px 0;font-size:13px;color:#7a9e7a;">Promo${orderData.promoCode ? ' (' + orderData.promoCode + ')' : ''}</td>
+                  <td style="padding:6px 0;font-size:13px;color:#7a9e7a;">${txt.promoLabel}${orderData.promoCode ? ' (' + orderData.promoCode + ')' : ''}</td>
                   <td style="padding:6px 0;font-size:13px;color:#7a9e7a;text-align:right;">&minus;&euro;${promoDiscount.toFixed(2)}</td>
                 </tr>`
                     : ''
                 }
                 <tr>
-                  <td style="padding:6px 0;font-size:13px;color:#777;">Shipping &nbsp;<span style="font-size:11px;color:#bbb;">(${orderData.deliveryMethod === 'boxnow' ? 'BOX NOW Locker' : 'GLS Standard'})</span></td>
-                  <td style="padding:6px 0;font-size:13px;color:#777;text-align:right;">${shipping === 0 ? '<span style="color:#7a9e7a;">Free</span>' : '&euro;' + shipping.toFixed(2)}</td>
+                  <td style="padding:6px 0;font-size:13px;color:#777;">${txt.shippingLabel} &nbsp;<span style="font-size:11px;color:#bbb;">(${txt.shippingMethodLabel})</span></td>
+                  <td style="padding:6px 0;font-size:13px;color:#777;text-align:right;">${shipping === 0 ? `<span style="color:#7a9e7a;">${txt.shippingFree}</span>` : '&euro;' + shipping.toFixed(2)}</td>
                 </tr>
                 <tr>
                   <td colspan="2" style="padding:4px 0;">
@@ -161,7 +192,7 @@ export async function sendOrderConfirmation(orderData: {
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 0 0 0;font-size:15px;font-weight:700;color:#3d2c2c;">Total</td>
+                  <td style="padding:10px 0 0 0;font-size:15px;font-weight:700;color:#3d2c2c;">${txt.totalLabel}</td>
                   <td style="padding:10px 0 0 0;font-size:17px;font-weight:700;color:#6c534e;text-align:right;">&euro;${orderData.total.toFixed(2)}</td>
                 </tr>
               </table>
@@ -170,13 +201,13 @@ export async function sendOrderConfirmation(orderData: {
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
                 <tr>
                   <td width="50%" style="vertical-align:top;padding-right:16px;">
-                    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6c534e;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0e8e6;">Buyer</div>
+                    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6c534e;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0e8e6;">${txt.buyer}</div>
                     <div style="font-size:13px;color:#3d2c2c;font-weight:600;margin-bottom:4px;">${orderData.customerName}</div>
                     <div style="font-size:12px;color:#777;margin-bottom:3px;">${orderData.customerEmail}</div>
                     ${orderData.customerPhone ? `<div style="font-size:12px;color:#777;">${orderData.customerPhone}</div>` : ''}
                   </td>
                   <td width="50%" style="vertical-align:top;padding-left:16px;">
-                    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6c534e;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0e8e6;">Delivery</div>
+                    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6c534e;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0e8e6;">${txt.delivery}</div>
                     <div style="font-size:12px;color:#666;line-height:1.7;">${deliveryAddress || '&mdash;'}</div>
                   </td>
                 </tr>
@@ -188,8 +219,8 @@ export async function sendOrderConfirmation(orderData: {
                   <td style="padding:14px 18px;">
                     <table width="100%" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1px;">Order date</td>
-                        <td style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1px;text-align:right;">Contact</td>
+                        <td style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1px;">${txt.orderDateLabel}</td>
+                        <td style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1px;text-align:right;">${txt.contactLabel}</td>
                       </tr>
                       <tr>
                         <td style="font-size:13px;color:#3d2c2c;font-weight:600;padding-top:5px;">${orderDate}</td>
@@ -204,8 +235,8 @@ export async function sendOrderConfirmation(orderData: {
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
                 <tr>
                   <td style="border-left:3px solid #A67F8E;padding:14px 20px;background-color:#fdf9f8;">
-                    <p style="margin:0 0 5px 0;font-size:14px;font-weight:600;color:#3d2c2c;">Thank you for choosing Pluteo</p>
-                    <p style="margin:0;font-size:13px;color:#888;line-height:1.7;">We appreciate your trust and look forward to sharing our fragrances with you. If you have any questions, feel free to reach out at <a href="mailto:pluteoinfo@gmail.com" style="color:#6c534e;text-decoration:none;">pluteoinfo@gmail.com</a>.</p>
+                    <p style="margin:0 0 5px 0;font-size:14px;font-weight:600;color:#3d2c2c;">${txt.thankYouTitle}</p>
+                    <p style="margin:0;font-size:13px;color:#888;line-height:1.7;">${txt.thankYouBody} <a href="mailto:pluteoinfo@gmail.com" style="color:#6c534e;text-decoration:none;">pluteoinfo@gmail.com</a>.</p>
                   </td>
                 </tr>
               </table>
@@ -214,7 +245,7 @@ export async function sendOrderConfirmation(orderData: {
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center">
-                    <a href="https://pluteo.shop/products" style="display:inline-block;padding:13px 34px;background-color:#6c534e;color:#ffffff;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Continue Shopping</a>
+                    <a href="https://pluteo.shop/products" style="display:inline-block;padding:13px 34px;background-color:#6c534e;color:#ffffff;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">${txt.cta}</a>
                   </td>
                 </tr>
               </table>
@@ -244,16 +275,83 @@ export async function sendOrderConfirmation(orderData: {
   </table>
 
 </body>
-</html>
-      `,
+</html>`;
+
+  const shippingMethodLabel =
+    orderData.deliveryMethod === 'boxnow' ? 'BOX NOW Locker' : 'GLS Standard';
+
+  const internalLines: string[] = [
+    `NARUDŽBA: #${orderData.orderNumber}`,
+    `Datum: ${orderDate}`,
+    '',
+    '--- KUPAC ---',
+    `Ime:     ${orderData.customerName}`,
+    `Email:   ${orderData.customerEmail}`,
+    `Telefon: ${orderData.customerPhone || '—'}`,
+    '',
+    '--- ARTIKLI ---',
+    ...orderData.items.map((item, i) => {
+      const unitPrice = (item.product.price - item.product.discountAmount).toFixed(2);
+      return `${i + 1}. ${item.product.brand.name} – ${item.product.name} | ${item.product.concentration} | ${item.product.size} ml | x${item.quantity} | €${unitPrice} kom`;
+    }),
+  ];
+
+  if (orderData.testerItem) {
+    internalLines.push(
+      `[BESPLATNI TESTER] ${orderData.testerItem.product.brand.name} – ${orderData.testerItem.product.name} | ${orderData.testerItem.product.concentration} | ${orderData.testerItem.product.size} ml`
+    );
+  }
+
+  internalLines.push(
+    '',
+    '--- CIJENE ---',
+    `Međuzbroj:  €${subtotal.toFixed(2)}`,
+  );
+
+  if (promoDiscount > 0) {
+    internalLines.push(
+      `Promo${orderData.promoCode ? ' (' + orderData.promoCode + ')' : ''}: -€${promoDiscount.toFixed(2)}`
+    );
+  }
+
+  internalLines.push(
+    `Dostava:    ${shipping === 0 ? 'Besplatno' : '€' + shipping.toFixed(2)}`,
+    `UKUPNO:     €${orderData.total.toFixed(2)}`,
+    '',
+    '--- DOSTAVA ---',
+    `Metoda:  ${shippingMethodLabel}`,
+    `Adresa:  ${deliveryAddress || '—'}`,
+  );
+
+  const internalText = internalLines.join('\n');
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Pluteo <orders@pluteo.shop>',
+      replyTo: 'pluteoinfo@gmail.com',
+      to: [orderData.customerEmail],
+      subject: txt.subject,
+      html: customerHtml,
     });
 
     if (error) {
-      console.error('Email error:', error);
+      console.error('Customer email error:', error);
       return { success: false, error };
     }
 
-    console.log('Email sent successfully:', data);
+    console.log('Customer email sent successfully:', data);
+
+    try {
+      await resend.emails.send({
+        from: 'Pluteo <orders@pluteo.shop>',
+        to: ['pluteoinfo@gmail.com'],
+        subject: `[NOVA NARUDŽBA] #${orderData.orderNumber} - €${orderData.total.toFixed(2)}`,
+        text: internalText,
+      });
+    } catch (internalErr) {
+      console.error('Internal notification email failed (non-fatal):', internalErr);
+    }
+
     return { success: true, data };
   } catch (error) {
     console.error('Failed to send email:', error);

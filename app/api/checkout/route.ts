@@ -6,7 +6,7 @@ import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMe
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, tester, customerInfo, promoCode: promoCodeInput, cartSessionId, utm } = body;
+    const { items, tester, customerInfo, promoCode: promoCodeInput, cartSessionId, utm, language } = body;
 
     const shippingMethod: ShippingMethod = customerInfo?.shippingMethod || 'gls';
 
@@ -303,6 +303,7 @@ export async function POST(request: Request) {
         orderId: order.id,
         orderNumber: order.orderNumber,
         cartSessionId: cartSessionId || '',
+        language: language === 'en' ? 'en' : 'hr',
       },
     };
 

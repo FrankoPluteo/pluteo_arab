@@ -103,6 +103,7 @@ export async function POST(request: Request) {
 
           const deliveryMethod = (order as any).shippingMethod;
           const boxnowLockerId = (order as any).boxnowLockerId;
+          const language = (session.metadata?.language === 'en') ? 'en' : 'hr';
 
           if (deliveryMethod === 'boxnow' && boxnowLockerId && order.customerPhone) {
             try {
@@ -140,12 +141,14 @@ export async function POST(request: Request) {
             shippingCost: order.shippingCost,
             deliveryMethod: deliveryMethod || 'gls',
             boxnowLockerAddress: (order as any).boxnowLockerAddress,
+            boxnowLockerName: (order as any).boxnowLockerName,
             shippingAddress: order.shippingAddress,
             shippingCity: (order as any).shippingCity,
             shippingZip: (order as any).shippingZip,
             promoCode: (order as any).promoCode,
             promoDiscount: (order as any).promoDiscount,
             paidAt: order.paidAt,
+            language,
           });
 
           console.log('Order updated, reservations released, and email sent successfully');

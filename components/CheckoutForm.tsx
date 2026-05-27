@@ -23,7 +23,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [selectedLocker, setSelectedLocker] = useState<SelectedLocker | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Keep a stable ref to the setter so the widget callback never goes stale
   const setSelectedLockerRef = useRef(setSelectedLocker);
@@ -115,6 +115,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             : null,
           promoCode: promoCode ?? undefined,
           utm: utmData,
+          language,
           customerInfo: {
             ...formData,
             shippingMethod,

@@ -48,12 +48,66 @@
   line-height: 1.6;
 }
 
+/* ── Perks bar ───────────────────────────────────────────── */
+.perksBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  padding: 22px 20px;
+  border-top: 1px solid rgba(201, 169, 110, 0.35);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.35);
+  margin: 24px 0 0;
+  background: rgba(201, 169, 110, 0.05);
+  gap: 0;
+}
+
+.perkItem {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(245, 240, 235, 0.9);
+  text-align: center;
+  letter-spacing: 0.4px;
+  padding: 4px 24px;
+  line-height: 1.5;
+  flex: 1;
+  min-width: 180px;
+}
+
+.perkSep {
+  font-size: 20px;
+  color: rgba(201, 169, 110, 0.4);
+  flex-shrink: 0;
+  align-self: center;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .perksBar {
+    flex-direction: column;
+    gap: 14px;
+    padding: 22px 24px;
+  }
+
+  .perkSep {
+    display: none;
+  }
+
+  .perkItem {
+    width: 100%;
+    padding: 0;
+    font-size: 14px;
+  }
+}
+
 /* ── Countdown ───────────────────────────────────────────── */
 .countdownWrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  margin-top: 20px;
   margin-bottom: 36px;
 }
 

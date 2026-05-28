@@ -63,12 +63,6 @@ export default function LjetoClient({ promoEndsAt }: Props) {
 
   return (
     <>
-      {/* Countdown */}
-      <div className={styles.countdownWrap}>
-        <span className={styles.countdownLabel}>Ponuda ističe za</span>
-        <CountdownTimer endsAt={promoEndsAt} className={styles.countdown} />
-      </div>
-
       {/* Email form or promo reveal */}
       {success ? (
         <div className={styles.promoReveal}>
@@ -95,6 +89,21 @@ export default function LjetoClient({ promoEndsAt }: Props) {
           {error && <p className={styles.errorMsg}>{error}</p>}
         </form>
       )}
+
+      {/* Perks bar */}
+      <div className={styles.perksBar}>
+        <span className={styles.perkItem}>🎁 Besplatni tester uz svaku narudžbu</span>
+        <span className={styles.perkSep} aria-hidden="true">·</span>
+        <span className={styles.perkItem}>🚚 Besplatna dostava iznad 40€</span>
+        <span className={styles.perkSep} aria-hidden="true">·</span>
+        <span className={styles.perkItem}>✨ 15% popusta s kodom LJETO15</span>
+      </div>
+
+      {/* Countdown */}
+      <div className={styles.countdownWrap}>
+        <span className={styles.countdownLabel}>Ponuda ističe za</span>
+        <CountdownTimer endsAt={promoEndsAt} className={styles.countdown} />
+      </div>
     </>
   );
 }

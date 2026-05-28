@@ -28,19 +28,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid email.' }, { status: 400 });
   }
 
-  await prisma.emailCapture.upsert({
+  const record = await prisma.emailCapture.upsert({
     where: { email },
     update: {},
     create: { email },
   });
 
   // Fire-and-forget — a Resend failure must never break the user-facing response.
-  resend.emails.send({
-    from: 'Pluteo <hello@pluteo.shop>',
-    to: email,
-    subject: 'Tvoj kod je tu 🖤',
-    text: WELCOME_TEXT,
-  }).catch((err) => console.error('Resend welcome email error:', err));
+  // Send exactly once: skip if welcomeEmailSentAt is already set.
+  if (!record.welcomeEmailSentAt) {
+    resend.emails.send({
+      from: 'Pluteo <hello@pluteo.shop>',
+      to: email,
+      subject: 'Tvoj kod je tu 🖤',
+      text: WELCOME_TEXT,
+    })
+    .then(() =>
+      prisma.emailCapture.update({
+        where: { email },
+        data: { welcomeEmailSentAt: new Date() },
+      })
+    )
+    .catch((err) => console.error('Resend welcome email error:', err));
+  }
 
   return NextResponse.json({ success: true });
 }

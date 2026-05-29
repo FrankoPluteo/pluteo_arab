@@ -14,6 +14,7 @@ import frenchavenueimg from '../public/frenchavenue.webp';
 import armafimg from '../public/armaf.webp';
 import wallpaperhome from '../public/wallpaperhome.webp';
 import promoImg from "../public/majcindan1.webp";
+import promoImgDesktop from "../public/majcindan2.webp";
 
 interface HomeContentProps {
   featuredProducts: Product[];
@@ -60,15 +61,6 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             </div>
           </div>
 
-          {/* Promo — desktop/laptop only, hidden on mobile */}
-          <div className={styles.heroPromo}>
-            <div className={styles.heroPromoFrame}>
-              <Image fill src={promoImg} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} />
-            </div>
-            <Link href="/products?gender=female" className={styles.promoShopBtn}>
-              {t.home.promoShop}
-            </Link>
-          </div>
         </div>
 
         <div className={styles.filterLinkBox}>
@@ -81,11 +73,21 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
         </div>
       </div>
 
-      {/* Promo Box */}
+      {/* Promo — desktop (16:9), hidden on mobile */}
+      <div className={styles.promoDesktopSection}>
+        <div className={styles.promoDesktopFrame}>
+          <Image fill src={promoImgDesktop} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} sizes="100vw" />
+          <Link href="/products?gender=female" className={styles.promoDesktopBtn}>
+            {t.home.promoShop}
+          </Link>
+        </div>
+      </div>
+
+      {/* Promo — mobile (9:16), hidden on desktop */}
       <div className={styles.promoSection}>
         <div className={styles.promoCard}>
           <div className={styles.promoPhotoFrame}>
-              <Image fill src={promoImg} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} />
+            <Image fill src={promoImg} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} />
           </div>
           <Link href="/products?gender=female" className={styles.promoShopBtn}>
             {t.home.promoShop}

@@ -67,7 +67,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           <Link href="/products?gender=male" className={styles.filterLink}>
             {t.home.mensPerfumes}
           </Link>
-          <Link href="/products?gender=female" className={styles.filterLink}>
+          <Link href="/products?onSale=true" className={styles.filterLink}>
             {t.home.womensPerfumes}
           </Link>
         </div>
@@ -77,7 +77,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
       <div className={styles.promoDesktopSection}>
         <div className={styles.promoDesktopFrame}>
           <Image fill src={promoImgDesktop} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} sizes="100vw" />
-          <Link href="/products?gender=female" className={styles.promoDesktopBtn}>
+          <Link href="/products?onSale=true" className={styles.promoDesktopBtn}>
             {t.home.promoShop}
           </Link>
         </div>
@@ -89,7 +89,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           <div className={styles.promoPhotoFrame}>
             <Image fill src={promoImg} alt="Promocija – ženski arabijski parfemi, Pluteo" style={{ objectFit: 'cover' }} />
           </div>
-          <Link href="/products?gender=female" className={styles.promoShopBtn}>
+          <Link href="/products?onSale=true" className={styles.promoShopBtn}>
             {t.home.promoShop}
           </Link>
         </div>

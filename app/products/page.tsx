@@ -64,6 +64,7 @@ interface ProductsPageProps {
     inStock?: string;
     sortBy?: string;
     search?: string;
+    onSale?: string;
   }>;
 }
 
@@ -92,6 +93,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : null;
 
   if (params.inStock === 'true') where.stock = { gt: 0 };
+  if (params.onSale === 'true') where.discountAmount = { gt: 0 };
 
   let orderBy: any = null;
   if (params.sortBy && params.sortBy !== 'brand-order') {

@@ -88,11 +88,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   if (params.concentration) where.concentration = params.concentration;
   if (params.fragranceProfile) where.fragranceProfiles = { has: params.fragranceProfile };
 
-  if (params.minPrice || params.maxPrice) {
-    where.price = {};
-    if (params.minPrice) where.price.gte = parseFloat(params.minPrice);
-    if (params.maxPrice) where.price.lte = parseFloat(params.maxPrice);
-  }
+  const minPrice = params.minPrice ? parseFloat(params.minPrice) : null;
+  const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : null;
 
   if (params.inStock === 'true') where.stock = { gt: 0 };
 
@@ -101,6 +98,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const [field, direction] = params.sortBy.split('-');
     orderBy = { [field]: direction };
   }
+
+  const filterByDiscountedPrice = <T extends { price: number; discountAmount: number }>(items: T[]): T[] => {
+    if (minPrice === null && maxPrice === null) return items;
+    return items.filter((p) => {
+      const discounted = p.price - p.discountAmount;
+      if (minPrice !== null && discounted < minPrice) return false;
+      if (maxPrice !== null && discounted > maxPrice) return false;
+      return true;
+    });
+  };
 
   try {
     const [brandsData, concentrationsData, allProducts] = await Promise.all([
@@ -126,23 +133,29 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       fragranceProfiles: Array.from(allProfiles).sort(),
     };
 
-    const totalProducts = await prisma.product.count({ where });
-    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
-
     let products;
+    let totalProducts: number;
+
     if (!orderBy) {
-      const allFiltered = await prisma.product.findMany({ where, include: { brand: true } });
+      const allFiltered = filterByDiscountedPrice(
+        await prisma.product.findMany({ where, include: { brand: true } })
+      );
       allFiltered.sort((a, b) => {
         const aIdx = BRAND_ORDER.indexOf(a.brand.name);
         const bIdx = BRAND_ORDER.indexOf(b.brand.name);
         return (aIdx === -1 ? BRAND_ORDER.length : aIdx) - (bIdx === -1 ? BRAND_ORDER.length : bIdx);
       });
+      totalProducts = allFiltered.length;
       products = await withReviewAggregates(allFiltered.slice(skip, skip + ITEMS_PER_PAGE));
     } else {
-      products = await withReviewAggregates(
-        await prisma.product.findMany({ where, include: { brand: true }, orderBy, skip, take: ITEMS_PER_PAGE })
+      const allFiltered = filterByDiscountedPrice(
+        await prisma.product.findMany({ where, include: { brand: true }, orderBy })
       );
+      totalProducts = allFiltered.length;
+      products = await withReviewAggregates(allFiltered.slice(skip, skip + ITEMS_PER_PAGE));
     }
+
+    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
     const breadcrumbItems: { name: string; item: string }[] = [
       { name: 'Početna', item: BASE_URL },

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { validateIBAN } from '@/lib/iban';
 
 // POST /api/affiliates — public registration
 export async function POST(request: Request) {
@@ -12,6 +13,11 @@ export async function POST(request: Request) {
 
     if (!acceptedTerms) {
       return NextResponse.json({ error: 'You must accept the terms and conditions.' }, { status: 400 });
+    }
+
+    const normalizedIban = iban.replace(/\s+/g, '').toUpperCase();
+    if (!validateIBAN(normalizedIban)) {
+      return NextResponse.json({ error: 'Invalid IBAN. Please check the number and try again.' }, { status: 400 });
     }
 
     const code = affiliateCode.toUpperCase().replace(/\s+/g, '');
@@ -35,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     const affiliate = await prisma.affiliate.create({
-      data: { name, email, affiliateCode: code, iban: iban || null, status: 'pending', acceptedTermsAt: new Date() },
+      data: { name, email, affiliateCode: code, iban: normalizedIban, status: 'pending', acceptedTermsAt: new Date() },
     });
 
     return NextResponse.json({ id: affiliate.id, affiliateCode: affiliate.affiliateCode }, { status: 201 });

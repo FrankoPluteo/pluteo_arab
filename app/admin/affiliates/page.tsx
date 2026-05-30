@@ -258,6 +258,7 @@ export default function AdminAffiliatesPage() {
                 <tr>
                   <th>Name</th>
                   <th>Code</th>
+                  <th>IBAN</th>
                   <th>Status</th>
                   <th>Conversions</th>
                   <th>Total Earned</th>
@@ -278,6 +279,9 @@ export default function AdminAffiliatesPage() {
                       <div style={{ fontSize: '12px', color: '#888' }}>{a.email}</div>
                     </td>
                     <td style={{ fontWeight: 700, letterSpacing: '1px' }}>{a.affiliateCode}</td>
+                    <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>
+                      {a.iban || <span style={{ color: '#bbb' }}>—</span>}
+                    </td>
                     <td>
                       <span
                         className={`${styles.badge} ${

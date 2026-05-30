@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/affiliate.module.css';
+import { validateIBAN } from '@/lib/iban';
 
 const TERMS = {
   en: {
@@ -85,6 +86,7 @@ const TERMS = {
 export default function AffiliatePage() {
   const [form, setForm] = useState({ name: '', email: '', affiliateCode: '', iban: '' });
   const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [ibanStatus, setIbanStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsLang, setTermsLang] = useState<'en' | 'hr'>('en');
@@ -98,9 +100,17 @@ export default function AffiliatePage() {
       const cleaned = value.toUpperCase().replace(/\s+/g, '');
       setForm((f) => ({ ...f, affiliateCode: cleaned }));
       setCodeStatus('idle');
+    } else if (name === 'iban') {
+      setForm((f) => ({ ...f, iban: value }));
+      setIbanStatus('idle');
     } else {
       setForm((f) => ({ ...f, [name]: value }));
     }
+  };
+
+  const checkIBAN = () => {
+    if (!form.iban) return;
+    setIbanStatus(validateIBAN(form.iban) ? 'valid' : 'invalid');
   };
 
   const checkCodeAvailability = async (): Promise<void> => {
@@ -118,6 +128,11 @@ export default function AffiliatePage() {
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (codeStatus === 'taken') return;
+    if (ibanStatus === 'invalid' || !validateIBAN(form.iban)) {
+      setIbanStatus('invalid');
+      setError('Please enter a valid IBAN.');
+      return;
+    }
     if (!acceptedTerms) {
       setError('Please accept the terms and conditions to continue.');
       return;
@@ -239,9 +254,28 @@ export default function AffiliatePage() {
                   name="iban"
                   value={form.iban}
                   onChange={handleChange}
+                  onBlur={checkIBAN}
                   required
                   placeholder="HR12 3456 7890 1234 5678 9"
+                  className={
+                    ibanStatus === 'valid'
+                      ? styles.inputValid
+                      : ibanStatus === 'invalid'
+                      ? styles.inputInvalid
+                      : ''
+                  }
                 />
+                {ibanStatus === 'valid' && (
+                  <p className={`${styles.hint} ${styles.hintValid}`}>✓ IBAN format is valid</p>
+                )}
+                {ibanStatus === 'invalid' && (
+                  <p className={`${styles.hint} ${styles.hintInvalid}`}>
+                    Invalid IBAN. Please check the number.
+                  </p>
+                )}
+                <p className={styles.hint}>
+                  Enter your full IBAN including country code, e.g. HR12 3456 7890 1234 5678 9
+                </p>
               </div>
 
               {/* ── Terms & Conditions ── */}

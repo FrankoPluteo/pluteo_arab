@@ -30,7 +30,9 @@ function AdminLoginForm() {
         return;
       }
 
-      const redirect = searchParams.get('redirect') || '/admin/products/add';
+      // Only redirect to relative /admin/* paths — reject anything else to prevent open redirect
+      const raw = searchParams.get('redirect') || '';
+      const redirect = raw.startsWith('/admin') && !raw.startsWith('//') ? raw : '/admin/products/add';
       router.push(redirect);
     } catch {
       setError('Login failed. Please try again.');

@@ -4,10 +4,14 @@ import { prisma } from '@/lib/prisma';
 // POST /api/affiliates — public registration
 export async function POST(request: Request) {
   try {
-    const { name, email, affiliateCode, iban } = await request.json();
+    const { name, email, affiliateCode, iban, acceptedTerms } = await request.json();
 
     if (!name || !email || !affiliateCode) {
       return NextResponse.json({ error: 'Name, email, and affiliate code are required.' }, { status: 400 });
+    }
+
+    if (!acceptedTerms) {
+      return NextResponse.json({ error: 'You must accept the terms and conditions.' }, { status: 400 });
     }
 
     const code = affiliateCode.toUpperCase().replace(/\s+/g, '');
@@ -31,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     const affiliate = await prisma.affiliate.create({
-      data: { name, email, affiliateCode: code, iban: iban || null, status: 'pending' },
+      data: { name, email, affiliateCode: code, iban: iban || null, status: 'pending', acceptedTermsAt: new Date() },
     });
 
     return NextResponse.json({ id: affiliate.id, affiliateCode: affiliate.affiliateCode }, { status: 201 });

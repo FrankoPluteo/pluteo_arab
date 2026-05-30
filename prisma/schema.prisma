@@ -170,8 +170,9 @@ model Affiliate {
   name          String
   affiliateCode String                @unique
   status        String                @default("pending") // pending, active, suspended
-  iban          String?
-  createdAt     DateTime              @default(now())
+  iban            String?
+  acceptedTermsAt DateTime?
+  createdAt       DateTime              @default(now())
   conversions   AffiliateConversion[]
 
   @@index([affiliateCode])

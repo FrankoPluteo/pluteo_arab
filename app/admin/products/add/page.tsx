@@ -4,361 +4,282 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ImageUpload from '@/components/ImageUpload';
+import s from '@/styles/admin.module.css';
+
+const CONCENTRATIONS = ['Eau de Parfum', 'Eau de Toilette', 'Parfum', 'Eau de Cologne', 'Extrait de Parfum'];
+const GENDERS = ['Unisex', 'Men', 'Women'];
+
+const EMPTY = {
+  name: '',
+  brandName: '',
+  size: '50',
+  price: '',
+  discountAmount: '0',
+  stock: '0',
+  concentration: 'Eau de Parfum',
+  gender: 'Unisex',
+  description: '',
+  descriptionHr: '',
+  isFeatured: false,
+  isBestSeller: false,
+  // EN notes
+  fragranceProfiles: '',
+  topNotes: '',
+  heartNotes: '',
+  baseNotes: '',
+  // HR notes
+  fragranceProfilesHr: '',
+  topNotesHr: '',
+  heartNotesHr: '',
+  baseNotesHr: '',
+};
+
+function splitTags(s: string) {
+  return s.split(',').map((t) => t.trim()).filter(Boolean);
+}
 
 export default function AddProductPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState(EMPTY);
   const [images, setImages] = useState<string[]>([]);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    brandName: '',
-    size: 50,
-    price: 0,
-    concentration: 'Eau de Parfum',
-    gender: 'Unisex',
-    description: '',
-    discountAmount: 0,
-    isFeatured: false,
-    isBestSeller: false,
-    stock: 0,
-    topNotes: '',
-    heartNotes: '',
-    baseNotes: '',
-    descriptionHr: '',
-    topNotesHr: '',
-    heartNotesHr: '',
-    baseNotesHr: '',
-    fragranceProfilesHr: '',
-  });
+  const [loading, setLoading] = useState(false);
+  const [banner, setBanner] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
-  const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+  const set = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    setForm((f) => ({
+      ...f,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }));
   };
 
-  const handleImageUpload = (url: string) => {
-    setImages([...images, url]);
-  };
-
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
+  const addImage = (url: string) => setImages((imgs) => [...imgs, url]);
+  const removeImage = (i: number) => setImages((imgs) => imgs.filter((_, idx) => idx !== i));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setBanner(null);
     setLoading(true);
 
     try {
-      const response = await fetch('/api/admin/products', {
+      const res = await fetch('/api/admin/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
-          size: parseInt(formData.size.toString()),
-          price: parseFloat(formData.price.toString()),
-          discountAmount: parseFloat(formData.discountAmount.toString()),
-          stock: parseInt(formData.stock.toString()),
+          name: form.name,
+          brandName: form.brandName,
+          size: parseInt(form.size),
+          price: parseFloat(form.price),
+          discountAmount: parseFloat(form.discountAmount) || 0,
+          stock: parseInt(form.stock) || 0,
+          concentration: form.concentration,
+          gender: form.gender,
+          description: form.description,
+          descriptionHr: form.descriptionHr || null,
+          isFeatured: form.isFeatured,
+          isBestSeller: form.isBestSeller,
           images,
-          topNotes: formData.topNotes.split(',').map(s => s.trim()),
-          heartNotes: formData.heartNotes.split(',').map(s => s.trim()),
-          baseNotes: formData.baseNotes.split(',').map(s => s.trim()),
-          descriptionHr: formData.descriptionHr || null,
-          topNotesHr: formData.topNotesHr.split(',').map(s => s.trim()).filter(Boolean),
-          heartNotesHr: formData.heartNotesHr.split(',').map(s => s.trim()).filter(Boolean),
-          baseNotesHr: formData.baseNotesHr.split(',').map(s => s.trim()).filter(Boolean),
-          fragranceProfilesHr: formData.fragranceProfilesHr.split(',').map(s => s.trim()).filter(Boolean),
+          fragranceProfiles: splitTags(form.fragranceProfiles),
+          topNotes: splitTags(form.topNotes),
+          heartNotes: splitTags(form.heartNotes),
+          baseNotes: splitTags(form.baseNotes),
+          fragranceProfilesHr: splitTags(form.fragranceProfilesHr),
+          topNotesHr: splitTags(form.topNotesHr),
+          heartNotesHr: splitTags(form.heartNotesHr),
+          baseNotesHr: splitTags(form.baseNotesHr),
         }),
       });
 
-      if (response.ok) {
-        alert('Product added successfully!');
-        router.push('/admin/products');
+      const data = await res.json();
+
+      if (!res.ok) {
+        setBanner({ type: 'error', msg: data.message || 'Failed to create product.' });
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.message}`);
+        setBanner({ type: 'success', msg: `Product "${data.name}" created successfully!` });
+        setForm(EMPTY);
+        setImages([]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    } catch (error) {
-      alert('Failed to add product');
+    } catch {
+      setBanner({ type: 'error', msg: 'Network error — please try again.' });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
+    <>
       <Navbar />
-      <div style={{ maxWidth: '800px', margin: '120px auto', padding: '0 20px' }}>
-        <h1 style={{ fontSize: '32px', marginBottom: '30px' }}>Add New Product</h1>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div>
-            <label>Product Name *</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-            />
-          </div>
+      <div className={s.page} style={{ marginTop: '100px' }}>
+        <div className={s.header}>
+          <h1 className={s.title}>ADD NEW PRODUCT</h1>
+          <p className={s.subtitle}>Fill in all fields. Notes and Croatian content are optional but recommended.</p>
+        </div>
 
-          <div>
-            <label>Brand Name *</label>
-            <input
-              type="text"
-              name="brandName"
-              value={formData.brandName}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-            />
+        {banner && (
+          <div className={`${s.banner} ${banner.type === 'success' ? s.bannerSuccess : s.bannerError}`}>
+            {banner.msg}
           </div>
+        )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div>
-              <label>Size (ml) *</label>
-              <input
-                type="number"
-                name="size"
-                value={formData.size}
-                onChange={handleChange}
-                required
-                style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-              />
+        <form className={s.form} onSubmit={handleSubmit}>
+
+          {/* ── Basic info ── */}
+          <div className={s.section}>
+            <div className={s.sectionTitle}>Basic Info</div>
+
+            <div className={s.row} style={{ gridTemplateColumns: '1.5fr 1fr', gap: '20px', marginBottom: '20px' }}>
+              <div className={s.field}>
+                <label className={s.label}>Product Name *</label>
+                <input className={s.input} name="name" value={form.name} onChange={set} required placeholder="e.g. Baccarat Rouge 540" />
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Brand *</label>
+                <input className={s.input} name="brandName" value={form.brandName} onChange={set} required placeholder="e.g. Maison Francis Kurkdjian" />
+                <span className={s.hint}>Created automatically if it doesn't exist yet</span>
+              </div>
             </div>
 
-            <div>
-              <label>Price ($) *</label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                step="0.01"
-                required
-                style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div>
-              <label>Concentration *</label>
-              <select
-                name="concentration"
-                value={formData.concentration}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-              >
-                <option>Eau de Parfum</option>
-                <option>Eau de Toilette</option>
-                <option>Parfum</option>
-                <option>Eau de Cologne</option>
-              </select>
+            <div className={`${s.row} ${s.row3}`} style={{ marginBottom: '20px' }}>
+              <div className={s.field}>
+                <label className={s.label}>Concentration *</label>
+                <select className={s.select} name="concentration" value={form.concentration} onChange={set}>
+                  {CONCENTRATIONS.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Gender *</label>
+                <select className={s.select} name="gender" value={form.gender} onChange={set}>
+                  {GENDERS.map((g) => <option key={g}>{g}</option>)}
+                </select>
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Size (ml) *</label>
+                <input className={s.input} type="number" name="size" value={form.size} onChange={set} required min={1} />
+              </div>
             </div>
 
-            <div>
-              <label>Gender *</label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-              >
-                <option>Men</option>
-                <option>Women</option>
-                <option>Unisex</option>
-              </select>
+            <div className={s.field}>
+              <label className={s.label}>Description (EN) *</label>
+              <textarea className={s.textarea} name="description" value={form.description} onChange={set} required rows={4} placeholder="Describe the fragrance in English…" />
             </div>
           </div>
 
-          <div>
-            <label>Description *</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
-              rows={4}
-              style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div>
-              <label>Discount Amount ($)</label>
-              <input
-                type="number"
-                name="discountAmount"
-                value={formData.discountAmount}
-                onChange={handleChange}
-                step="0.01"
-                style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-              />
+          {/* ── Pricing & inventory ── */}
+          <div className={s.section}>
+            <div className={s.sectionTitle}>Pricing & Inventory</div>
+            <div className={`${s.row} ${s.row3}`}>
+              <div className={s.field}>
+                <label className={s.label}>Price (€) *</label>
+                <input className={s.input} type="number" name="price" value={form.price} onChange={set} required step="0.01" min={0} placeholder="0.00" />
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Discount Amount (€) <span className={s.labelOptional}>optional</span></label>
+                <input className={s.input} type="number" name="discountAmount" value={form.discountAmount} onChange={set} step="0.01" min={0} placeholder="0.00" />
+                <span className={s.hint}>Subtracted from price at checkout</span>
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Stock *</label>
+                <input className={s.input} type="number" name="stock" value={form.stock} onChange={set} required min={0} />
+              </div>
             </div>
 
-            <div>
-              <label>Stock</label>
-              <input
-                type="number"
-                name="stock"
-                value={formData.stock}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-              />
+            <div className={s.checkRow} style={{ marginTop: '20px' }}>
+              <label className={s.checkLabel}>
+                <input type="checkbox" name="isFeatured" checked={form.isFeatured} onChange={set} />
+                Featured on homepage
+              </label>
+              <label className={s.checkLabel}>
+                <input type="checkbox" name="isBestSeller" checked={form.isBestSeller} onChange={set} />
+                Best Seller badge
+              </label>
             </div>
           </div>
 
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                name="isFeatured"
-                checked={formData.isFeatured}
-                onChange={handleChange}
-              />
-              {' '}Featured Product
-            </label>
-          </div>
-
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                name="isBestSeller"
-                checked={formData.isBestSeller}
-                onChange={handleChange}
-              />
-              {' '}Best Seller
-            </label>
-          </div>
-
-          <div>
-            <label>Top Notes (comma separated)</label>
-            <input
-              type="text"
-              name="topNotes"
-              value={formData.topNotes}
-              onChange={handleChange}
-              placeholder="Bergamot, Lemon, Orange"
-              style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-            />
-          </div>
-
-          <div>
-            <label>Heart Notes (comma separated)</label>
-            <input
-              type="text"
-              name="heartNotes"
-              value={formData.heartNotes}
-              onChange={handleChange}
-              placeholder="Jasmine, Rose, Lavender"
-              style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-            />
-          </div>
-
-          <div>
-            <label>Base Notes (comma separated)</label>
-            <input
-              type="text"
-              name="baseNotes"
-              value={formData.baseNotes}
-              onChange={handleChange}
-              placeholder="Musk, Vanilla, Sandalwood"
-              style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-            />
-          </div>
-
-          <h2>Croatian Content (HR)</h2>
-
-          <label>
-            Description (HR)
-            <textarea
-              name="descriptionHr"
-              value={formData.descriptionHr}
-              onChange={handleChange}
-              placeholder="Croatian description..."
-            />
-          </label>
-
-          <label>
-            Top Notes (HR) — comma separated
-            <input
-              name="topNotesHr"
-              value={formData.topNotesHr}
-              onChange={handleChange}
-              placeholder="Bergamot, Limun, Cimet"
-            />
-          </label>
-
-          <label>
-            Heart Notes (HR) — comma separated
-            <input
-              name="heartNotesHr"
-              value={formData.heartNotesHr}
-              onChange={handleChange}
-              placeholder="Ruža, Jasmin"
-            />
-          </label>
-
-          <label>
-            Base Notes (HR) — comma separated
-            <input
-              name="baseNotesHr"
-              value={formData.baseNotesHr}
-              onChange={handleChange}
-              placeholder="Sandalovina, Mošus"
-            />
-          </label>
-
-          <label>
-            Fragrance Profiles (HR) — comma separated
-            <input
-              name="fragranceProfilesHr"
-              value={formData.fragranceProfilesHr}
-              onChange={handleChange}
-              placeholder="Drveni, Orijentalni"
-            />
-          </label>
-
-          <div>
-            <label>Product Images</label>
-            <div style={{ marginTop: '10px' }}>
-              <ImageUpload onUpload={handleImageUpload} />
+          {/* ── Fragrance notes (EN) ── */}
+          <div className={s.section}>
+            <div className={s.sectionTitle}>Fragrance Notes — English</div>
+            <div className={s.field} style={{ marginBottom: '16px' }}>
+              <label className={s.label}>Fragrance Profiles <span className={s.labelOptional}>optional</span></label>
+              <input className={s.input} name="fragranceProfiles" value={form.fragranceProfiles} onChange={set} placeholder="Woody, Oriental, Floral" />
+              <span className={s.hint}>Comma-separated descriptors shown on product page</span>
             </div>
-            
+            <div className={`${s.row} ${s.row3}`}>
+              <div className={s.field}>
+                <label className={s.label}>Top Notes <span className={s.labelOptional}>optional</span></label>
+                <input className={s.input} name="topNotes" value={form.topNotes} onChange={set} placeholder="Bergamot, Lemon" />
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Heart Notes <span className={s.labelOptional}>optional</span></label>
+                <input className={s.input} name="heartNotes" value={form.heartNotes} onChange={set} placeholder="Rose, Jasmine" />
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Base Notes <span className={s.labelOptional}>optional</span></label>
+                <input className={s.input} name="baseNotes" value={form.baseNotes} onChange={set} placeholder="Musk, Sandalwood" />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Croatian content ── */}
+          <div className={s.section}>
+            <div className={s.sectionTitle}>Croatian Content (HR) — optional</div>
+            <div className={s.field} style={{ marginBottom: '16px' }}>
+              <label className={s.label}>Description (HR)</label>
+              <textarea className={s.textarea} name="descriptionHr" value={form.descriptionHr} onChange={set} rows={4} placeholder="Opis mirisa na hrvatskom…" />
+            </div>
+            <div className={s.field} style={{ marginBottom: '16px' }}>
+              <label className={s.label}>Fragrance Profiles (HR)</label>
+              <input className={s.input} name="fragranceProfilesHr" value={form.fragranceProfilesHr} onChange={set} placeholder="Drveni, Orijentalni, Cvjetni" />
+            </div>
+            <div className={`${s.row} ${s.row3}`}>
+              <div className={s.field}>
+                <label className={s.label}>Top Notes (HR)</label>
+                <input className={s.input} name="topNotesHr" value={form.topNotesHr} onChange={set} placeholder="Bergamot, Limun" />
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Heart Notes (HR)</label>
+                <input className={s.input} name="heartNotesHr" value={form.heartNotesHr} onChange={set} placeholder="Ruža, Jasmin" />
+              </div>
+              <div className={s.field}>
+                <label className={s.label}>Base Notes (HR)</label>
+                <input className={s.input} name="baseNotesHr" value={form.baseNotesHr} onChange={set} placeholder="Sandalovina, Mošus" />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Images ── */}
+          <div className={s.section}>
+            <div className={s.sectionTitle}>Product Images</div>
+            <ImageUpload onUpload={addImage} />
             {images.length > 0 && (
-              <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
-                {images.map((url, index) => (
-                  <div key={index} style={{ position: 'relative' }}>
-                    <img src={url} alt={`Product ${index + 1}`} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }} />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', border: 'none', cursor: 'pointer' }}
-                    >
-                      ×
-                    </button>
+              <div className={s.imageGrid}>
+                {images.map((url, i) => (
+                  <div key={i} className={s.imageThumb}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt={`Product image ${i + 1}`} />
+                    <button type="button" className={s.removeImg} onClick={() => removeImage(i)} title="Remove">×</button>
                   </div>
                 ))}
               </div>
             )}
+            <p className={s.hint} style={{ marginTop: '10px' }}>First image is shown as the product card thumbnail.</p>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ padding: '15px', background: '#6c534e', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' }}
-          >
-            {loading ? 'Adding...' : 'Add Product'}
-          </button>
+          <div className={s.actions}>
+            <button type="submit" className={s.submitBtn} disabled={loading}>
+              {loading ? 'SAVING…' : 'ADD PRODUCT'}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              style={{ background: 'none', border: 'none', color: '#888', fontSize: '14px', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Cancel
+            </button>
+          </div>
+
         </form>
       </div>
-    </div>
+    </>
   );
 }

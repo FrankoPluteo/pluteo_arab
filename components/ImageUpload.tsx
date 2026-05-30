@@ -29,7 +29,19 @@ export default function ImageUpload({ onUpload, folder = 'products' }: ImageUplo
         <button
           type="button"
           onClick={() => open()}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          style={{
+            padding: '9px 16px',
+            background: 'var(--color-dark)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: '13px',
+            fontWeight: 600,
+            letterSpacing: '0.5px',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
         >
           Upload Image
         </button>

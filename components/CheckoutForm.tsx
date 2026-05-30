@@ -18,7 +18,7 @@ interface CheckoutFormProps {
 }
 
 export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: CheckoutFormProps) {
-  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, selectedTester } = useCart();
+  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, affiliateCode, selectedTester } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
@@ -44,10 +44,6 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     zip: '',
     country: 'HR',
   });
-
-  const [affiliateCode, setAffiliateCode] = useState('');
-  const [affiliateStatus, setAffiliateStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
-  const [affiliateName, setAffiliateName] = useState('');
 
   // Load the BoxNow widget script once on mount.
   // The #boxnowmap div and .boxnow-widget-button element must already be in the
@@ -81,33 +77,6 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAffiliateCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.toUpperCase().replace(/\s+/g, '');
-    setAffiliateCode(val);
-    setAffiliateStatus('idle');
-    setAffiliateName('');
-  };
-
-  const validateAffiliateCode = async () => {
-    if (!affiliateCode) return;
-    try {
-      const res = await fetch('/api/affiliates/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: affiliateCode }),
-      });
-      const data = await res.json();
-      if (data.valid) {
-        setAffiliateStatus('valid');
-        setAffiliateName(data.name);
-      } else {
-        setAffiliateStatus('invalid');
-      }
-    } catch {
-      setAffiliateStatus('idle');
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,7 +114,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             ? { product: selectedTester, quantity: 1, isTester: true }
             : null,
           promoCode: promoCode ?? undefined,
-          affiliateCode: affiliateStatus === 'valid' ? affiliateCode : undefined,
+          affiliateCode: affiliateCode ?? undefined,
           utm: utmData,
           language,
           customerInfo: {
@@ -373,33 +342,11 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         </>
       )}
 
-      {/* Affiliate code */}
-      <div className={styles.formGroup}>
-        <label htmlFor="affiliateCode" style={{ color: '#888', fontWeight: 500 }}>
-          Affiliate Code <span style={{ color: '#bbb', fontWeight: 400 }}>(optional)</span>
-        </label>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <input
-            type="text"
-            id="affiliateCode"
-            value={affiliateCode}
-            onChange={handleAffiliateCodeChange}
-            onBlur={validateAffiliateCode}
-            placeholder="e.g. IVAN2024"
-            style={{ flex: 1, borderColor: affiliateStatus === 'valid' ? '#2a9d5c' : affiliateStatus === 'invalid' ? '#c33' : undefined }}
-          />
-        </div>
-        {affiliateStatus === 'valid' && (
-          <p style={{ fontSize: '12px', color: '#2a9d5c', marginTop: '4px' }}>
-            ✓ Code applied — referred by {affiliateName}
-          </p>
-        )}
-        {affiliateStatus === 'invalid' && (
-          <p style={{ fontSize: '12px', color: '#c33', marginTop: '4px' }}>
-            Invalid or inactive affiliate code.
-          </p>
-        )}
-      </div>
+      {affiliateCode && (
+        <p style={{ fontSize: '13px', color: '#2a9d5c' }}>
+          🤝 Affiliate code <strong>{affiliateCode}</strong> applied
+        </p>
+      )}
 
       <button type="submit" className={styles.submitButton} disabled={loading}>
         {loading ? t.checkout.processing : t.checkout.pay(total)}

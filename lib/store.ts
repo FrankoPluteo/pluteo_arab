@@ -12,6 +12,8 @@ interface CartStore {
   promoCode: string | null;
   promoDiscount: number;
   promoFreeShipping: boolean;
+  affiliateCode: string | null;
+  affiliateName: string | null;
   selectedTester: Product | null;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
@@ -19,6 +21,8 @@ interface CartStore {
   clearCart: () => void;
   applyPromo: (code: string, discount: number, freeShipping: boolean) => void;
   removePromo: () => void;
+  applyAffiliate: (code: string, name: string) => void;
+  removeAffiliate: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
   setTester: (product: Product | null) => void;
@@ -32,6 +36,8 @@ export const useCart = create<CartStore>()(
       promoCode: null,
       promoDiscount: 0,
       promoFreeShipping: false,
+      affiliateCode: null,
+      affiliateName: null,
       selectedTester: null,
 
       addItem: (product) => {
@@ -67,7 +73,7 @@ export const useCart = create<CartStore>()(
       },
 
       clearCart: () =>
-        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false, selectedTester: null }),
+        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false, affiliateCode: null, affiliateName: null, selectedTester: null }),
 
       setTester: (product) => set({ selectedTester: product }),
 
@@ -76,6 +82,10 @@ export const useCart = create<CartStore>()(
 
       removePromo: () =>
         set({ promoCode: null, promoDiscount: 0, promoFreeShipping: false }),
+
+      applyAffiliate: (code, name) => set({ affiliateCode: code, affiliateName: name }),
+
+      removeAffiliate: () => set({ affiliateCode: null, affiliateName: null }),
 
       getTotalPrice: () => {
         return get().items.reduce((total, item) => {

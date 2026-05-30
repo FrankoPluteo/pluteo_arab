@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product, CartItem } from '@/types';
+import { AFFILIATE_DISCOUNT_RATE } from '@/lib/affiliateConfig';
 
 function generateSessionId(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -14,6 +15,7 @@ interface CartStore {
   promoFreeShipping: boolean;
   affiliateCode: string | null;
   affiliateName: string | null;
+  affiliateDiscountRate: number;
   selectedTester: Product | null;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
@@ -38,6 +40,7 @@ export const useCart = create<CartStore>()(
       promoFreeShipping: false,
       affiliateCode: null,
       affiliateName: null,
+      affiliateDiscountRate: 0,
       selectedTester: null,
 
       addItem: (product) => {
@@ -73,7 +76,7 @@ export const useCart = create<CartStore>()(
       },
 
       clearCart: () =>
-        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false, affiliateCode: null, affiliateName: null, selectedTester: null }),
+        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false, affiliateCode: null, affiliateName: null, affiliateDiscountRate: 0, selectedTester: null }),
 
       setTester: (product) => set({ selectedTester: product }),
 
@@ -83,9 +86,9 @@ export const useCart = create<CartStore>()(
       removePromo: () =>
         set({ promoCode: null, promoDiscount: 0, promoFreeShipping: false }),
 
-      applyAffiliate: (code, name) => set({ affiliateCode: code, affiliateName: name }),
+      applyAffiliate: (code, name) => set({ affiliateCode: code, affiliateName: name, affiliateDiscountRate: AFFILIATE_DISCOUNT_RATE }),
 
-      removeAffiliate: () => set({ affiliateCode: null, affiliateName: null }),
+      removeAffiliate: () => set({ affiliateCode: null, affiliateName: null, affiliateDiscountRate: 0 }),
 
       getTotalPrice: () => {
         return get().items.reduce((total, item) => {

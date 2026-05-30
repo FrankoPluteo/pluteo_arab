@@ -33,6 +33,7 @@ export default function CartPage() {
     removePromo,
     affiliateCode,
     affiliateName,
+    affiliateDiscountRate,
     applyAffiliate,
     removeAffiliate,
   } = useCart();
@@ -183,10 +184,11 @@ export default function CartPage() {
   }
 
   const subtotal = getTotalPrice();
+  const affiliateDiscount = parseFloat((subtotal * affiliateDiscountRate).toFixed(2));
   const baseShipping = calculateShipping();
   const autoFreeShipping = isFreeShippingEligible(subtotal);
   const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
-  const total = subtotal - promoDiscount;
+  const total = subtotal - promoDiscount - affiliateDiscount;
   const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
@@ -402,6 +404,15 @@ export default function CartPage() {
                 <span className={styles.summaryLabel}>{t.cart.discount}</span>
                 <span className={`${styles.summaryValue} ${styles.discountValue}`}>
                   -€{promoDiscount.toFixed(2)}
+                </span>
+              </div>
+            )}
+
+            {affiliateDiscount > 0 && (
+              <div className={styles.summaryRow}>
+                <span className={styles.summaryLabel}>Affiliate discount (10%)</span>
+                <span className={`${styles.summaryValue} ${styles.discountValue}`}>
+                  -€{affiliateDiscount.toFixed(2)}
                 </span>
               </div>
             )}

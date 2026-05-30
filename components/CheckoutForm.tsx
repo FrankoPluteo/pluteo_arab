@@ -18,7 +18,7 @@ interface CheckoutFormProps {
 }
 
 export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: CheckoutFormProps) {
-  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, affiliateCode, selectedTester } = useCart();
+  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, affiliateCode, affiliateDiscountRate, selectedTester } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
@@ -30,10 +30,11 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
   setSelectedLockerRef.current = setSelectedLocker;
 
   const subtotal = getTotalPrice();
+  const affiliateDiscount = parseFloat((subtotal * affiliateDiscountRate).toFixed(2));
   const baseShipping = calculateShipping(shippingMethod);
   const autoFreeShipping = isFreeShippingEligible(subtotal, shippingMethod);
   const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
-  const total = subtotal - promoDiscount + shippingCost;
+  const total = subtotal - promoDiscount - affiliateDiscount + shippingCost;
 
   const [formData, setFormData] = useState({
     name: '',

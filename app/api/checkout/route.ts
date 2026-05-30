@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMethod } from '@/lib/shipping';
+import { AFFILIATE_DISCOUNT_RATE } from '@/lib/affiliateConfig';
 
 export async function POST(request: Request) {
   try {
@@ -211,8 +212,9 @@ export async function POST(request: Request) {
     }
 
 
-    // Validate affiliate code if provided
+    // Validate affiliate code if provided — also grants a 10% customer discount
     let validatedAffiliateCode: string | null = null;
+    let affiliateDiscount = 0;
     if (affiliateCodeInput) {
       const affiliate = await prisma.affiliate.findUnique({
         where: { affiliateCode: affiliateCodeInput.toUpperCase().trim() },
@@ -220,12 +222,13 @@ export async function POST(request: Request) {
       });
       if (affiliate && affiliate.status === 'active') {
         validatedAffiliateCode = affiliate.affiliateCode;
+        affiliateDiscount = parseFloat((subtotal * AFFILIATE_DISCOUNT_RATE).toFixed(2));
       }
     }
 
     const baseShipping = calculateShipping(shippingMethod);
     const shippingCost = (promoFreeShipping || isFreeShippingEligible(subtotal, shippingMethod)) ? 0 : baseShipping;
-    const total = subtotal - promoDiscount + shippingCost;
+    const total = subtotal - promoDiscount - affiliateDiscount + shippingCost;
 
     const orderNumber = `PLA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
@@ -320,12 +323,16 @@ export async function POST(request: Request) {
       },
     };
 
-    if (promoDiscount > 0) {
+    const totalDiscount = promoDiscount + affiliateDiscount;
+    if (totalDiscount > 0) {
+      const nameParts: string[] = [];
+      if (validatedPromoCode) nameParts.push(`Promo: ${validatedPromoCode}`);
+      if (validatedAffiliateCode) nameParts.push(`Affiliate: ${validatedAffiliateCode}`);
       const coupon = await stripe.coupons.create({
-        amount_off: Math.round(promoDiscount * 100),
+        amount_off: Math.round(totalDiscount * 100),
         currency: 'eur',
         duration: 'once',
-        name: `Promo: ${validatedPromoCode}`,
+        name: nameParts.join(' + '),
       });
       sessionParams.discounts = [{ coupon: coupon.id }];
     }

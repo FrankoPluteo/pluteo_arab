@@ -232,16 +232,14 @@ export default function AffiliatePage() {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="iban">
-                  IBAN for Payouts{' '}
-                  <span style={{ color: '#bbb', fontWeight: 400 }}>(optional, add later)</span>
-                </label>
+                <label htmlFor="iban">IBAN for Payouts *</label>
                 <input
                   type="text"
                   id="iban"
                   name="iban"
                   value={form.iban}
                   onChange={handleChange}
+                  required
                   placeholder="HR12 3456 7890 1234 5678 9"
                 />
               </div>

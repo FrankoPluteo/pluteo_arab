@@ -6,8 +6,8 @@ export async function POST(request: Request) {
   try {
     const { name, email, affiliateCode, iban, acceptedTerms } = await request.json();
 
-    if (!name || !email || !affiliateCode) {
-      return NextResponse.json({ error: 'Name, email, and affiliate code are required.' }, { status: 400 });
+    if (!name || !email || !affiliateCode || !iban) {
+      return NextResponse.json({ error: 'Name, email, affiliate code, and IBAN are required.' }, { status: 400 });
     }
 
     if (!acceptedTerms) {

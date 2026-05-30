@@ -3,43 +3,37 @@
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import ImageUpload from '@/components/ImageUpload';
+import s from '@/styles/admin.module.css';
 
 interface Brand {
   id: string;
   name: string;
   logoUrl: string | null;
+  description: string | null;
+  websiteUrl: string | null;
 }
 
+// Inline logo preview — shows a warning if the URL is broken
 function LogoPreview({ url, name }: { url: string; name: string }) {
   const [broken, setBroken] = useState(false);
-
-  // Reset broken state when the URL changes (new logo saved)
   useEffect(() => setBroken(false), [url]);
 
   if (broken) {
-    return (
-      <span style={{ fontSize: '12px', color: '#c62828', textAlign: 'center', padding: '4px' }}>
-        ⚠ 404
-      </span>
-    );
+    return <span style={{ fontSize: '11px', color: '#c62828', textAlign: 'center' }}>⚠ 404</span>;
   }
-
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={url}
-      alt={name}
-      onError={() => setBroken(true)}
-      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-    />
+    <img src={url} alt={name} onError={() => setBroken(true)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
   );
 }
 
 export default function AdminBrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [saving, setSaving] = useState<string | null>(null);
-  const [urlInputs, setUrlInputs] = useState<Record<string, string>>({});
-  const [message, setMessage] = useState('');
+  const [banner, setBanner] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+
+  // Per-brand draft state: logoUrl input, description, websiteUrl
+  const [drafts, setDrafts] = useState<Record<string, { logoUrl: string; description: string; websiteUrl: string }>>({});
 
   useEffect(() => {
     fetch('/api/products')
@@ -52,116 +46,181 @@ export default function AdminBrandsPage() {
               id: p.brand.id,
               name: p.brand.name,
               logoUrl: p.brand.logoUrl ?? null,
+              description: p.brand.description ?? null,
+              websiteUrl: p.brand.websiteUrl ?? null,
             });
           }
         }
-        setBrands(Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name)));
+        const list = Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+        setBrands(list);
+        // Initialise draft state from current DB values
+        const init: typeof drafts = {};
+        for (const b of list) {
+          init[b.id] = { logoUrl: '', description: b.description ?? '', websiteUrl: b.websiteUrl ?? '' };
+        }
+        setDrafts(init);
       });
   }, []);
 
-  async function saveLogo(brandId: string, logoUrl: string | null) {
+  const setDraft = (id: string, field: 'logoUrl' | 'description' | 'websiteUrl', value: string) => {
+    setDrafts((d) => ({ ...d, [id]: { ...d[id], [field]: value } }));
+  };
+
+  const flash = (type: 'success' | 'error', msg: string) => {
+    setBanner({ type, msg });
+    setTimeout(() => setBanner(null), 4000);
+  };
+
+  async function patch(brandId: string, body: Record<string, string | null>) {
     setSaving(brandId);
-    setMessage('');
     try {
       const res = await fetch(`/api/admin/brands/${brandId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ logoUrl }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error((await res.json()).error);
-      setBrands((prev) =>
-        prev.map((b) => (b.id === brandId ? { ...b, logoUrl } : b))
-      );
-      setUrlInputs((prev) => ({ ...prev, [brandId]: '' }));
-      setMessage('Logo updated.');
+      const updated: Brand = await res.json();
+      setBrands((prev) => prev.map((b) => (b.id === brandId ? { ...b, ...updated } : b)));
+      return true;
     } catch (e: any) {
-      setMessage(`Error: ${e.message}`);
+      flash('error', e.message || 'Save failed.');
+      return false;
     } finally {
       setSaving(null);
     }
   }
 
-  return (
-    <div>
-      <Navbar />
-      <div style={{ maxWidth: '860px', margin: '120px auto', padding: '0 20px' }}>
-        <h1 style={{ fontSize: '28px', marginBottom: '8px' }}>Brand Logos</h1>
-        <p style={{ color: '#666', marginBottom: '30px', fontSize: '14px' }}>
-          Paste any public image URL (SVG, PNG, WebP…) or upload via Cloudinary.
-          If a logo shows <strong>⚠ 404</strong> in the preview, the URL is broken — clear it
-          and set a working replacement.
-        </p>
+  async function saveLogo(brandId: string, url: string | null) {
+    const ok = await patch(brandId, { logoUrl: url });
+    if (ok) {
+      setDrafts((d) => ({ ...d, [brandId]: { ...d[brandId], logoUrl: '' } }));
+      flash('success', 'Logo saved.');
+    }
+  }
 
-        {message && (
-          <p style={{ padding: '10px 14px', background: message.startsWith('Error') ? '#fce8e8' : '#e8f5e9', borderRadius: '4px', marginBottom: '20px', fontSize: '14px' }}>
-            {message}
+  async function saveMeta(brandId: string) {
+    const draft = drafts[brandId];
+    const ok = await patch(brandId, {
+      description: draft.description || null,
+      websiteUrl: draft.websiteUrl || null,
+    });
+    if (ok) flash('success', 'Brand info updated.');
+  }
+
+  return (
+    <>
+      <Navbar />
+      <div className={s.page} style={{ marginTop: '100px' }}>
+        <div className={s.header}>
+          <h1 className={s.title}>BRANDS</h1>
+          <p className={s.subtitle}>
+            Edit logo, description, and website URL for each brand. Brands are created automatically
+            when a product with a new brand name is added.
           </p>
+        </div>
+
+        {banner && (
+          <div className={`${s.banner} ${banner.type === 'success' ? s.bannerSuccess : s.bannerError}`}>
+            {banner.msg}
+          </div>
+        )}
+
+        {brands.length === 0 && (
+          <p style={{ color: '#aaa', textAlign: 'center', padding: '60px 0' }}>No brands yet.</p>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {brands.map((brand) => (
-            <div
-              key={brand.id}
-              style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '20px' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                {/* Logo preview */}
-                <div style={{ width: '72px', height: '72px', background: '#f5f5f5', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
-                  {brand.logoUrl ? (
-                    <LogoPreview url={brand.logoUrl} name={brand.name} />
-                  ) : (
-                    <span style={{ fontSize: '11px', color: '#aaa' }}>no logo</span>
+          {brands.map((brand) => {
+            const draft = drafts[brand.id] ?? { logoUrl: '', description: '', websiteUrl: '' };
+            const isSaving = saving === brand.id;
+
+            return (
+              <div key={brand.id} className={s.brandCard}>
+                {/* ── Header row: logo + name ── */}
+                <div className={s.brandHeader}>
+                  <div className={s.brandLogo}>
+                    {brand.logoUrl
+                      ? <LogoPreview url={brand.logoUrl} name={brand.name} />
+                      : <span className={s.brandLogoPlaceholder}>no logo</span>
+                    }
+                  </div>
+                  <div className={s.brandMeta}>
+                    <div className={s.brandName}>{brand.name}</div>
+                    {brand.logoUrl && (
+                      <div className={s.brandCurrentUrl}>{brand.logoUrl}</div>
+                    )}
+                  </div>
+                  {brand.logoUrl && (
+                    <button
+                      className={s.clearBtn}
+                      onClick={() => saveLogo(brand.id, null)}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving…' : 'Clear logo'}
+                    </button>
                   )}
                 </div>
 
-                {/* Brand name + current URL */}
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <p style={{ fontWeight: 700, marginBottom: '4px' }}>{brand.name}</p>
-                  <p style={{ fontSize: '12px', color: '#888', wordBreak: 'break-all' }}>
-                    {brand.logoUrl ?? '—'}
-                  </p>
+                <hr className={s.divider} />
+
+                {/* ── Logo section ── */}
+                <div className={s.brandFields}>
+                  <div className={s.field}>
+                    <label className={s.label}>Logo URL</label>
+                    <div className={s.urlRow}>
+                      <input
+                        type="url"
+                        className={s.input}
+                        placeholder="https://cdn.example.com/brand-logo.svg"
+                        value={draft.logoUrl}
+                        onChange={(e) => setDraft(brand.id, 'logoUrl', e.target.value)}
+                      />
+                      <button
+                        className={s.saveBtn}
+                        onClick={() => { if (draft.logoUrl.trim()) saveLogo(brand.id, draft.logoUrl.trim()); }}
+                        disabled={!draft.logoUrl.trim() || isSaving}
+                      >
+                        Save URL
+                      </button>
+                      <ImageUpload folder="brands" onUpload={(url) => saveLogo(brand.id, url)} />
+                    </div>
+                  </div>
+
+                  {/* ── Description + website ── */}
+                  <div className={`${s.row} ${s.row2}`}>
+                    <div className={s.field}>
+                      <label className={s.label}>Description <span className={s.labelOptional}>optional</span></label>
+                      <input
+                        className={s.input}
+                        placeholder="Short brand description"
+                        value={draft.description}
+                        onChange={(e) => setDraft(brand.id, 'description', e.target.value)}
+                      />
+                    </div>
+                    <div className={s.field}>
+                      <label className={s.label}>Website URL <span className={s.labelOptional}>optional</span></label>
+                      <input
+                        type="url"
+                        className={s.input}
+                        placeholder="https://brand.com"
+                        value={draft.websiteUrl}
+                        onChange={(e) => setDraft(brand.id, 'websiteUrl', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <button className={s.saveBtn} onClick={() => saveMeta(brand.id)} disabled={isSaving}>
+                      {isSaving ? 'Saving…' : 'Save Info'}
+                    </button>
+                  </div>
                 </div>
-
-                {/* Clear button */}
-                {brand.logoUrl && (
-                  <button
-                    onClick={() => saveLogo(brand.id, null)}
-                    disabled={saving === brand.id}
-                    style={{ padding: '7px 12px', background: '#c62828', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', flexShrink: 0 }}
-                  >
-                    {saving === brand.id ? 'Saving…' : 'Clear'}
-                  </button>
-                )}
               </div>
-
-              {/* URL input + upload */}
-              <div style={{ marginTop: '14px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                <input
-                  type="url"
-                  placeholder="https://cdn.example.com/brand-logo.svg"
-                  value={urlInputs[brand.id] ?? ''}
-                  onChange={(e) => setUrlInputs((prev) => ({ ...prev, [brand.id]: e.target.value }))}
-                  style={{ flex: 1, minWidth: '220px', padding: '8px 10px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
-                />
-                <button
-                  onClick={() => {
-                    const url = urlInputs[brand.id]?.trim();
-                    if (url) saveLogo(brand.id, url);
-                  }}
-                  disabled={!urlInputs[brand.id]?.trim() || saving === brand.id}
-                  style={{ padding: '8px 14px', background: '#6c534e', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
-                >
-                  {saving === brand.id ? 'Saving…' : 'Save URL'}
-                </button>
-                <ImageUpload
-                  folder="brands"
-                  onUpload={(url) => saveLogo(brand.id, url)}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
-    </div>
+    </>
   );
 }

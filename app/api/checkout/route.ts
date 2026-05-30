@@ -6,7 +6,7 @@ import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMe
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, tester, customerInfo, promoCode: promoCodeInput, cartSessionId, utm, language } = body;
+    const { items, tester, customerInfo, promoCode: promoCodeInput, affiliateCode: affiliateCodeInput, cartSessionId, utm, language } = body;
 
     const shippingMethod: ShippingMethod = customerInfo?.shippingMethod || 'gls';
 
@@ -211,6 +211,18 @@ export async function POST(request: Request) {
     }
 
 
+    // Validate affiliate code if provided
+    let validatedAffiliateCode: string | null = null;
+    if (affiliateCodeInput) {
+      const affiliate = await prisma.affiliate.findUnique({
+        where: { affiliateCode: affiliateCodeInput.toUpperCase().trim() },
+        select: { affiliateCode: true, status: true },
+      });
+      if (affiliate && affiliate.status === 'active') {
+        validatedAffiliateCode = affiliate.affiliateCode;
+      }
+    }
+
     const baseShipping = calculateShipping(shippingMethod);
     const shippingCost = (promoFreeShipping || isFreeShippingEligible(subtotal, shippingMethod)) ? 0 : baseShipping;
     const total = subtotal - promoDiscount + shippingCost;
@@ -245,6 +257,7 @@ export async function POST(request: Request) {
         total,
         promoCode: validatedPromoCode,
         promoDiscount,
+        affiliateCode: validatedAffiliateCode,
         paymentStatus: 'pending',
         orderStatus: 'processing',
         utmSource: utm?.utm_source || null,

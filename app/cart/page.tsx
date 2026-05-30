@@ -31,12 +31,16 @@ export default function CartPage() {
     promoFreeShipping,
     applyPromo,
     removePromo,
+    affiliateCode,
+    affiliateName,
+    applyAffiliate,
+    removeAffiliate,
   } = useCart();
 
   const { t } = useLanguage();
-  const [promoInput, setPromoInput] = useState('');
-  const [promoStatus, setPromoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [promoMessage, setPromoMessage] = useState('');
+  const [codeInput, setCodeInput] = useState('');
+  const [codeStatus, setCodeStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [codeError, setCodeError] = useState('');
   const [stockError, setStockError] = useState('');
   const [showTesterModal, setShowTesterModal] = useState(false);
 
@@ -186,33 +190,51 @@ export default function CartPage() {
   const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
-  async function handleApplyPromo(e: React.FormEvent) {
+  async function handleApplyCode(e: React.FormEvent) {
     e.preventDefault();
-    if (!promoInput.trim()) return;
-    setPromoStatus('loading');
+    const code = codeInput.trim().toUpperCase();
+    if (!code) return;
+    setCodeStatus('loading');
+    setCodeError('');
     try {
-      const res = await fetch('/api/promo', {
+      // 1. Try as promo code first
+      const promoRes = await fetch('/api/promo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: promoInput,
+          code,
           subtotal,
           cartItems: items.map((item) => ({ product: { name: item.product.name } })),
         }),
       });
-      const data = await res.json();
-      if (data.valid) {
-        applyPromo(data.code, data.discountAmount, data.freeShipping);
-        setPromoStatus('success');
-        setPromoMessage(data.message);
-        setPromoInput('');
-      } else {
-        setPromoStatus('error');
-        setPromoMessage(data.message);
+      const promoData = await promoRes.json();
+      if (promoData.valid) {
+        applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping);
+        setCodeStatus('idle');
+        setCodeInput('');
+        return;
       }
+
+      // 2. Try as affiliate code
+      const affRes = await fetch('/api/affiliates/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const affData = await affRes.json();
+      if (affData.valid) {
+        applyAffiliate(code, affData.name);
+        setCodeStatus('idle');
+        setCodeInput('');
+        return;
+      }
+
+      // 3. Neither matched
+      setCodeStatus('error');
+      setCodeError(t.cart.invalidCode ?? 'Invalid promo or affiliate code.');
     } catch {
-      setPromoStatus('error');
-      setPromoMessage(t.cart.somethingWentWrong);
+      setCodeStatus('error');
+      setCodeError(t.cart.somethingWentWrong);
     }
   }
 
@@ -330,36 +352,50 @@ export default function CartPage() {
 
             <div className={styles.summaryRow}></div>
 
-            {!promoCode ? (
-              <form onSubmit={handleApplyPromo} className={styles.promoForm}>
-                <input
-                  type="text"
-                  placeholder={t.cart.promoPlaceholder}
-                  value={promoInput}
-                  onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                  className={styles.promoInput}
-                />
-                <button
-                  type="submit"
-                  className={styles.promoBtn}
-                  disabled={promoStatus === 'loading'}
-                >
-                  {promoStatus === 'loading' ? '...' : t.cart.apply}
-                </button>
-                {promoStatus === 'error' && (
-                  <p className={styles.promoError}>{promoMessage}</p>
-                )}
-              </form>
-            ) : (
+            {/* Applied promo pill */}
+            {promoCode && (
               <div className={styles.promoApplied}>
                 <span className={styles.promoAppliedText}>
-                  <strong>{promoCode}</strong> — {promoMessage}
+                  🏷 <strong>{promoCode}</strong> — {t.cart.discountApplied ?? 'Discount applied'}
                 </span>
                 <button onClick={removePromo} className={styles.promoRemove}>
                   {t.cart.remove}
                 </button>
               </div>
             )}
+
+            {/* Applied affiliate pill */}
+            {affiliateCode && (
+              <div className={styles.promoApplied} style={{ background: '#f0f4ff', borderColor: '#c3cfe6' }}>
+                <span className={styles.promoAppliedText} style={{ color: '#1a3a6b' }}>
+                  🤝 <strong>{affiliateCode}</strong> — referred by {affiliateName}
+                </span>
+                <button onClick={removeAffiliate} className={styles.promoRemove}>
+                  {t.cart.remove}
+                </button>
+              </div>
+            )}
+
+            {/* Code input — always visible so both types can be entered */}
+            <form onSubmit={handleApplyCode} className={styles.promoForm}>
+              <input
+                type="text"
+                placeholder={t.cart.codePlaceholder ?? 'Promo or affiliate code'}
+                value={codeInput}
+                onChange={(e) => { setCodeInput(e.target.value.toUpperCase()); setCodeStatus('idle'); }}
+                className={styles.promoInput}
+              />
+              <button
+                type="submit"
+                className={styles.promoBtn}
+                disabled={codeStatus === 'loading'}
+              >
+                {codeStatus === 'loading' ? '...' : t.cart.apply}
+              </button>
+              {codeStatus === 'error' && (
+                <p className={styles.promoError}>{codeError}</p>
+              )}
+            </form>
 
             {promoDiscount > 0 && (
               <div className={styles.summaryRow}>

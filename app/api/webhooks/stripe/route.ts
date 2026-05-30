@@ -92,6 +92,28 @@ export async function POST(request: Request) {
             }
           }
 
+          // Create affiliate conversion if order has an affiliate code
+          if ((order as any).affiliateCode) {
+            const affiliate = await prisma.affiliate.findUnique({
+              where: { affiliateCode: (order as any).affiliateCode },
+              select: { id: true, status: true },
+            });
+            if (affiliate && affiliate.status === 'active') {
+              const COMMISSION_RATE = 0.05;
+              await prisma.affiliateConversion.upsert({
+                where: { orderId: order.id },
+                update: {},
+                create: {
+                  affiliateId: affiliate.id,
+                  orderId: order.id,
+                  orderValue: order.total,
+                  commissionAmount: parseFloat((order.total * COMMISSION_RATE).toFixed(2)),
+                  status: 'pending',
+                },
+              });
+            }
+          }
+
           // Bug 5 fix: increment promo usage only after payment is confirmed, not at
           // checkout-session creation time.  Abandoned checkouts no longer inflate timesUsed.
           if ((order as any).promoCode) {

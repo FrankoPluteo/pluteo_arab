@@ -107,6 +107,8 @@ model Order {
   promoCode       String?
   promoDiscount   Float    @default(0)
 
+  affiliateCode   String?
+
   stripeSessionId String?  @unique
   stripePaymentId String?
   paymentStatus   String   @default("pending")
@@ -160,6 +162,35 @@ model PromoCode {
 
   @@index([code])
   @@index([isActive])
+}
+
+model Affiliate {
+  id            String                @id @default(cuid())
+  email         String                @unique
+  name          String
+  affiliateCode String                @unique
+  status        String                @default("pending") // pending, active, suspended
+  iban            String?
+  acceptedTermsAt DateTime?
+  createdAt       DateTime              @default(now())
+  conversions   AffiliateConversion[]
+
+  @@index([affiliateCode])
+  @@index([status])
+}
+
+model AffiliateConversion {
+  id               String    @id @default(cuid())
+  affiliateId      String
+  affiliate        Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  orderId          String    @unique
+  orderValue       Float
+  commissionAmount Float
+  status           String    @default("pending") // pending, paid
+  createdAt        DateTime  @default(now())
+
+  @@index([affiliateId])
+  @@index([status])
 }
 
 model EmailCapture {

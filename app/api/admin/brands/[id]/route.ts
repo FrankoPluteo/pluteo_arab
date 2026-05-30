@@ -1,21 +1,28 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// PATCH /api/admin/brands/:id
-// Body: { logoUrl: string | null }
-// Protected by middleware (admin_token cookie required)
+// PATCH /api/admin/brands/:id — update any combination of logoUrl, description, websiteUrl
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const { logoUrl } = await request.json();
+    const body = await request.json();
+
+    const data: Record<string, string | null> = {};
+    if ('logoUrl' in body) data.logoUrl = body.logoUrl ?? null;
+    if ('description' in body) data.description = body.description || null;
+    if ('websiteUrl' in body) data.websiteUrl = body.websiteUrl || null;
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: 'No fields provided.' }, { status: 400 });
+    }
 
     const brand = await prisma.brand.update({
       where: { id },
-      data: { logoUrl: logoUrl ?? null },
-      select: { id: true, name: true, logoUrl: true },
+      data,
+      select: { id: true, name: true, logoUrl: true, description: true, websiteUrl: true },
     });
 
     return NextResponse.json(brand);

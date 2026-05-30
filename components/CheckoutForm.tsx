@@ -18,7 +18,7 @@ interface CheckoutFormProps {
 }
 
 export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: CheckoutFormProps) {
-  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, selectedTester } = useCart();
+  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, affiliateCode, selectedTester } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
@@ -114,6 +114,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             ? { product: selectedTester, quantity: 1, isTester: true }
             : null,
           promoCode: promoCode ?? undefined,
+          affiliateCode: affiliateCode ?? undefined,
           utm: utmData,
           language,
           customerInfo: {
@@ -339,6 +340,12 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             </p>
           </div>
         </>
+      )}
+
+      {affiliateCode && (
+        <p style={{ fontSize: '13px', color: '#2a9d5c' }}>
+          🤝 Affiliate code <strong>{affiliateCode}</strong> applied
+        </p>
       )}
 
       <button type="submit" className={styles.submitButton} disabled={loading}>

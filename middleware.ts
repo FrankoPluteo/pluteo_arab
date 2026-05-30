@@ -1,7 +1,47 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+async function verifyToken(token: string, password: string): Promise<boolean> {
+  try {
+    const dotIdx = token.indexOf('.');
+    if (dotIdx === -1) return false;
+
+    const timestampStr = token.slice(0, dotIdx);
+    const receivedHex = token.slice(dotIdx + 1);
+    const timestamp = parseInt(timestampStr, 10);
+
+    if (isNaN(timestamp)) return false;
+
+    // Reject tokens older than 8 hours
+    if (Date.now() - timestamp > 8 * 60 * 60 * 1000) return false;
+
+    // Recompute HMAC-SHA256(password, "admin:<timestamp>")
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(password),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(`admin:${timestampStr}`));
+    const expectedHex = Array.from(new Uint8Array(sig))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    // Constant-time comparison to prevent timing attacks
+    if (expectedHex.length !== receivedHex.length) return false;
+    let diff = 0;
+    for (let i = 0; i < expectedHex.length; i++) {
+      diff |= expectedHex.charCodeAt(i) ^ receivedHex.charCodeAt(i);
+    }
+    return diff === 0;
+  } catch {
+    return false;
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip the login page and login API
@@ -12,63 +52,18 @@ export function middleware(request: NextRequest) {
   // Protect /admin/* pages and /api/admin/* endpoints
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const adminToken = request.cookies.get('admin_token')?.value;
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (!adminToken) {
-      // For API routes, return 401
+    const isValid = adminToken && adminPassword
+      ? await verifyToken(adminToken, adminPassword)
+      : false;
+
+    if (!isValid) {
       if (pathname.startsWith('/api/admin')) {
-        return NextResponse.json(
-          { error: 'Unauthorized. Please log in.' },
-          { status: 401 }
-        );
+        return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
       }
-
-      // For pages, redirect to login
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    // Validate the token format (base64 of password:timestamp)
-    try {
-      const decoded = Buffer.from(adminToken, 'base64').toString();
-      const [password, timestampStr] = decoded.split(':');
-      const timestamp = parseInt(timestampStr, 10);
-
-      // Check token is not older than 8 hours
-      const eightHoursMs = 8 * 60 * 60 * 1000;
-      if (Date.now() - timestamp > eightHoursMs) {
-        if (pathname.startsWith('/api/admin')) {
-          return NextResponse.json(
-            { error: 'Session expired. Please log in again.' },
-            { status: 401 }
-          );
-        }
-        const loginUrl = new URL('/admin/login', request.url);
-        loginUrl.searchParams.set('redirect', pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-
-      // Verify password matches
-      const adminPassword = process.env.ADMIN_PASSWORD;
-      if (!adminPassword || password !== adminPassword) {
-        if (pathname.startsWith('/api/admin')) {
-          return NextResponse.json(
-            { error: 'Unauthorized.' },
-            { status: 401 }
-          );
-        }
-        const loginUrl = new URL('/admin/login', request.url);
-        loginUrl.searchParams.set('redirect', pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-    } catch {
-      if (pathname.startsWith('/api/admin')) {
-        return NextResponse.json(
-          { error: 'Invalid session.' },
-          { status: 401 }
-        );
-      }
-      const loginUrl = new URL('/admin/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
   }

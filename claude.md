@@ -88,3 +88,61 @@
 - **Miris Ljeta**: landing page at `/ljeto`, promo code `LJETO15`, Meta Ads campaign
 - **Affiliate program**: in development, Croatian tax compliance (JOPPD/drugi dohodak) scoped
 - **Email list growth**: primary KPI for current campaign
+
+## Home Page Redesign Brief
+
+### Visual Direction
+Reference aesthetic: "Havena" layout (clean editorial ecommerce) but adapted for luxury Arabic perfumery.
+- **NOT** beige/cream/neutral — that's home decor, not perfume
+- **YES** deep dark backgrounds (near-black #0D0B09 or deep espresso #1A1208)
+- **YES** gold/amber accents (#C9A96E or #D4AF70) for CTAs, borders, highlights
+- **YES** warm off-white (#F5F0E8) for body text, never pure white
+- Serif display font for headings — suggest: Cormorant Garamond, Playfair Display, or similar
+- Clean sans-serif for body — suggest: DM Sans, Jost, or similar
+
+### Navbar
+Redesign navbar to match the Havena reference aesthetic:
+- Logo lijevo, navigacijski linkovi u centru, ikone (pretraživanje, košarica) desno
+- Minimalist, thin font weight za nav linkove
+- Transparentan na hero sekciji, postaje solid pri scrollu (backdrop-blur efekt)
+- Mobile: hamburger menu koji se otvara kao overlay ili slide-in drawer
+- Sav tekst na **hrvatskom** — "Početna", "Trgovina", "O nama", "Kontakt" itd.
+- **Box Now** se ne spominje u navbaru niti u copy-u ako je stranica na engleskom — relevantno samo za hrvatsku verziju
+
+### Page Structure (follow Havena layout logic)
+1. **Hero** — full-width atmospheric image, large serif headline in Croatian, single CTA gumb
+2. **Perks bar** — 3-4 ikone (besplatna dostava, originalni parfemi, sigurna kupnja, brza dostava)
+3. **Bestselleri** — 4 proizvoda u gridu, ime + cijena, hover efekt
+4. **Featured product** — split layout (slika lijevo, tekst desno) za Khamrah Dukhan kao hero proizvod
+5. **Novi dolasci** — 3 proizvoda
+6. **Kategorije** — Lattafa / Armaf / Bestselleri kao editorial tiles
+7. **Social proof** — recenzije kupaca (kratki citati)
+8. **Newsletter** — email input + "Prijavi se" CTA, copy o ekskluzivnim ponudama
+
+### Copy Language
+- Sav UI copy na **hrvatskom**
+- Ton: tajan, senzualan, luxury — ne generički webshop
+- Headline primjer: "Miris koji ostaje" / "Orijentalna parfumerija" / "Pronađi svoj potpis"
+- Provjeri sve postojeće prijevode i ispravi eventualne greške ili miješanje jezika
+
+### Responsive Design
+- **Mobile-first** — dizajniraj za 360px širinu, skaliraj prema gore
+- Breakpointi: mobile (default), md (768px), lg (1024px), xl (1280px)
+- Grid na mobileu uvijek 1 ili 2 kolone, nikad 4
+- Hero tekst čitljiv na malim ekranima — ne preklapaj s tamnim slikama bez overlay-a
+- Navbar na mobileu: hamburger, touch-friendly tap targets (min 44px)
+- Testiraj svaki section na 375px i 1280px
+
+### CRITICAL — Newsletter Popup Preservation
+- **NE DIRAJ** postojeći newsletter popup komponentu
+- Popup se mora prikazivati pri prvom posjetu kao što je trenutno implementirano
+- Ako redesign mijenja layout.tsx ili globals.css, provjeri da popup i dalje radi
+- Popup z-index mora ostati iznad svih novih elemenata
+
+### Technical
+- Next.js App Router, Server Component gdje god moguće
+- Tailwind CSS, koristi postojeće design tokene iz tailwind.config.js
+- Mobile-first (majority of traffic is mobile)
+- Product images: lazy load, next/image, 4:5 ratio
+- No placeholder lorem ipsum — koristi stvarne nazive proizvoda iz baze
+- Prije izmjena, pročitaj postojeće komponente da razumiješ trenutnu strukturu

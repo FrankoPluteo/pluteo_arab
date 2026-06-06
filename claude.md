@@ -89,60 +89,69 @@
 - **Affiliate program**: in development, Croatian tax compliance (JOPPD/drugi dohodak) scoped
 - **Email list growth**: primary KPI for current campaign
 
-## Home Page Redesign Brief
+---
 
-### Visual Direction
-Reference aesthetic: "Havena" layout (clean editorial ecommerce) but adapted for luxury Arabic perfumery.
-- **NOT** beige/cream/neutral — that's home decor, not perfume
-- **YES** deep dark backgrounds (near-black #0D0B09 or deep espresso #1A1208)
-- **YES** gold/amber accents (#C9A96E or #D4AF70) for CTAs, borders, highlights
-- **YES** warm off-white (#F5F0E8) for body text, never pure white
-- Serif display font for headings — suggest: Cormorant Garamond, Playfair Display, or similar
-- Clean sans-serif for body — suggest: DM Sans, Jost, or similar
+## Home Page & Navbar Redesign Brief
 
-### Navbar
-Redesign navbar to match the Havena reference aesthetic:
-- Logo lijevo, navigacijski linkovi u centru, ikone (pretraživanje, košarica) desno
-- Minimalist, thin font weight za nav linkove
-- Transparentan na hero sekciji, postaje solid pri scrollu (backdrop-blur efekt)
-- Mobile: hamburger menu koji se otvara kao overlay ili slide-in drawer
-- Sav tekst na **hrvatskom** — "Početna", "Trgovina", "O nama", "Kontakt" itd.
-- **Box Now** se ne spominje u navbaru niti u copy-u ako je stranica na engleskom — relevantno samo za hrvatsku verziju
+### What's Working — DO NOT CHANGE
+- Overall color palette: warm white background, brown (#5C3A2E area) accents, gold details
+- Logo mark (flower/petal SVG) and PLUTEO PERFUMES wordmark
+- Category tiles with atmospheric product photography
+- Footer structure and color
+- Newsletter popup — **NEVER touch this component**
 
-### Page Structure (follow Havena layout logic)
-1. **Hero** — full-width atmospheric image, large serif headline in Croatian, single CTA gumb
-2. **Perks bar** — 3-4 ikone (besplatna dostava, originalni parfemi, sigurna kupnja, brza dostava)
-3. **Bestselleri** — 4 proizvoda u gridu, ime + cijena, hover efekt
-4. **Featured product** — split layout (slika lijevo, tekst desno) za Khamrah Dukhan kao hero proizvod
-5. **Novi dolasci** — 3 proizvoda
-6. **Kategorije** — Lattafa / Armaf / Bestselleri kao editorial tiles
-7. **Social proof** — recenzije kupaca (kratki citati)
-8. **Newsletter** — email input + "Prijavi se" CTA, copy o ekskluzivnim ponudama
+### Surgical Changes — Fix These Specifically
 
-### Copy Language
-- Sav UI copy na **hrvatskom**
-- Ton: tajan, senzualan, luxury — ne generički webshop
-- Headline primjer: "Miris koji ostaje" / "Orijentalna parfumerija" / "Pronađi svoj potpis"
-- Provjeri sve postojeće prijevode i ispravi eventualne greške ili miješanje jezika
+#### 1. Navbar
+Current problems: caps-lock nav links feel cheap, logo floats oddly in center, no scroll behavior
+Fix:
+- Logo centered, nav links left, icons (search, cart, language) right — same as Havena reference
+- Nav links: mixed case (not ALL CAPS), lighter font weight (300–400), more letter spacing
+- Transparent on hero, transitions to white/blur background on scroll
+- Mobile: hamburger menu, clean slide-in drawer
+- All text in **Croatian**: "Početna", "Trgovina", "O nama", "Kontakt"
 
-### Responsive Design
-- **Mobile-first** — dizajniraj za 360px širinu, skaliraj prema gore
-- Breakpointi: mobile (default), md (768px), lg (1024px), xl (1280px)
-- Grid na mobileu uvijek 1 ili 2 kolone, nikad 4
-- Hero tekst čitljiv na malim ekranima — ne preklapaj s tamnim slikama bez overlay-a
-- Navbar na mobileu: hamburger, touch-friendly tap targets (min 44px)
-- Testiraj svaki section na 375px i 1280px
+#### 2. Hero Section
+Current problems: "LASTING · LUXURY · RICH" is generic English tagline, SHOP button looks like a system default
+Fix:
+- Tagline in Croatian — e.g. "Miris koji traje. Luksuz koji se osjeća."
+- SHOP button: refined, thinner, with subtle gold border — not a big white rectangle
+- Add very subtle gradient overlay on hero image for better text legibility
 
-### CRITICAL — Newsletter Popup Preservation
-- **NE DIRAJ** postojeći newsletter popup komponentu
-- Popup se mora prikazivati pri prvom posjetu kao što je trenutno implementirano
-- Ako redesign mijenja layout.tsx ili globals.css, provjeri da popup i dalje radi
-- Popup z-index mora ostati iznad svih novih elemenata
+#### 3. Product Cards
+Current problems: "ADD TO CART" button too thick and dominant, SALE/ALMOST GONE badges are loud red/orange
+Fix:
+- Button: thinner height, brown background, lighter weight text — less aggressive
+- SALE badge: elegant, small, gold or muted brown — not red
+- "ALMOST GONE" badge: subtle, not orange — maybe just small italic text below price
+- Brand name (LATTAFA, ARMAF) stays small caps above product name — that part is good
 
-### Technical
-- Next.js App Router, Server Component gdje god moguće
-- Tailwind CSS, koristi postojeće design tokene iz tailwind.config.js
-- Mobile-first (majority of traffic is mobile)
-- Product images: lazy load, next/image, 4:5 ratio
-- No placeholder lorem ipsum — koristi stvarne nazive proizvoda iz baze
-- Prije izmjena, pročitaj postojeće komponente da razumiješ trenutnu strukturu
+#### 4. Category Tiles
+Current problems: white box labels look like unfinished placeholders
+Fix:
+- Remove white box, overlay text directly on image with subtle dark gradient at bottom
+- Text: white, serif or elegant sans, centered at bottom of tile
+- Subtle border or hover effect on tiles
+
+#### 5. Section Headers
+Current problems: "FOR THOSE WHO WANT TO STAND OUT", "BEST-SELLING FRAGRANCES" — all caps, generic English
+Fix:
+- Croatian copy: "Za one koji se ističu", "Najprodavaniji mirisi"
+- Mixed case, not all caps
+- Thinner font weight, more refined
+
+#### 6. Spacing & Rhythm
+- Add more vertical breathing room between sections (padding-y increase)
+- Consistent section padding — currently feels uneven
+
+### Responsive Requirements
+- Mobile-first, test at 375px minimum
+- Product grid: 2 columns on mobile, 4 on desktop
+- Category tiles: 2×2 on mobile, 4 across on desktop
+- Hero text: readable on small screens without overlap
+
+### CRITICAL
+- Read ALL existing components before changing anything
+- Do NOT break newsletter popup
+- Do NOT change color palette — only refine typography, spacing, copy, and button styles
+- Croatian copy throughout — no English in UI (product names and brand names can stay as-is)

@@ -1,35 +1,40 @@
 .writeReviewBtn {
-  padding: 12px 24px;
-  background-color: var(--color-dark);
-  color: var(--color-white);
-  border: none;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  padding: 11px 24px;
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid #111111;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 4px;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 .writeReviewBtn:hover {
-  background-color: var(--color-light);
+  background: #ffffff;
+  color: #111111;
 }
 
 .reviewForm {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  gap: 20px;
+  padding: 28px;
+  background: #FAFAFA;
+  border: 1px solid #E5E5E5;
 }
 
 .formTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-dark);
+  font-size: 10px;
+  font-weight: 500;
+  color: #888888;
+  letter-spacing: 3px;
+  text-transform: uppercase;
   margin: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #E5E5E5;
 }
 
 .fieldGroup {
@@ -39,27 +44,29 @@
 }
 
 .fieldGroup label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #555;
+  font-size: 9px;
+  font-weight: 500;
+  color: #888888;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
 }
 
 .fieldGroup input,
 .fieldGroup textarea {
   padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: 'Montserrat', sans-serif;
+  border: 1px solid #E5E5E5;
+  border-radius: 0;
+  font-family: inherit;
   font-size: 14px;
-  transition: border-color 0.2s;
+  color: #111111;
+  background: #ffffff;
+  transition: border-color 200ms ease;
 }
 
 .fieldGroup input:focus,
 .fieldGroup textarea:focus {
   outline: none;
-  border-color: var(--color-dark);
+  border-color: #111111;
 }
 
 .ratingStars {
@@ -68,67 +75,75 @@
 }
 
 .ratingStar {
-  font-size: 28px;
-  color: #ddd;
+  font-size: 26px;
+  color: #E5E5E5;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color 150ms ease;
 }
 
 .ratingStarActive {
-  color: #d4a259;
+  color: #C9A96E;
 }
 
 .error {
-  color: #dc3545;
-  font-size: 13px;
+  color: #CC0000;
+  font-size: 12px;
   margin: 0;
 }
 
 .formActions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   margin-top: 4px;
 }
 
 .cancelBtn {
   padding: 10px 20px;
   background: transparent;
-  border: 1px solid #ccc;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  border: 1px solid #E5E5E5;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
   cursor: pointer;
-  border-radius: 4px;
+  color: #888888;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.cancelBtn:hover {
+  border-color: #111111;
+  color: #111111;
 }
 
 .submitBtn {
-  padding: 10px 20px;
-  background-color: var(--color-dark);
-  color: var(--color-white);
-  border: none;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 1px;
+  padding: 10px 24px;
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid #111111;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background-color: var(--color-light);
+  background: #ffffff;
+  color: #111111;
 }
 
 .submitBtn:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .successMessage {
   padding: 16px;
-  background: #d4edda;
-  color: #155724;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 14px;
+  background: #F0FAF4;
+  color: #1A6A3A;
+  border: 1px solid #A8D5B8;
+  font-size: 13px;
 }

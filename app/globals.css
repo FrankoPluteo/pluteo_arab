@@ -20,6 +20,28 @@ body {
   background-color: var(--color-white);
 }
 
+/* ── Scroll-triggered fade-in ─────────────────────────────
+   Add data-fade to any element; JS observer adds .is-visible
+   once it crosses the threshold.                            */
+[data-fade] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 650ms ease, transform 650ms ease;
+}
+
+[data-fade].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-fade] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* Screen-reader only text for SEO h1 elements */
 .sr-only {
   position: absolute;

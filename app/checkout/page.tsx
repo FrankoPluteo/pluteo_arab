@@ -7,9 +7,11 @@ import Navbar from '@/components/Navbar';
 import CheckoutForm from '@/components/CheckoutForm';
 import styles from '@/styles/checkout.module.css';
 import { calculateShipping, isFreeShippingEligible, ShippingMethod } from '@/lib/shipping';
+import { useLanguage } from '@/lib/languageContext';
 
 export default function CheckoutPage() {
-  const { items, getTotalPrice, promoCode, promoDiscount, promoFreeShipping } = useCart();
+  const { items, getTotalPrice, promoCode, promoDiscount, promoFreeShipping, affiliateCode, affiliateDiscountRate } = useCart();
+  const { t } = useLanguage();
   const router = useRouter();
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -33,17 +35,18 @@ export default function CheckoutPage() {
   }
 
   const subtotal = getTotalPrice();
+  const affiliateDiscount = parseFloat((subtotal * affiliateDiscountRate).toFixed(2));
   const baseShipping = calculateShipping(shippingMethod);
   const autoFreeShipping = isFreeShippingEligible(subtotal, shippingMethod);
   const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
-  const total = subtotal - promoDiscount + shippingCost;
+  const total = subtotal - promoDiscount - affiliateDiscount + shippingCost;
 
   return (
     <div>
       <Navbar />
 
       <div className={styles.checkoutContainer}>
-        <h1 className={styles.pageTitle}>CHECKOUT</h1>
+        <h1 className={styles.pageTitle}>{t.checkout.title}</h1>
 
         <div className={styles.checkoutLayout}>
           <div className={styles.formSection}>
@@ -51,7 +54,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className={styles.summarySection}>
-            <h2 className={styles.sectionTitle}>Order Summary</h2>
+            <h2 className={styles.sectionTitle}>{t.checkout.orderSummary}</h2>
 
             <div className={styles.orderItems}>
               {items.map((item) => {
@@ -74,27 +77,33 @@ export default function CheckoutPage() {
 
             <div className={styles.summaryTotals}>
               <div className={styles.totalRow}>
-                <span>Subtotal</span>
+                <span>{t.checkout.subtotal}</span>
                 <span>€{subtotal.toFixed(2)}</span>
               </div>
               {promoDiscount > 0 && (
                 <div className={`${styles.totalRow} ${styles.discountRow}`}>
-                  <span>Discount {promoCode ? `(${promoCode})` : ''}</span>
+                  <span>{t.checkout.discount}{promoCode ? ` (${promoCode})` : ''}</span>
                   <span>−€{promoDiscount.toFixed(2)}</span>
                 </div>
               )}
+              {affiliateDiscount > 0 && (
+                <div className={`${styles.totalRow} ${styles.discountRow}`}>
+                  <span>{t.checkout.affiliateDiscount}{affiliateCode ? ` (${affiliateCode})` : ''}</span>
+                  <span>−€{affiliateDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className={styles.totalRow}>
-                <span>Shipping ({shippingMethod === 'boxnow' ? 'BOX NOW' : 'GLS'})</span>
+                <span>{t.checkout.shipping} ({shippingMethod === 'boxnow' ? 'BOX NOW' : 'GLS'})</span>
                 <span>
                   {(promoFreeShipping || autoFreeShipping) ? (
-                    <><s style={{ color: '#aaa', marginRight: 4 }}>€{baseShipping.toFixed(2)}</s> Free</>
+                    <><s style={{ color: '#aaa', marginRight: 4 }}>€{baseShipping.toFixed(2)}</s> {t.checkout.free}</>
                   ) : (
                     `€${shippingCost.toFixed(2)}`
                   )}
                 </span>
               </div>
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
-                <span>Total</span>
+                <span>{t.checkout.total}</span>
                 <span>€{total.toFixed(2)}</span>
               </div>
             </div>

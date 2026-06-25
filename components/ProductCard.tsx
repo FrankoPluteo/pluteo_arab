@@ -75,9 +75,6 @@ export default function ProductCard({ product }: ProductCardProps) {
             {hasDiscount && !outOfStock && (
               <div className={styles.saleBadge}>{t.product.sale}</div>
             )}
-            {isLowStock && !outOfStock && (
-              <div className={styles.lowStockBadge}>{t.product.almostGone}</div>
-            )}
           </div>
 
           {outOfStock && (
@@ -105,6 +102,10 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
             <span className={styles.finalPrice}>€{finalPrice.toFixed(2)}</span>
           </div>
+
+          {isLowStock && !outOfStock && (
+            <p className={styles.lowStockText}>{t.product.almostGone}</p>
+          )}
         </div>
       </Link>
 

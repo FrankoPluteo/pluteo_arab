@@ -3,11 +3,11 @@ export type Language = 'en' | 'hr';
 export const translations = {
   en: {
     nav: {
-      home: 'HOME',
-      shop: 'SHOP',
-      about: 'ABOUT',
-      contact: 'CONTACT',
-      cart: 'CART',
+      home: 'Home',
+      shop: 'Shop',
+      about: 'About',
+      contact: 'Contact',
+      cart: 'Cart',
     },
 
     footer: {
@@ -23,15 +23,18 @@ export const translations = {
     },
 
     home: {
-      shop: 'SHOP',
-      tagline1: 'LASTING',
-      tagline2: 'LUXURY',
+      shop: 'Explore Collection',
+      tagline1: 'Scent that endures.',
+      tagline2: 'Luxury you feel.',
       tagline3: 'RICH',
-      mensPerfumes: "MEN'S PERFUMES",
-      womensPerfumes: "WOMEN'S PERFUMES",
-      featuredTitle: 'FOR THOSE WHO WANT TO STAND OUT',
-      bestSellers: 'BEST-SELLING FRAGRANCES',
+      mensPerfumes: 'For Him',
+      womensPerfumes: 'For Her',
+      featuredTitle: 'Featured',
+      bestSellers: 'Best Sellers',
       promoShop: 'SHOP!',
+      spotlightLabel: 'Best Seller',
+      spotlightCta: 'Discover this fragrance',
+      viewAll: 'View all',
     },
 
     product: {
@@ -184,6 +187,9 @@ export const translations = {
       phoneRequiredError: 'Phone number is required for BOX NOW delivery.',
       somethingWentWrong: 'Something went wrong. Please try again.',
       orderSummary: 'Order Summary',
+      subtotal: 'Subtotal',
+      discount: 'Discount',
+      affiliateDiscount: 'Affiliate discount',
       shipping: 'Shipping',
       free: 'FREE',
       total: 'Total',
@@ -296,11 +302,11 @@ export const translations = {
 
   hr: {
     nav: {
-      home: 'POČETNA',
-      shop: 'PONUDA',
-      about: 'PLUTEO',
-      contact: 'KONTAKT',
-      cart: 'KOŠARICA',
+      home: 'Početna',
+      shop: 'Ponuda',
+      about: 'Pluteo',
+      contact: 'Kontakt',
+      cart: 'Košarica',
     },
 
     footer: {
@@ -316,15 +322,18 @@ export const translations = {
     },
 
     home: {
-      shop: 'POGLEDAJ PONUDU',
-      tagline1: 'DUGOTRAJNI',
-      tagline2: 'LUKSUZNI',
+      shop: 'Otkrijte kolekciju',
+      tagline1: 'Miris koji traje.',
+      tagline2: 'Luksuz koji se osjeća.',
       tagline3: 'BOGATI',
-      mensPerfumes: 'MUŠKI PARFEMI',
-      womensPerfumes: 'ŽENSKI PARFEMI',
-      featuredTitle: 'IZDVOJENI PARFEMI',
-      bestSellers: 'NAJPRODAVANIJI PARFEMI',
+      mensPerfumes: 'Za njega',
+      womensPerfumes: 'Za nju',
+      featuredTitle: 'Izdvojeni parfemi',
+      bestSellers: 'Najprodavaniji',
       promoShop: 'POGLEDAJ!',
+      spotlightLabel: 'Najprodavaniji miris',
+      spotlightCta: 'Otkrijte ovaj miris',
+      viewAll: 'Pogledaj sve',
     },
 
     product: {
@@ -477,6 +486,9 @@ export const translations = {
       phoneRequiredError: 'Broj telefona je obavezan za BOX NOW dostavu.',
       somethingWentWrong: 'Nešto je pošlo po krivu. Molimo pokušajte ponovno.',
       orderSummary: 'Pregled Narudžbe',
+      subtotal: 'Međuzbroj',
+      discount: 'Popust',
+      affiliateDiscount: 'Partnerski popust',
       shipping: 'Dostava',
       free: 'BESPLATNO',
       total: 'Ukupno',

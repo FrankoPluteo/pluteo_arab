@@ -1,435 +1,439 @@
-/* ── Hero ─────────────────────────────────────────────── */
-.homeBackground {
+/* ── Hero ───────────────────────────────────────────────── */
+.hero {
   position: relative;
   width: 100%;
-  height: 80vh;
-  min-height: 600px;
-  background: linear-gradient(to right, var(--color-dark), var(--color-light));
+  height: 100vh;
+  min-height: 640px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroImage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 1;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  padding: 0 24px;
+}
+
+/* Invert the dark SVG logo to white */
+.heroLogo {
+  width: 320px;
+  filter: brightness(0) invert(1);
+}
+
+.heroRule {
+  width: 40px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.4);
+  margin: 28px auto;
+}
+
+.heroTagline {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.heroTagline2 {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+
+.heroCta {
+  display: inline-block;
+  padding: 13px 40px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease;
+}
+
+.heroCta:hover {
+  background: #ffffff;
+  color: #111111;
+  border-color: #ffffff;
+}
+
+/* ── Category strip ────────────────────────────────────── */
+.categoryStrip {
+  display: flex;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.categoryLink {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 24px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #111111;
+  text-decoration: none;
+  transition: background-color 200ms ease;
+  border-top: 1px solid #E5E5E5;
+}
+
+.categoryLink:first-child {
+  border-right: 1px solid #E5E5E5;
+}
+
+.categoryLink:hover {
+  background: #F7F7F7;
+}
+
+/* ── Bestseller spotlight ──────────────────────────────── */
+.spotlight {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Fixed editorial height — image and text columns are equal height */
+  height: 56vh;
+  min-height: 440px;
+  max-height: 580px;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.spotlightImageCol {
+  position: relative;
+  /* No aspect-ratio — fills the grid row height exactly */
+  background: #ffffff;
+  overflow: hidden;
+  display: block;
+  border-right: 1px solid #E5E5E5;
+}
+
+.spotlightImageWrap {
+  position: absolute;
+  inset: 4%;
+  transition: transform 350ms ease;
+}
+
+.spotlight:hover .spotlightImageWrap {
+  transform: scale(1.02);
+}
+
+.spotlightContent {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  padding: 48px 72px;
 }
 
-.wallpaperhome {
-  /* position/size handled by Next.js <Image fill> inline styles */
-  filter: brightness(0.3) opacity(0.5);
-}
-
-.logolongimg {
-  position: relative;
-  width: 400px;
-  z-index: 1;
-}
-
-.goToShop {
-  position: relative;
-  z-index: 1;
-  width: auto;
-  text-decoration: none;
-  font-family: Montserrat, sans-serif;
-  background-color: var(--color-white);
-  color: var(--color-dark);
-  padding: 10px;
-  font-size: 30px;
-  text-align: center;
-  transition: all 0.3s ease;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 8px;
+.spotlightLabel {
+  font-size: 9px;
   font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #AAAAAA;
+  margin-bottom: 24px;
 }
 
-.goToShop:hover {
-  background-color: var(--color-dark);
-  color: var(--color-white);
-  transform: scale(1.1);
+.spotlightName {
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 300;
+  color: #111111;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  letter-spacing: -0.3px;
 }
 
-.taglines {
-  position: relative;
-  z-index: 1;
+.spotlightBrand {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #AAAAAA;
+  margin-bottom: 8px;
+}
+
+.spotlightDetails {
+  font-size: 12px;
+  color: #AAAAAA;
+  margin-bottom: 28px;
+}
+
+.spotlightPrice {
+  font-size: 22px;
+  font-weight: 400;
+  color: #111111;
+  margin-bottom: 36px;
+}
+
+.spotlightCta {
+  display: inline-block;
+  padding: 13px 32px;
+  background: #111111;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  transition: background-color 250ms ease, color 250ms ease;
+  align-self: flex-start;
+  border: 1px solid #111111;
+}
+
+.spotlightCta:hover {
+  background: #ffffff;
+  color: #111111;
+}
+
+/* ── Generic section wrapper ───────────────────────────── */
+.section {
+  padding: 96px 80px;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.sectionHeader {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 48px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #111111;
+}
+
+.sectionViewAll {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #AAAAAA;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.sectionViewAll:hover {
+  color: #111111;
+}
+
+/* ── Products grid ─────────────────────────────────────── */
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
-.tagline {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 28px;
-  font-weight: 300;
-  color: white;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-}
-
-.taglineDot {
-  font-size: 28px;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.filterLinkBox {
-  position: absolute;
-  bottom: 0;
-  z-index: 1;
-  display: flex;
-  width: 100%;
-  height: 50px;
-  background-color: var(--color-white);
-  font-family: Montserrat, sans-serif;
-  font-weight: 700;
-}
-
-.filterLink {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  transition: all 0.3s ease;
-  border-bottom: 2px solid var(--color-light);
-  text-decoration: none;
-  color: var(--color-dark);
-}
-
-.filterLink:hover {
-  background-color: var(--color-light);
-  color: var(--color-white);
-}
-
-/* ── Hero Content (side-by-side layout on desktop) ───── */
-.heroContent {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 80px;
-  width: 100%;
-  padding: 0 60px 50px; /* 50px bottom clears the filterLinkBox */
-}
-
-.heroLeft {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 40px;
-}
-
-/* ── Promo Desktop (16:9, shown on desktop, hidden on mobile) ── */
-.promoDesktopSection {
-  display: flex;
-  justify-content: center;
-  padding: 60px 0;
-}
-
-.promoDesktopFrame {
-  position: relative;
-  width: 70%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: linear-gradient(160deg, var(--color-dark) 0%, var(--color-light) 100%);
-}
-
-.promoDesktopBtn {
-  position: absolute;
-  bottom: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  font-family: Montserrat, sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  letter-spacing: 5px;
-  text-decoration: none;
-  color: var(--color-white);
-  background-color: var(--color-dark);
-  padding: 12px 36px;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 8px;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.promoDesktopBtn:hover {
-  background-color: var(--color-light);
-  transform: translateX(-50%) scale(1.05);
-}
-
-/* ── Promo Box (mobile-only standalone section) ───────── */
-/* Hidden on desktop — shown only on mobile via media query */
-.promoSection {
-  display: none;
-  justify-content: center;
-  align-items: center;
-  padding: 70px 20px;
-  background: linear-gradient(to bottom, #f9f4f5, #ffffff);
-}
-
-.promoCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
-}
-
-.promoPhotoFrame {
-  width: 280px;
-  aspect-ratio: 9 / 16;
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(160deg, var(--color-dark) 0%, var(--color-light) 100%);
-  border-radius: 14px;
-  box-shadow: 0 12px 40px rgba(108, 83, 78, 0.25);
-}
-
-/* Shared button — used both in hero (desktop) and standalone section (mobile) */
-.promoShopBtn {
-  font-family: Montserrat, sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  letter-spacing: 5px;
-  text-decoration: none;
-  color: var(--color-white);
-  background-color: var(--color-dark);
-  padding: 12px 36px;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.promoShopBtn:hover {
-  background-color: var(--color-light);
-  transform: scale(1.05);
-}
-
-/* ── Brand Section ────────────────────────────────────── */
-/* Full width, 4 panels touching — no gap, no margin */
-/* aspect-ratio 16/9 across 4 boxes means each box is ~4:9 tall */
+/* ── Brand panels ──────────────────────────────────────── */
 .brandSection {
-  width: 100%;
-  height: 500px;
-  aspect-ratio: 16 / 9;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: #D0D0D0;
+  border-top: 1px solid #E5E5E5;
+  border-bottom: 1px solid #E5E5E5;
 }
 
 .brandBox {
   position: relative;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  height: 100%;
-  background: linear-gradient(135deg, var(--color-dark), var(--color-light));
+  aspect-ratio: 4 / 3;
+  cursor: pointer;
+  background: #1A1A1A;
 }
 
-.categoryOverlay {
+.brandBox::after {
+  content: '';
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.25);
-  transition: opacity 0.3s ease;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.65) 0%,
+    rgba(0, 0, 0, 0.15) 45%,
+    transparent 75%
+  );
+  z-index: 1;
+  transition: opacity 350ms ease;
 }
 
-.brandBox:hover .categoryOverlay {
-  opacity: 0;
+.brandBox:hover::after {
+  opacity: 0.75;
 }
 
-.brandimage {
+.brandBoxImage {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.5);
+  inset: 0;
+  transition: transform 500ms ease;
+}
+
+.brandBox:hover .brandBoxImage {
+  transform: scale(1.06);
 }
 
 .brandLink {
-  position: relative;
-  z-index: 10;
-  width: 200px;
-  text-decoration: none;
-  font-family: Montserrat, sans-serif;
-  background-color: var(--color-white);
-  color: var(--color-dark);
-  padding: 15px;
-  font-size: 24px;
-  text-align: center;
-  transition: all 0.3s ease;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 8px;
-  font-weight: 500;
-}
-
-.brandLink:hover {
-  background-color: var(--color-dark);
-  color: var(--color-white);
-  transform: scale(1.1);
-}
-
-/* ── Product Sections ─────────────────────────────────── */
-.productsSection {
-  margin: 75px;
-}
-
-.sectionTitle {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--color-dark);
-  text-align: center;
-  margin-bottom: 40px;
-  letter-spacing: 4px;
-}
-
-.productsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
-  align-items: stretch;
-}
-
-.boxnowpromophoto{
   position: absolute;
-  width: 200px;
-  height: auto;
-  right: 5%;
-  bottom: 5%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 36px 24px;
+  text-decoration: none;
+  gap: 8px;
 }
 
-/* ── Responsive ───────────────────────────────────────── */
+.brandLinkName {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #ffffff;
+  transition: letter-spacing 350ms ease;
+}
+
+.brandLinkLine {
+  width: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.6);
+  transition: width 350ms ease;
+}
+
+.brandBox:hover .brandLinkName {
+  letter-spacing: 5.5px;
+}
+
+.brandBox:hover .brandLinkLine {
+  width: 32px;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
 @media (max-width: 1200px) {
   .productsGrid {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .spotlightContent {
+    padding: 48px 48px;
+  }
 }
 
 @media (max-width: 900px) {
-  /* Brand panels: 2x2 grid on tablets */
-  .brandSection {
-    flex-wrap: wrap;
-    aspect-ratio: unset;
-    height: auto;
+  .section {
+    padding: 64px 40px;
   }
 
-  .brandBox {
-    width: 50%;
-    flex: none;
-    aspect-ratio: 1 / 1;
+  /* Spotlight stacks on tablet — hide it; mobile gets its own treatment below */
+  .spotlight {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
-  .homeBackground {
+  .hero {
     height: 100svh;
     min-height: unset;
   }
 
-  /* Collapse hero back to a vertical column on mobile */
-  .heroContent {
-    flex-direction: column;
-    gap: 20px;
-    padding: 0 20px 40px;
-  }
-
-  .heroLeft {
-    gap: 20px;
-  }
-
-  /* Hide desktop promo on mobile */
-  .promoDesktopSection {
-    display: none;
-  }
-
-  /* Show the mobile promo section below the hero */
-  .promoSection {
-    display: flex;
-    padding: 50px 20px;
-  }
-
-  .logolongimg {
-    width: 350px;
-  }
-
-  .goToShop {
-    font-size: 30px;
-    width: 250px;
-    padding: 8px;
-  }
-
-  .taglines {
-    gap: 12px;
-  }
-
-  .tagline {
-    font-size: 18px;
-    letter-spacing: 3px;
-  }
-
-  .taglineDot {
-    font-size: 14px;
-  }
-
-  .filterLinkBox {
-    height: 40px;
-  }
-
-  .filterLink {
-    font-size: 10px;
-    border-bottom: 1px solid var(--color-dark);
-  }
-
-  .promoPhotoFrame {
+  .heroLogo {
     width: 240px;
   }
 
-  .promoShopBtn {
-    font-size: 18px;
-    letter-spacing: 4px;
-    padding: 10px 28px;
+  .heroTagline,
+  .heroTagline2 {
+    font-size: 11px;
+    letter-spacing: 3px;
   }
 
-  /* Brand panels: 2x2 grid on mobile */
-  .brandSection {
-    flex-wrap: wrap;
-    aspect-ratio: unset;
+  .section {
+    padding: 56px 24px;
+    overflow-x: hidden;
+  }
+
+  .sectionHeader {
+    margin-bottom: 32px;
+  }
+
+  /* ── Mobile spotlight: stacked, image on top ── */
+  .spotlight {
+    display: grid;
+    grid-template-columns: 1fr;
     height: auto;
+    min-height: unset;
+    max-height: unset;
   }
 
-  .brandBox {
-    width: 50%;
-    flex: none;
+  .spotlightImageCol {
     aspect-ratio: 1 / 1;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #E5E5E5;
+    background: #ffffff;
   }
 
-  .brandLink {
-    width: 150px;
-    font-size: 16px;
-    padding: 10px;
+  .spotlightContent {
+    padding: 32px 24px;
   }
 
-  .productsSection {
-    margin: 40px 0;
-    padding: 0 30px;
+  .spotlightName {
+    font-size: 26px;
   }
 
-  .sectionTitle {
-    font-size: 20px;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
+  .spotlightCta {
+    align-self: stretch;
+    text-align: center;
   }
 
+  /* ── Mobile product carousel ──
+     Height = actual card width (72% of section inner width) + 220px for info/button.
+     Section has 24px padding each side (48px total), so card width = 0.72*(100vw - 48px).
+     220px covers worst-case info: brand + 2-line name + details + rating + price + low-stock + button + padding. */
   .productsGrid {
     display: flex;
+    flex-direction: row;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    gap: 15px;
-    padding-bottom: 15px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    gap: 12px;
+    padding-bottom: 12px;
+    height: min(calc(0.72 * (100vw - 48px) + 220px), 520px);
+    align-items: stretch;
   }
 
   .productsGrid::-webkit-scrollbar {
@@ -437,9 +441,26 @@
   }
 
   .productsGrid > * {
-    flex: 0 0 80%;
-    scroll-snap-align: center;
-    height: auto;
-    display: flex;
+    flex: 0 0 72%;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* Brand section stays 2×2 on mobile — square panels */
+  .brandBox {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroCta,
+  .spotlightImageWrap,
+  .brandBoxImage,
+  .brandLink,
+  .categoryLink,
+  .spotlightCta {
+    transition: none;
   }
 }

@@ -49,7 +49,7 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
   };
 }
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 12;
 const BRAND_ORDER = ['Lattafa', 'French Avenue', 'Armaf'];
 
 interface ProductsPageProps {

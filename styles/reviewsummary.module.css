@@ -2,15 +2,17 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #E5E5E5;
 }
 
 .heading {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-dark);
+  font-size: 9px;
+  font-weight: 500;
+  color: #888888;
+  letter-spacing: 3px;
+  text-transform: uppercase;
   margin: 0;
 }
 
@@ -23,11 +25,11 @@
 
 .ratingText {
   font-size: 15px;
-  font-weight: 600;
-  color: var(--color-dark);
+  font-weight: 500;
+  color: #111111;
 }
 
 .countText {
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  color: #888888;
 }

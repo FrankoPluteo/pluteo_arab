@@ -185,10 +185,10 @@ export default function CartPage() {
 
   const subtotal = getTotalPrice();
   const affiliateDiscount = parseFloat((subtotal * affiliateDiscountRate).toFixed(2));
-  const baseShipping = calculateShipping();
-  const autoFreeShipping = isFreeShippingEligible(subtotal);
+  const baseShipping = calculateShipping('boxnow');
+  const autoFreeShipping = isFreeShippingEligible(subtotal, 'boxnow');
   const shippingCost = (promoFreeShipping || autoFreeShipping) ? 0 : baseShipping;
-  const total = subtotal - promoDiscount - affiliateDiscount;
+  const total = subtotal - promoDiscount - affiliateDiscount + shippingCost;
   const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
@@ -352,8 +352,6 @@ export default function CartPage() {
               <span className={styles.summaryValue}>€{subtotal.toFixed(2)}</span>
             </div>
 
-            <div className={styles.summaryRow}></div>
-
             {/* Applied promo pill */}
             {promoCode && (
               <div className={styles.promoApplied}>
@@ -410,12 +408,25 @@ export default function CartPage() {
 
             {affiliateDiscount > 0 && (
               <div className={styles.summaryRow}>
-                <span className={styles.summaryLabel}>Affiliate discount (10%)</span>
+                <span className={styles.summaryLabel}>
+                  {affiliateCode ? `Partnerski popust (${affiliateCode})` : 'Partnerski popust'}
+                </span>
                 <span className={`${styles.summaryValue} ${styles.discountValue}`}>
                   -€{affiliateDiscount.toFixed(2)}
                 </span>
               </div>
             )}
+
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>
+                {t.checkout.shipping} (BOX NOW)
+              </span>
+              <span className={`${styles.summaryValue} ${(promoFreeShipping || autoFreeShipping) ? styles.discountValue : ''}`}>
+                {(promoFreeShipping || autoFreeShipping)
+                  ? t.checkout.free
+                  : `€${shippingCost.toFixed(2)}`}
+              </span>
+            </div>
 
             <hr className={styles.summaryDivider} />
 

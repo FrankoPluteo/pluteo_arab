@@ -97,25 +97,20 @@ export async function sendOrderConfirmation(orderData: {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${txt.subject}</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f0ee;font-family:'Montserrat',Arial,sans-serif;">
+<body style="margin:0;padding:0;background-color:#F7F7F7;font-family:'Montserrat',Arial,sans-serif;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f0ee;padding:24px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F7F7;padding:24px 0;">
     <tr>
       <td align="center">
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;">
 
-          <!-- Brand Bar -->
+          <!-- Header -->
           <tr>
-            <td style="background-color:#ffffff;padding:20px 32px;border-bottom:1px solid #f0e8e6;text-align:center;">
-              <span style="font-size:22px;font-weight:700;letter-spacing:5px;color:#3d2c2c;">PLUTEO</span>
-            </td>
-          </tr>
-
-          <!-- Gradient Header -->
-          <tr>
-            <td style="background:linear-gradient(135deg,#6c534e 0%,#A67F8E 100%);padding:40px 32px;text-align:center;">
-              <h1 style="margin:0 0 10px 0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:1px;">${txt.headerTitle}</h1>
-              <p style="margin:0;color:rgba(255,255,255,0.82);font-size:13px;letter-spacing:0.5px;">${txt.headerSub}</p>
+            <td style="background-color:#111111;padding:32px 32px 36px 32px;text-align:center;">
+              <p style="margin:0 0 20px 0;font-size:14px;font-weight:300;letter-spacing:7px;color:rgba(255,255,255,0.9);text-transform:uppercase;">PLUTEO</p>
+              <table width="24" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 20px auto;"><tr><td style="height:1px;background:rgba(255,255,255,0.2);font-size:0;line-height:0;">&nbsp;</td></tr></table>
+              <p style="margin:0 0 8px 0;font-size:9px;font-weight:400;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;">${txt.headerSub}</p>
+              <h1 style="margin:0;color:rgba(255,255,255,0.9);font-size:16px;font-weight:300;letter-spacing:2px;text-transform:uppercase;">${txt.headerTitle}</h1>
             </td>
           </tr>
 
@@ -124,20 +119,20 @@ export async function sendOrderConfirmation(orderData: {
             <td style="padding:36px 32px 28px 32px;">
 
               <!-- Greeting -->
-              <p style="margin:0 0 6px 0;font-size:16px;color:#3d2c2c;font-weight:600;">${txt.greeting}</p>
-              <p style="margin:0 0 32px 0;font-size:13px;color:#777777;line-height:1.7;">${txt.intro}</p>
+              <p style="margin:0 0 6px 0;font-size:14px;color:#111111;font-weight:400;">${txt.greeting}</p>
+              <p style="margin:0 0 32px 0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">${txt.intro}</p>
 
               <!-- Order Items -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6px;">
                 <tr>
-                  <td colspan="3" style="padding-bottom:10px;border-bottom:2px solid #6c534e;">
-                    <span style="font-size:10px;font-weight:700;letter-spacing:2.5px;color:#6c534e;text-transform:uppercase;">${txt.orderSummary}</span>
+                  <td colspan="3" style="padding-bottom:10px;border-bottom:2px solid #111111;">
+                    <span style="font-size:10px;font-weight:500;letter-spacing:2.5px;color:#111111;text-transform:uppercase;">${txt.orderSummary}</span>
                   </td>
                 </tr>
-                <tr style="background-color:#faf7f6;">
-                  <td style="padding:9px 8px 9px 0;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;">${txt.colProduct}</td>
-                  <td style="padding:9px 8px;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;text-align:center;">${txt.colQty}</td>
-                  <td style="padding:9px 0 9px 8px;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;text-align:right;">${txt.colPrice}</td>
+                <tr style="background-color:#F7F7F7;">
+                  <td style="padding:9px 8px 9px 0;font-size:10px;font-weight:400;color:#AAAAAA;text-transform:uppercase;letter-spacing:1px;">${txt.colProduct}</td>
+                  <td style="padding:9px 8px;font-size:10px;font-weight:400;color:#AAAAAA;text-transform:uppercase;letter-spacing:1px;text-align:center;">${txt.colQty}</td>
+                  <td style="padding:9px 0 9px 8px;font-size:10px;font-weight:400;color:#AAAAAA;text-transform:uppercase;letter-spacing:1px;text-align:right;">${txt.colPrice}</td>
                 </tr>
                 ${orderData.items
                   .map((item) => {
@@ -147,53 +142,51 @@ export async function sendOrderConfirmation(orderData: {
                     ).toFixed(2);
                     return `
                 <tr>
-                  <td style="padding:14px 8px 14px 0;border-bottom:1px solid #f0e8e6;vertical-align:top;">
-                    <div style="font-size:13px;font-weight:600;color:#3d2c2c;">${item.product.brand.name} – ${item.product.name}</div>
-                    <div style="font-size:11px;color:#aaa;margin-top:3px;">${item.product.concentration} &nbsp;·&nbsp; ${item.product.size} ml</div>
+                  <td style="padding:14px 8px 14px 0;border-bottom:1px solid #E5E5E5;vertical-align:top;">
+                    <div style="font-size:13px;font-weight:500;color:#111111;">${item.product.brand.name} – ${item.product.name}</div>
+                    <div style="font-size:11px;color:#AAAAAA;margin-top:3px;">${item.product.concentration} &nbsp;·&nbsp; ${item.product.size} ml</div>
                   </td>
-                  <td style="padding:14px 8px;border-bottom:1px solid #f0e8e6;text-align:center;vertical-align:top;font-size:13px;color:#666;">&times;${item.quantity}</td>
-                  <td style="padding:14px 0 14px 8px;border-bottom:1px solid #f0e8e6;text-align:right;vertical-align:top;font-size:13px;font-weight:600;color:#3d2c2c;">&euro;${lineTotal}</td>
+                  <td style="padding:14px 8px;border-bottom:1px solid #E5E5E5;text-align:center;vertical-align:top;font-size:13px;color:#888888;">&times;${item.quantity}</td>
+                  <td style="padding:14px 0 14px 8px;border-bottom:1px solid #E5E5E5;text-align:right;vertical-align:top;font-size:13px;font-weight:500;color:#111111;">&euro;${lineTotal}</td>
                 </tr>`;
                   })
                   .join('')}
                 ${orderData.testerItem ? `
                 <tr>
-                  <td style="padding:10px 8px 10px 0;border-bottom:1px solid #f0e8e6;vertical-align:top;">
-                    <div style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#A67F8E;text-transform:uppercase;background:#fdf4f7;border:1px solid #e8d5dd;border-radius:3px;padding:2px 6px;margin-bottom:4px;">${txt.freeTester}</div>
-                    <div style="font-size:12px;color:#666;">${orderData.testerItem.product.brand.name} – ${orderData.testerItem.product.name}</div>
-                    <div style="font-size:10px;color:#bbb;margin-top:2px;">${orderData.testerItem.product.concentration} &nbsp;·&nbsp; ${orderData.testerItem.product.size} ml</div>
+                  <td style="padding:10px 8px 10px 0;border-bottom:1px solid #E5E5E5;vertical-align:top;">
+                    <div style="display:inline-block;font-size:9px;font-weight:500;letter-spacing:1.5px;color:#888888;text-transform:uppercase;background:#F7F7F7;border:1px solid #E5E5E5;padding:2px 6px;margin-bottom:4px;">${txt.freeTester}</div>
+                    <div style="font-size:12px;color:#555555;">${orderData.testerItem.product.brand.name} – ${orderData.testerItem.product.name}</div>
+                    <div style="font-size:10px;color:#AAAAAA;margin-top:2px;">${orderData.testerItem.product.concentration} &nbsp;·&nbsp; ${orderData.testerItem.product.size} ml</div>
                   </td>
-                  <td style="padding:10px 8px;border-bottom:1px solid #f0e8e6;text-align:center;vertical-align:top;font-size:12px;color:#bbb;">&times;1</td>
-                  <td style="padding:10px 0 10px 8px;border-bottom:1px solid #f0e8e6;text-align:right;vertical-align:top;font-size:12px;font-weight:600;color:#7a9e7a;">${txt.free}</td>
+                  <td style="padding:10px 8px;border-bottom:1px solid #E5E5E5;text-align:center;vertical-align:top;font-size:12px;color:#AAAAAA;">&times;1</td>
+                  <td style="padding:10px 0 10px 8px;border-bottom:1px solid #E5E5E5;text-align:right;vertical-align:top;font-size:12px;font-weight:500;color:#2E7D32;">${txt.free}</td>
                 </tr>` : ''}
               </table>
 
               <!-- Pricing Breakdown -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
                 <tr>
-                  <td style="padding:10px 0 4px 0;font-size:13px;color:#777;">${txt.subtotalLabel}</td>
-                  <td style="padding:10px 0 4px 0;font-size:13px;color:#777;text-align:right;">&euro;${subtotal.toFixed(2)}</td>
+                  <td style="padding:10px 0 4px 0;font-size:13px;color:#888888;">${txt.subtotalLabel}</td>
+                  <td style="padding:10px 0 4px 0;font-size:13px;color:#888888;text-align:right;">&euro;${subtotal.toFixed(2)}</td>
                 </tr>
                 ${
                   promoDiscount > 0
                     ? `<tr>
-                  <td style="padding:6px 0;font-size:13px;color:#7a9e7a;">${txt.promoLabel}${orderData.promoCode ? ' (' + orderData.promoCode + ')' : ''}</td>
-                  <td style="padding:6px 0;font-size:13px;color:#7a9e7a;text-align:right;">&minus;&euro;${promoDiscount.toFixed(2)}</td>
+                  <td style="padding:6px 0;font-size:13px;color:#2E7D32;">${txt.promoLabel}${orderData.promoCode ? ' (' + orderData.promoCode + ')' : ''}</td>
+                  <td style="padding:6px 0;font-size:13px;color:#2E7D32;text-align:right;">&minus;&euro;${promoDiscount.toFixed(2)}</td>
                 </tr>`
                     : ''
                 }
                 <tr>
-                  <td style="padding:6px 0;font-size:13px;color:#777;">${txt.shippingLabel} &nbsp;<span style="font-size:11px;color:#bbb;">(${txt.shippingMethodLabel})</span></td>
-                  <td style="padding:6px 0;font-size:13px;color:#777;text-align:right;">${shipping === 0 ? `<span style="color:#7a9e7a;">${txt.shippingFree}</span>` : '&euro;' + shipping.toFixed(2)}</td>
+                  <td style="padding:6px 0;font-size:13px;color:#888888;">${txt.shippingLabel} &nbsp;<span style="font-size:11px;color:#AAAAAA;">(${txt.shippingMethodLabel})</span></td>
+                  <td style="padding:6px 0;font-size:13px;color:#888888;text-align:right;">${shipping === 0 ? `<span style="color:#2E7D32;">${txt.shippingFree}</span>` : '&euro;' + shipping.toFixed(2)}</td>
                 </tr>
                 <tr>
-                  <td colspan="2" style="padding:4px 0;">
-                    <div style="border-top:1px solid #ede5e3;"></div>
-                  </td>
+                  <td colspan="2" style="padding:4px 0;border-top:1px solid #E5E5E5;font-size:0;line-height:0;">&nbsp;</td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 0 0 0;font-size:15px;font-weight:700;color:#3d2c2c;">${txt.totalLabel}</td>
-                  <td style="padding:10px 0 0 0;font-size:17px;font-weight:700;color:#6c534e;text-align:right;">&euro;${orderData.total.toFixed(2)}</td>
+                  <td style="padding:10px 0 0 0;font-size:14px;font-weight:500;color:#111111;">${txt.totalLabel}</td>
+                  <td style="padding:10px 0 0 0;font-size:16px;font-weight:500;color:#111111;text-align:right;">&euro;${orderData.total.toFixed(2)}</td>
                 </tr>
               </table>
 
@@ -201,30 +194,30 @@ export async function sendOrderConfirmation(orderData: {
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
                 <tr>
                   <td width="50%" style="vertical-align:top;padding-right:16px;">
-                    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6c534e;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0e8e6;">${txt.buyer}</div>
-                    <div style="font-size:13px;color:#3d2c2c;font-weight:600;margin-bottom:4px;">${orderData.customerName}</div>
-                    <div style="font-size:12px;color:#777;margin-bottom:3px;">${orderData.customerEmail}</div>
-                    ${orderData.customerPhone ? `<div style="font-size:12px;color:#777;">${orderData.customerPhone}</div>` : ''}
+                    <div style="font-size:9px;font-weight:500;letter-spacing:2.5px;color:#111111;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #E5E5E5;">${txt.buyer}</div>
+                    <div style="font-size:13px;color:#111111;font-weight:400;margin-bottom:4px;">${orderData.customerName}</div>
+                    <div style="font-size:12px;color:#888888;margin-bottom:3px;">${orderData.customerEmail}</div>
+                    ${orderData.customerPhone ? `<div style="font-size:12px;color:#888888;">${orderData.customerPhone}</div>` : ''}
                   </td>
                   <td width="50%" style="vertical-align:top;padding-left:16px;">
-                    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6c534e;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0e8e6;">${txt.delivery}</div>
-                    <div style="font-size:12px;color:#666;line-height:1.7;">${deliveryAddress || '&mdash;'}</div>
+                    <div style="font-size:9px;font-weight:500;letter-spacing:2.5px;color:#111111;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #E5E5E5;">${txt.delivery}</div>
+                    <div style="font-size:12px;color:#888888;line-height:1.7;">${deliveryAddress || '&mdash;'}</div>
                   </td>
                 </tr>
               </table>
 
               <!-- Date + Contact row -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#faf7f6;margin-bottom:28px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F7F7;margin-bottom:28px;">
                 <tr>
                   <td style="padding:14px 18px;">
                     <table width="100%" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1px;">${txt.orderDateLabel}</td>
-                        <td style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1px;text-align:right;">${txt.contactLabel}</td>
+                        <td style="font-size:9px;color:#AAAAAA;text-transform:uppercase;letter-spacing:2px;">${txt.orderDateLabel}</td>
+                        <td style="font-size:9px;color:#AAAAAA;text-transform:uppercase;letter-spacing:2px;text-align:right;">${txt.contactLabel}</td>
                       </tr>
                       <tr>
-                        <td style="font-size:13px;color:#3d2c2c;font-weight:600;padding-top:5px;">${orderDate}</td>
-                        <td style="font-size:13px;font-weight:600;padding-top:5px;text-align:right;"><a href="mailto:pluteoinfo@gmail.com" style="color:#6c534e;text-decoration:none;">pluteoinfo@gmail.com</a></td>
+                        <td style="font-size:13px;color:#111111;font-weight:400;padding-top:5px;">${orderDate}</td>
+                        <td style="font-size:13px;font-weight:400;padding-top:5px;text-align:right;"><a href="mailto:pluteoinfo@gmail.com" style="color:#111111;text-decoration:none;">pluteoinfo@gmail.com</a></td>
                       </tr>
                     </table>
                   </td>
@@ -234,9 +227,9 @@ export async function sendOrderConfirmation(orderData: {
               <!-- Thank You Message -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
                 <tr>
-                  <td style="border-left:3px solid #A67F8E;padding:14px 20px;background-color:#fdf9f8;">
-                    <p style="margin:0 0 5px 0;font-size:14px;font-weight:600;color:#3d2c2c;">${txt.thankYouTitle}</p>
-                    <p style="margin:0;font-size:13px;color:#888;line-height:1.7;">${txt.thankYouBody} <a href="mailto:pluteoinfo@gmail.com" style="color:#6c534e;text-decoration:none;">pluteoinfo@gmail.com</a>.</p>
+                  <td style="border-top:1px solid #E5E5E5;border-bottom:1px solid #E5E5E5;padding:20px 0;">
+                    <p style="margin:0 0 6px 0;font-size:10px;font-weight:400;color:#111111;letter-spacing:2px;text-transform:uppercase;">${txt.thankYouTitle}</p>
+                    <p style="margin:0;font-size:12px;color:#AAAAAA;line-height:1.9;font-weight:300;">${txt.thankYouBody} <a href="mailto:pluteoinfo@gmail.com" style="color:#111111;text-decoration:none;">pluteoinfo@gmail.com</a>.</p>
                   </td>
                 </tr>
               </table>
@@ -245,7 +238,7 @@ export async function sendOrderConfirmation(orderData: {
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center">
-                    <a href="https://pluteo.shop/products" style="display:inline-block;padding:13px 34px;background-color:#6c534e;color:#ffffff;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">${txt.cta}</a>
+                    <a href="https://pluteo.shop/products" style="display:inline-block;padding:14px 36px;background-color:#111111;color:#ffffff;text-decoration:none;font-size:10px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;">${txt.cta}</a>
                   </td>
                 </tr>
               </table>
@@ -255,17 +248,17 @@ export async function sendOrderConfirmation(orderData: {
 
           <!-- Footer -->
           <tr>
-            <td style="background-color:#f9f5f4;padding:22px 32px;border-top:1px solid #ede5e3;text-align:center;">
+            <td style="background-color:#F7F7F7;padding:22px 32px;border-top:1px solid #E5E5E5;text-align:center;">
               <img
                 src="https://pluteo.shop/Pluteo%20Logo%20Icon.svg"
                 alt="Pluteo"
                 width="30"
                 height="17"
-                style="display:block;margin:0 auto 12px auto;opacity:0.35;"
+                style="display:block;margin:0 auto 12px auto;opacity:0.25;"
               />
-              <p style="margin:0 0 4px 0;font-size:10px;color:#c0afab;letter-spacing:0.5px;">Vonta Grupa d.o.o &nbsp;&middot;&nbsp; Dre&#382;nik 6, 10257 Zagreb &nbsp;&middot;&nbsp; OIB: 87510848203</p>
-              <p style="margin:0 0 12px 0;font-size:10px;color:#c0afab;letter-spacing:0.5px;">IBAN: HR5524020061101312303</p>
-              <p style="margin:0;font-size:10px;color:#cbbfbc;">&copy; 2026 Pluteo &nbsp;&middot;&nbsp; <a href="https://pluteo.shop" style="color:#cbbfbc;text-decoration:none;">pluteo.shop</a></p>
+              <p style="margin:0 0 4px 0;font-size:10px;color:#AAAAAA;letter-spacing:0.5px;">Vonta Grupa d.o.o &nbsp;&middot;&nbsp; Dre&#382;nik 6, 10257 Zagreb &nbsp;&middot;&nbsp; OIB: 87510848203</p>
+              <p style="margin:0 0 12px 0;font-size:10px;color:#AAAAAA;letter-spacing:0.5px;">IBAN: HR5524020061101312303</p>
+              <p style="margin:0;font-size:10px;color:#AAAAAA;">&copy; 2026 Pluteo &nbsp;&middot;&nbsp; <a href="https://pluteo.shop" style="color:#AAAAAA;text-decoration:none;">pluteo.shop</a></p>
             </td>
           </tr>
 

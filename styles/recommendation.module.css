@@ -1,0 +1,492 @@
+.pageContainer {
+  margin-top: 80px;
+  padding: 72px 80px;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 100vh;
+}
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.pageTitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #111111;
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  font-weight: 300;
+  color: #888888;
+  text-align: center;
+  margin-bottom: 56px;
+  line-height: 1.7;
+}
+
+/* ── Mode selector ─────────────────────────────────────────── */
+
+.modeSelector {
+  margin-bottom: 0;
+}
+
+.modeSelectorLabel {
+  font-size: 9px;
+  font-weight: 500;
+  color: #888888;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.modeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 24px 20px;
+  border: 1px solid #EBEBEB;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.modeCard:hover {
+  border-color: #111111;
+}
+
+.modeCardTitle {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: #111111;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+.modeCardDesc {
+  display: block;
+  font-size: 12px;
+  font-weight: 300;
+  color: #888888;
+  line-height: 1.65;
+}
+
+/* ── Back button ────────────────────────────────────────────── */
+
+.backBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #AAAAAA;
+  padding: 0;
+  margin-bottom: 32px;
+  display: block;
+  transition: color 150ms ease;
+}
+
+.backBtn:hover {
+  color: #111111;
+}
+
+/* ── Freeform textarea ─────────────────────────────────────── */
+
+.freeformWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.freeformTextarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #EBEBEB;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 300;
+  color: #333333;
+  line-height: 1.65;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 180ms ease;
+}
+
+.freeformTextarea:hover {
+  border-color: #CCCCCC;
+}
+
+.freeformTextarea:focus {
+  border-color: #111111;
+}
+
+.freeformTextarea::placeholder {
+  color: #CCCCCC;
+  font-weight: 300;
+}
+
+.charCount {
+  font-size: 10px;
+  color: #CCCCCC;
+  text-align: right;
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+  transition: color 150ms ease;
+}
+
+.charCountWarn {
+  color: #AAAAAA;
+}
+
+.charCountLimit {
+  color: #991B1B;
+}
+
+/* ── Quiz form ─────────────────────────────────────────────── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.question {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.questionLabel {
+  font-size: 9px;
+  font-weight: 500;
+  color: #888888;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option {
+  padding: 10px 20px;
+  border: 1px solid #EBEBEB;
+  background: #ffffff;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: #333333;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+  line-height: 1;
+}
+
+.option:hover {
+  border-color: #111111;
+}
+
+.optionSelected {
+  background: #111111;
+  border-color: #111111;
+  color: #ffffff;
+}
+
+.scentsHint {
+  font-size: 11px;
+  color: #AAAAAA;
+  margin-top: -8px;
+}
+
+.submitBtn {
+  width: 100%;
+  max-width: 320px;
+  margin: 16px auto 0;
+  display: block;
+  padding: 16px;
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid #111111;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #ffffff;
+  color: #111111;
+}
+
+.submitBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Results ───────────────────────────────────────────────── */
+
+.resultsSection {
+  margin-top: 64px;
+}
+
+.resultsDivider {
+  width: 40px;
+  height: 1px;
+  background: #EBEBEB;
+  margin: 0 auto 16px;
+}
+
+.resultsTitle {
+  font-size: 9px;
+  font-weight: 500;
+  color: #111111;
+  text-align: center;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.resultCard {
+  border: 1px solid #EBEBEB;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 250ms ease, transform 250ms ease;
+}
+
+.resultCard:hover {
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.07);
+  transform: translateY(-3px);
+}
+
+.resultImageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.resultImageInner {
+  position: absolute;
+  inset: 10%;
+  transition: transform 250ms ease;
+}
+
+.resultCard:hover .resultImageInner {
+  transform: scale(1.03);
+}
+
+.resultInfo {
+  padding: 16px 14px 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.resultBrand {
+  font-size: 9px;
+  font-weight: 500;
+  color: #AAAAAA;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  margin-bottom: 5px;
+}
+
+.resultName {
+  font-size: 14px;
+  font-weight: 400;
+  color: #111111;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.resultDetails {
+  font-size: 11px;
+  color: #AAAAAA;
+  margin-bottom: 12px;
+  letter-spacing: 0.2px;
+}
+
+.resultPricing {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.resultOriginalPrice {
+  font-size: 12px;
+  color: #BBBBBB;
+  text-decoration: line-through;
+}
+
+.resultFinalPrice {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.reasonBlock {
+  margin-top: auto;
+  border-top: 1px solid #F0F0F0;
+  padding-top: 12px;
+}
+
+.reasonLabel {
+  font-size: 9px;
+  font-weight: 500;
+  color: #AAAAAA;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.reasonText {
+  font-size: 12px;
+  color: #555555;
+  line-height: 1.7;
+}
+
+.viewBtn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid #111111;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease;
+  margin-top: 14px;
+}
+
+.viewBtn:hover {
+  background: #ffffff;
+  color: #111111;
+}
+
+/* ── Error / messages ──────────────────────────────────────── */
+
+.errorMessage {
+  background: #FEF2F2;
+  color: #991B1B;
+  padding: 14px 16px;
+  border: 1px solid #FECACA;
+  font-size: 14px;
+  margin-top: 32px;
+  text-align: center;
+}
+
+.validationMessage {
+  background: #FFFBF0;
+  color: #7A5A00;
+  padding: 12px 16px;
+  border: 1px solid #F0D88A;
+  font-size: 13px;
+  margin-top: -16px;
+  text-align: center;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .pageContainer {
+    padding: 56px 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 40px 24px;
+    margin-top: 64px;
+  }
+
+  .pageTitle {
+    font-size: 10px;
+    margin-bottom: 10px;
+  }
+
+  .pageSubtitle {
+    font-size: 13px;
+    margin-bottom: 40px;
+  }
+
+  .form {
+    gap: 32px;
+  }
+
+  .option {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .submitBtn {
+    max-width: 100%;
+  }
+
+  .resultsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .resultsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resultCard,
+  .resultImageInner,
+  .option,
+  .submitBtn,
+  .viewBtn {
+    transition: none;
+  }
+}

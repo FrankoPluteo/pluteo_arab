@@ -86,6 +86,16 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
         </Link>
       </nav>
 
+      {/* ── Find Your Scent CTA ──────────────────────────── */}
+      <section className={styles.scentCta} data-fade>
+        <p className={styles.scentCtaLabel}>{t.home.scentCtaLabel}</p>
+        <h2 className={styles.scentCtaTitle}>{t.home.scentCtaTitle}</h2>
+        <p className={styles.scentCtaText}>{t.home.scentCtaText}</p>
+        <Link href="/find-your-scent" className={styles.scentCtaBtn}>
+          {t.home.scentCtaBtn}
+        </Link>
+      </section>
+
       {/* ── Bestseller spotlight ─────────────────────────── */}
       {spotlightProduct && spotlightProduct.images[0] && (
         <section className={styles.spotlight} data-fade>

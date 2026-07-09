@@ -117,6 +117,61 @@
   background: #F7F7F7;
 }
 
+/* ── Find Your Scent CTA ────────────────────────────────── */
+.scentCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 72px 24px;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.scentCtaLabel {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #AAAAAA;
+  margin-bottom: 16px;
+}
+
+.scentCtaTitle {
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 300;
+  color: #111111;
+  letter-spacing: -0.2px;
+  margin-bottom: 12px;
+}
+
+.scentCtaText {
+  font-size: 13px;
+  font-weight: 300;
+  color: #777777;
+  max-width: 440px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.scentCtaBtn {
+  display: inline-block;
+  padding: 13px 40px;
+  background: #111111;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: 1px solid #111111;
+  transition: background-color 250ms ease, color 250ms ease;
+}
+
+.scentCtaBtn:hover {
+  background: #ffffff;
+  color: #111111;
+}
+
 /* ── Bestseller spotlight ──────────────────────────────── */
 .spotlight {
   display: grid;
@@ -385,6 +440,10 @@
     overflow-x: hidden;
   }
 
+  .scentCta {
+    padding: 56px 24px;
+  }
+
   .sectionHeader {
     margin-bottom: 32px;
   }
@@ -460,7 +519,8 @@
   .brandBoxImage,
   .brandLink,
   .categoryLink,
-  .spotlightCta {
+  .spotlightCta,
+  .scentCtaBtn {
     transition: none;
   }
 }

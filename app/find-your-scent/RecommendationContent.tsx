@@ -71,6 +71,8 @@ export default function RecommendationContent() {
   const [status, setStatus] = useState<Status>('idle');
   const [results, setResults] = useState<RecommendationResult[]>([]);
   const [validationMsg, setValidationMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [note, setNote] = useState('');
 
   function toggleScent(scent: string) {
     setScents((prev) =>
@@ -83,6 +85,8 @@ export default function RecommendationContent() {
     setStatus('idle');
     setResults([]);
     setValidationMsg('');
+    setErrorMsg('');
+    setNote('');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -104,6 +108,8 @@ export default function RecommendationContent() {
 
     setStatus('loading');
     setResults([]);
+    setErrorMsg('');
+    setNote('');
 
     try {
       const res = await fetch('/api/recommend', {
@@ -113,18 +119,22 @@ export default function RecommendationContent() {
       });
 
       if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setErrorMsg(typeof data?.message === 'string' ? data.message : q.errorMessage);
         setStatus('error');
         return;
       }
 
       const data = await res.json();
       setResults(data.results ?? []);
+      setNote(typeof data.note === 'string' ? data.note : '');
       setStatus('success');
 
       setTimeout(() => {
         document.getElementById('quiz-results')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch {
+      setErrorMsg(q.errorMessage);
       setStatus('error');
     }
   }
@@ -370,7 +380,7 @@ export default function RecommendationContent() {
 
         {/* ── Error ── */}
         {status === 'error' && (
-          <p className={styles.errorMessage}>{q.errorMessage}</p>
+          <p className={styles.errorMessage}>{errorMsg || q.errorMessage}</p>
         )}
 
         {/* ── Results ── */}
@@ -378,6 +388,7 @@ export default function RecommendationContent() {
           <section id="quiz-results" className={styles.resultsSection}>
             <div className={styles.resultsDivider} />
             <h2 className={styles.resultsTitle}>{q.resultsTitle}</h2>
+            {note && <p className={styles.scentsHint}>{note}</p>}
 
             {results.length === 0 ? (
               <p className={styles.errorMessage}>{q.noResults}</p>

@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
+  async redirects() {
+    return [
+      {
+        source: '/preporuka',
+        destination: '/find-your-scent',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     // Serve AVIF first, then WebP — both are far smaller than JPEG/PNG
     formats: ['image/avif', 'image/webp'],

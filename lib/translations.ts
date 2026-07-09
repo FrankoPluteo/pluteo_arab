@@ -35,6 +35,10 @@ export const translations = {
       spotlightLabel: 'Best Seller',
       spotlightCta: 'Discover this fragrance',
       viewAll: 'View all',
+      scentCtaLabel: 'Personalized Picks',
+      scentCtaTitle: 'Not sure which scent to choose?',
+      scentCtaText: "Answer a few quick questions and we'll match you with a fragrance that fits your style and occasion.",
+      scentCtaBtn: 'Find Your Scent',
     },
 
     product: {
@@ -384,6 +388,10 @@ export const translations = {
       spotlightLabel: 'Najprodavaniji miris',
       spotlightCta: 'Otkrijte ovaj miris',
       viewAll: 'Pogledaj sve',
+      scentCtaLabel: 'Osobna preporuka',
+      scentCtaTitle: 'Niste sigurni koji miris odabrati?',
+      scentCtaText: 'Odgovorite na nekoliko kratkih pitanja i pronaći ćemo parfem koji savršeno odgovara vašem stilu i prigodi.',
+      scentCtaBtn: 'Pronađite svoj miris',
     },
 
     product: {

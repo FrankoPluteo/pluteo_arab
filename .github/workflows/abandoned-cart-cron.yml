@@ -1,0 +1,24 @@
+name: Abandoned cart recovery cron
+
+on:
+  schedule:
+    # Every 15 minutes. GitHub's scheduler isn't precise (can run a few minutes
+    # late, more under load) — fine here since a few minutes of drift on a 1h/24h
+    # reminder doesn't matter.
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call abandoned checkouts cron endpoint
+        run: |
+          status=$(curl -s -o /tmp/response.txt -w "%{http_code}" -X POST \
+            "${{ secrets.APP_URL }}/api/cron/abandoned-checkouts" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "HTTP status: $status"
+          cat /tmp/response.txt
+          if [ "$status" -ge 300 ]; then
+            exit 1
+          fi

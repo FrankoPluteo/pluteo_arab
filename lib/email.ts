@@ -2,6 +2,87 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Shared shell for the two abandoned-cart emails — same visual language as the
+// order confirmation email (dark header bar, Montserrat, black/gray palette,
+// uppercase CTA button) but stripped down to a single short message.
+function abandonedCartEmailShell(opts: {
+  title: string;
+  bodyHtml: string;
+  footerExtraHtml?: string;
+}): string {
+  return `
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${opts.title}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F7F7F7;font-family:'Montserrat',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F7F7;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table width="480" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;width:100%;background-color:#ffffff;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#111111;padding:28px 32px 30px 32px;text-align:center;">
+              <p style="margin:0;font-size:13px;font-weight:300;letter-spacing:7px;color:rgba(255,255,255,0.9);text-transform:uppercase;">PLUTEO</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding:36px 32px 32px 32px;">
+              ${opts.bodyHtml}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#F7F7F7;padding:22px 32px;border-top:1px solid #E5E5E5;text-align:center;">
+              <img
+                src="https://pluteo.shop/Pluteo%20Logo%20Icon.svg"
+                alt="Pluteo"
+                width="26"
+                height="15"
+                style="display:block;margin:0 auto 12px auto;opacity:0.25;"
+              />
+              <p style="margin:0 0 10px 0;font-size:9px;color:#BBBBBB;letter-spacing:0.5px;">Vonta Grupa d.o.o &nbsp;&middot;&nbsp; Dre&#382;nik 6, 10257 Zagreb</p>
+              ${opts.footerExtraHtml ?? ''}
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
+}
+
+function ctaButtonHtml(label: string, href: string): string {
+  return `
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${href}" style="display:inline-block;padding:14px 36px;background-color:#111111;color:#ffffff;text-decoration:none;font-size:10px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;">${label}</a>
+                  </td>
+                </tr>
+              </table>`;
+}
+
+function promoNoteHtml(text: string): string {
+  return `
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F7F7;margin-bottom:24px;">
+                <tr>
+                  <td style="padding:12px 16px;font-size:12px;color:#2E7D32;line-height:1.7;">${text}</td>
+                </tr>
+              </table>`;
+}
+
 export async function sendAbandonedCartEmail1(vars: {
   customerEmail: string;
   firstName: string;
@@ -11,19 +92,24 @@ export async function sendAbandonedCartEmail1(vars: {
 }) {
   const subject = `Ostalo je u košarici, ${vars.firstName} 🌙`;
 
-  const paragraphs = [
+  const bodyHtml = `
+              <p style="margin:0 0 18px 0;font-size:14px;color:#111111;font-weight:400;">Bok ${vars.firstName},</p>
+              <p style="margin:0 0 14px 0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">Primijetili smo da je tvoja narudžba ostala nedovršena: <strong style="color:#111111;font-weight:500;">${vars.itemName}</strong> te čeka u košarici.</p>
+              <p style="margin:0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">Ako te nešto zbunilo tijekom plaćanja ili se stranica jednostavno zatvorila, evo linka da nastaviš točno odande gdje si stao/la:</p>
+              ${ctaButtonHtml('Dovrši narudžbu', vars.checkoutLink)}
+              ${vars.promoCode ? promoNoteHtml(`Tvoj kod <strong>${vars.promoCode}</strong> još uvijek vrijedi, popust je već primijenjen.`) : ''}
+              <p style="margin:0 0 4px 0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">Ako imaš bilo kakvo pitanje o proizvodu ili dostavi, samo odgovori na ovaj mail, tu smo.</p>
+              <p style="margin:18px 0 0 0;font-size:13px;color:#111111;">Pluteo tim 🤍</p>`;
+
+  const text = [
     `Bok ${vars.firstName},`,
     `Primijetili smo da je tvoja narudžba ostala nedovršena: ${vars.itemName} te čeka u košarici.`,
     `Ako te nešto zbunilo tijekom plaćanja ili se stranica jednostavno zatvorila, evo linka da nastaviš točno odande gdje si stao/la:`,
     `Dovrši narudžbu → ${vars.checkoutLink}`,
-  ];
-
-  if (vars.promoCode) {
-    paragraphs.push(`Tvoj kod ${vars.promoCode} još uvijek vrijedi, popust je već primijenjen.`);
-  }
-
-  paragraphs.push(`Ako imaš bilo kakvo pitanje o proizvodu ili dostavi, samo odgovori na ovaj mail, tu smo.`);
-  paragraphs.push(`Pluteo tim 🤍`);
+    ...(vars.promoCode ? [`Tvoj kod ${vars.promoCode} još uvijek vrijedi, popust je već primijenjen.`] : []),
+    `Ako imaš bilo kakvo pitanje o proizvodu ili dostavi, samo odgovori na ovaj mail, tu smo.`,
+    `Pluteo tim 🤍`,
+  ].join('\n\n');
 
   try {
     const { data, error } = await resend.emails.send({
@@ -31,7 +117,8 @@ export async function sendAbandonedCartEmail1(vars: {
       replyTo: 'pluteoinfo@gmail.com',
       to: [vars.customerEmail],
       subject,
-      text: paragraphs.join('\n\n'),
+      html: abandonedCartEmailShell({ title: subject, bodyHtml }),
+      text,
     });
 
     if (error) {
@@ -56,21 +143,28 @@ export async function sendAbandonedCartEmail2(vars: {
   expiryDate?: string | null;
 }) {
   const subject = `${vars.itemName}, link je istekao, evo novog`;
+  const validity = vars.expiryDate ? `vrijedi još do ${vars.expiryDate}` : 'uskoro istječe';
 
-  const paragraphs = [
+  const bodyHtml = `
+              <p style="margin:0 0 18px 0;font-size:14px;color:#111111;font-weight:400;">Bok ${vars.firstName},</p>
+              <p style="margin:0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">Tvoj link za plaćanje je istekao, pa smo ti pripremili novi: <strong style="color:#111111;font-weight:500;">${vars.itemName}</strong> je i dalje rezerviran za tebe.</p>
+              ${ctaButtonHtml('Dovrši narudžbu', vars.checkoutLink)}
+              ${vars.promoCode ? promoNoteHtml(`Samo napomena: tvoj kod <strong>${vars.promoCode}</strong> ${validity}, ne želimo da ga propustiš.`) : ''}
+              <p style="margin:0 0 4px 0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">Ako si se predomislio/la ili imaš pitanje prije kupnje, javi nam se odgovorom na ovaj mail.</p>
+              <p style="margin:18px 0 0 0;font-size:13px;color:#111111;">Pluteo tim 🤍</p>`;
+
+  const footerExtraHtml = `
+              <p style="margin:0;font-size:9px;color:#CCCCCC;letter-spacing:0.3px;">Ne želiš više primati podsjetnike za košaricu? <a href="${vars.unsubscribeLink}" style="color:#CCCCCC;text-decoration:underline;">Odjavi se ovdje</a>.</p>`;
+
+  const text = [
     `Bok ${vars.firstName},`,
     `Tvoj link za plaćanje je istekao, pa smo ti pripremili novi: ${vars.itemName} je i dalje rezerviran za tebe.`,
     `Dovrši narudžbu → ${vars.checkoutLink}`,
-  ];
-
-  if (vars.promoCode) {
-    const validity = vars.expiryDate ? `vrijedi još do ${vars.expiryDate}` : 'uskoro istječe';
-    paragraphs.push(`Samo napomena: tvoj kod ${vars.promoCode} ${validity}, ne želimo da ga propustiš.`);
-  }
-
-  paragraphs.push(`Ako si se predomislio/la ili imaš pitanje prije kupnje, javi nam se odgovorom na ovaj mail.`);
-  paragraphs.push(`Pluteo tim 🤍`);
-  paragraphs.push(`Ne želiš više primati podsjetnike za košaricu? Odjavi se ovdje: ${vars.unsubscribeLink}`);
+    ...(vars.promoCode ? [`Samo napomena: tvoj kod ${vars.promoCode} ${validity}, ne želimo da ga propustiš.`] : []),
+    `Ako si se predomislio/la ili imaš pitanje prije kupnje, javi nam se odgovorom na ovaj mail.`,
+    `Pluteo tim 🤍`,
+    `Ne želiš više primati podsjetnike za košaricu? Odjavi se ovdje: ${vars.unsubscribeLink}`,
+  ].join('\n\n');
 
   try {
     const { data, error } = await resend.emails.send({
@@ -78,7 +172,8 @@ export async function sendAbandonedCartEmail2(vars: {
       replyTo: 'pluteoinfo@gmail.com',
       to: [vars.customerEmail],
       subject,
-      text: paragraphs.join('\n\n'),
+      html: abandonedCartEmailShell({ title: subject, bodyHtml, footerExtraHtml }),
+      text,
     });
 
     if (error) {

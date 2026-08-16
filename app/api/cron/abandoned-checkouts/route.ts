@@ -114,19 +114,7 @@ export async function POST(request: Request) {
 
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    // TEMP DEBUG — lengths only, never the actual values. Remove once the
-    // CRON_SECRET mismatch is root-caused.
-    return NextResponse.json(
-      {
-        error: 'Unauthorized',
-        debug: {
-          receivedHeaderLength: authHeader?.length ?? null,
-          expectedSecretLength: process.env.CRON_SECRET.length,
-          receivedStartsWithBearer: authHeader?.startsWith('Bearer ') ?? false,
-        },
-      },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   if (process.env.ABANDONED_CART_ENABLED !== 'true') {

@@ -2,6 +2,97 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+export async function sendAbandonedCartEmail1(vars: {
+  customerEmail: string;
+  firstName: string;
+  itemName: string;
+  checkoutLink: string;
+  promoCode?: string | null;
+}) {
+  const subject = `Ostalo je u košarici, ${vars.firstName} 🌙`;
+
+  const paragraphs = [
+    `Bok ${vars.firstName},`,
+    `Primijetili smo da je tvoja narudžba ostala nedovršena: ${vars.itemName} te čeka u košarici.`,
+    `Ako te nešto zbunilo tijekom plaćanja ili se stranica jednostavno zatvorila, evo linka da nastaviš točno odande gdje si stao/la:`,
+    `Dovrši narudžbu → ${vars.checkoutLink}`,
+  ];
+
+  if (vars.promoCode) {
+    paragraphs.push(`Tvoj kod ${vars.promoCode} još uvijek vrijedi, popust je već primijenjen.`);
+  }
+
+  paragraphs.push(`Ako imaš bilo kakvo pitanje o proizvodu ili dostavi, samo odgovori na ovaj mail, tu smo.`);
+  paragraphs.push(`Pluteo tim 🤍`);
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Pluteo <orders@pluteo.shop>',
+      replyTo: 'pluteoinfo@gmail.com',
+      to: [vars.customerEmail],
+      subject,
+      text: paragraphs.join('\n\n'),
+    });
+
+    if (error) {
+      console.error('Abandoned cart email 1 error:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Failed to send abandoned cart email 1:', error);
+    return { success: false, error };
+  }
+}
+
+export async function sendAbandonedCartEmail2(vars: {
+  customerEmail: string;
+  firstName: string;
+  itemName: string;
+  checkoutLink: string;
+  unsubscribeLink: string;
+  promoCode?: string | null;
+  expiryDate?: string | null;
+}) {
+  const subject = `${vars.itemName}, link je istekao, evo novog`;
+
+  const paragraphs = [
+    `Bok ${vars.firstName},`,
+    `Tvoj link za plaćanje je istekao, pa smo ti pripremili novi: ${vars.itemName} je i dalje rezerviran za tebe.`,
+    `Dovrši narudžbu → ${vars.checkoutLink}`,
+  ];
+
+  if (vars.promoCode) {
+    const validity = vars.expiryDate ? `vrijedi još do ${vars.expiryDate}` : 'uskoro istječe';
+    paragraphs.push(`Samo napomena: tvoj kod ${vars.promoCode} ${validity}, ne želimo da ga propustiš.`);
+  }
+
+  paragraphs.push(`Ako si se predomislio/la ili imaš pitanje prije kupnje, javi nam se odgovorom na ovaj mail.`);
+  paragraphs.push(`Pluteo tim 🤍`);
+  paragraphs.push(`Ne želiš više primati podsjetnike za košaricu? Odjavi se ovdje: ${vars.unsubscribeLink}`);
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Pluteo <orders@pluteo.shop>',
+      replyTo: 'pluteoinfo@gmail.com',
+      to: [vars.customerEmail],
+      subject,
+      text: paragraphs.join('\n\n'),
+    });
+
+    if (error) {
+      console.error('Abandoned cart email 2 error:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Failed to send abandoned cart email 2:', error);
+    return { success: false, error };
+  }
+}
+
 export async function sendOrderConfirmation(orderData: {
   orderNumber: string;
   customerEmail: string;

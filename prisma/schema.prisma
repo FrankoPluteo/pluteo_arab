@@ -135,10 +135,18 @@ model Order {
   shippedAt       DateTime?
   deliveredAt     DateTime?
 
+  abandonedEmail1SentAt DateTime?
+  abandonedEmail2SentAt DateTime?
+
   @@index([customerEmail])
   @@index([orderNumber])
   @@index([paymentStatus])
   @@index([orderStatus])
+}
+
+model AbandonedCartOptOut {
+  email     String   @id
+  createdAt DateTime @default(now())
 }
 
 model PromoCode {

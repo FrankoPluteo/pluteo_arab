@@ -29,8 +29,14 @@ export async function POST(request: Request) {
   });
 
   // Fire-and-forget — a Resend failure must never break the user-facing response.
-  // Send exactly once: skip if welcomeEmailSentAt is already set.
+  // Run exactly once per email: skip if welcomeEmailSentAt is already set.
   if (!record.welcomeEmailSentAt) {
+    if (process.env.RESEND_AUDIENCE_ID) {
+      resend.contacts
+        .create({ email, audienceId: process.env.RESEND_AUDIENCE_ID })
+        .catch((err) => console.error('Resend audience add error:', err));
+    }
+
     resend.emails.send({
       from: 'Pluteo <hello@pluteo.shop>',
       to: email,

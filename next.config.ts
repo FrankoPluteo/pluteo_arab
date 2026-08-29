@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         destination: '/find-your-scent',
         permanent: true,
       },
+      {
+        source: '/ljeto',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
   images: {

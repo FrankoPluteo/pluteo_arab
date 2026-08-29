@@ -207,6 +207,7 @@ export const translations = {
       submit: 'CONTINUE',
       noThanks: 'No thanks',
       thankYou: "You're in. Welcome.",
+      codeLabel: 'Your 15% code:',
     },
 
     testerModal: {
@@ -560,6 +561,7 @@ export const translations = {
       submit: 'NASTAVI',
       noThanks: 'Ne hvala',
       thankYou: 'Dobrodošli. Ušli ste.',
+      codeLabel: 'Tvoj kod za 15% popusta:',
     },
 
     testerModal: {

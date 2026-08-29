@@ -30,7 +30,6 @@ export default function EmailModal() {
 
     localStorage.setItem('email_captured', email);
     setSubmitted(true);
-    setTimeout(() => setVisible(false), 1500);
   }
 
   function handleDismiss() {
@@ -46,7 +45,11 @@ export default function EmailModal() {
         <button className={styles.closeBtn} onClick={handleDismiss}>×</button>
 
         {submitted ? (
-          <p className={styles.thankYou}>{t.emailModal.thankYou}</p>
+          <div className={styles.thankYouWrap}>
+            <p className={styles.thankYou}>{t.emailModal.thankYou}</p>
+            <p className={styles.codeLabel}>{t.emailModal.codeLabel}</p>
+            <p className={styles.promoCode}>PLUTEO15</p>
+          </div>
         ) : (
           <>
             <p className={styles.eyebrow}>{t.emailModal.eyebrow}</p>

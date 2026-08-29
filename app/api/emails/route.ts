@@ -6,16 +6,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const WELCOME_TEXT = `Hej,
 
-evo tvog koda: LJETO15
+evo tvog koda: PLUTEO15
 15% popusta na sve parfeme. Unesi ga na checkoutu i automatski se odbija.
 
-Ovog ljeta predlažemo:
-
-Yara — nježna, cvjetna, postojana. Savršena za tople dane.
-The Kingdom For Women — elegantna i bogata. Miris koji ostaje.
-Club de Nuit Woman — zlatna klasika s karakterom.
-
-Otkrij sve na pluteo.shop → 
+Otkrij sve na pluteo.shop →
 
 Besplatna dostava iznad 40€.
 

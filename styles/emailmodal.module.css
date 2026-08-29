@@ -130,10 +130,27 @@
   color: #111111;
 }
 
+.thankYouWrap {
+  padding: 12px 0;
+}
+
 .thankYou {
   font-size: 16px;
   font-weight: 300;
   color: #111111;
-  padding: 24px 0;
   letter-spacing: 0.3px;
+}
+
+.codeLabel {
+  font-size: 12px;
+  color: #888888;
+  margin-top: 18px;
+}
+
+.promoCode {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  color: #111111;
+  margin-top: 8px;
 }

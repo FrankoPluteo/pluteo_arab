@@ -8,6 +8,10 @@ export const translations = {
       about: 'About',
       contact: 'Contact',
       cart: 'Cart',
+      search: 'Search',
+      searchPlaceholder: 'Search perfumes, brands...',
+      searchNoResults: 'No results for',
+      searchViewAll: 'View all results',
     },
 
     footer: {
@@ -362,6 +366,10 @@ export const translations = {
       about: 'Pluteo',
       contact: 'Kontakt',
       cart: 'Košarica',
+      search: 'Pretraga',
+      searchPlaceholder: 'Pretraži parfeme, brendove...',
+      searchNoResults: 'Nema rezultata za',
+      searchViewAll: 'Prikaži sve rezultate',
     },
 
     footer: {

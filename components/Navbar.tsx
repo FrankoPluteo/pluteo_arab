@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
+import NavSearch from './NavSearch';
 import styles from '@/styles/navbar.module.css';
 import logoicon from '../public/Pluteo Logo Icon.svg';
 
@@ -89,6 +90,9 @@ export default function Navbar() {
             className={isTransparent ? styles.logoInverted : ''}
           />
         </Link>
+
+        {/* Search — right of logo on desktop, centered on mobile */}
+        <NavSearch inverted={isTransparent} />
 
         {/* Icons — right */}
         <div className={styles.navRight}>

@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMethod } from '@/lib/shipping';
 import { AFFILIATE_DISCOUNT_RATE } from '@/lib/affiliateConfig';
+import { CHECKOUT_HOLD_MINUTES } from '@/lib/cartReservation';
 
 export async function POST(request: Request) {
   try {
@@ -101,6 +102,22 @@ export async function POST(request: Request) {
           );
         }
       }
+    }
+
+    // Extend the stock hold to cover the rest of the payment flow. Reservations are
+    // normally kept alive only by cart activity (15 min from the last add/edit), which
+    // is too short once the customer moves on to filling in shipping info, picking a
+    // BoxNow locker, and paying on Stripe's hosted page — if that took longer than the
+    // hold, the reservation would expire mid-payment, stock would be released back to
+    // other shoppers, and a successful payment afterward would have nothing left to
+    // deduct from. Re-anchoring the hold here, in lockstep with the Stripe session's own
+    // expires_at below, keeps the two bounded together for the whole checkout attempt.
+    const checkoutHoldExpiresAt = new Date(Date.now() + CHECKOUT_HOLD_MINUTES * 60 * 1000);
+    if (cartSessionId) {
+      await prisma.cartReservation.updateMany({
+        where: { cartSessionId, productId: { in: productIds } },
+        data: { expiresAt: checkoutHoldExpiresAt },
+      });
     }
 
     // Calculate subtotal using DB prices
@@ -315,6 +332,9 @@ export async function POST(request: Request) {
       line_items: lineItems,
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
+      // Match the CartReservation hold above so an unpaid session and its stock hold
+      // always expire together — see checkout.session.expired in the Stripe webhook.
+      expires_at: Math.floor(checkoutHoldExpiresAt.getTime() / 1000),
       metadata: {
         orderId: order.id,
         orderNumber: order.orderNumber,

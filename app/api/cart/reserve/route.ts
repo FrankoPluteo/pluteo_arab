@@ -1,36 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-
-const RESERVATION_MINUTES = 15;
-
-async function cleanupExpiredReservations() {
-  // Bug 2 fix: DELETE...RETURNING is atomic — concurrent callers each get disjoint
-  // rows, so no reservation is ever double-processed and stock is never double-restored.
-  const expired = await prisma.$queryRaw<
-    { id: string; productId: string; quantity: number }[]
-  >`
-    DELETE FROM "CartReservation"
-    WHERE "expiresAt" < NOW()
-    RETURNING id, "productId", quantity
-  `;
-
-  if (expired.length === 0) return;
-
-  // Group by productId to issue one UPDATE per product instead of N.
-  const byProduct = new Map<string, number>();
-  for (const r of expired) {
-    byProduct.set(r.productId, (byProduct.get(r.productId) ?? 0) + r.quantity);
-  }
-
-  await Promise.all(
-    Array.from(byProduct.entries()).map(([productId, qty]) =>
-      prisma.product.update({
-        where: { id: productId },
-        data: { stock: { increment: qty } },
-      })
-    )
-  );
-}
+import {
+  RESERVATION_MINUTES,
+  cleanupExpiredReservations,
+  releaseCartReservations,
+} from '@/lib/cartReservation';
 
 /**
  * GET /api/cart/reserve?cartSessionId=...
@@ -45,7 +19,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ expiresAt: null });
     }
 
-    // Bug 6 fix: fire-and-forget so GET response is not blocked by cleanup.
+    // Fire-and-forget so this response is not blocked by cleanup.
     cleanupExpiredReservations().catch(console.error);
 
     const earliest = await prisma.cartReservation.findFirst({
@@ -76,50 +50,51 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    // Bug 6 fix: run cleanup in the background so it never blocks the response.
+    // Run cleanup in the background so it never blocks the response.
     cleanupExpiredReservations().catch(console.error);
 
     if (delta > 0) {
-      const result = await prisma.$transaction(
-        async (tx) => {
-          // Bug 1 fix: single atomic UPDATE with the stock guard in the WHERE clause.
-          // This is equivalent to: UPDATE ... SET stock = stock - delta WHERE stock >= delta
-          // The DB acquires a row-level lock, so no two concurrent transactions can
-          // both pass the check and both decrement — no TOCTOU race, no serialization errors.
-          const updated = await tx.product.updateMany({
-            where: { id: productId, stock: { gte: delta } },
-            data: { stock: { decrement: delta } },
+      const result = await prisma.$transaction(async (tx) => {
+        // Single atomic UPDATE with the stock guard in the WHERE clause — equivalent to
+        // UPDATE ... SET stock = stock - delta WHERE stock >= delta. The DB acquires a
+        // row-level lock and re-checks the predicate under it, so no two concurrent
+        // transactions can both pass the check and both decrement — no TOCTOU race.
+        // Default (Read Committed) isolation is enough for this: unlike RepeatableRead,
+        // it won't abort concurrent add-to-cart requests on the same product with a
+        // serialization error, which used to surface to shoppers as a false "out of
+        // stock" even though the item was available.
+        const updated = await tx.product.updateMany({
+          where: { id: productId, stock: { gte: delta } },
+          data: { stock: { decrement: delta } },
+        });
+
+        if (updated.count === 0) {
+          const exists = await tx.product.findUnique({
+            where: { id: productId },
+            select: { id: true },
           });
+          throw new Error(exists ? 'Not enough stock available' : 'Product not found');
+        }
 
-          if (updated.count === 0) {
-            const exists = await tx.product.findUnique({
-              where: { id: productId },
-              select: { id: true },
-            });
-            throw new Error(exists ? 'Not enough stock available' : 'Product not found');
-          }
+        const expiresAt = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000);
 
-          const expiresAt = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000);
+        const existing = await tx.cartReservation.findUnique({
+          where: { cartSessionId_productId: { cartSessionId, productId } },
+        });
 
-          const existing = await tx.cartReservation.findUnique({
-            where: { cartSessionId_productId: { cartSessionId, productId } },
+        if (existing) {
+          await tx.cartReservation.update({
+            where: { id: existing.id },
+            data: { quantity: existing.quantity + delta, expiresAt },
           });
+        } else {
+          await tx.cartReservation.create({
+            data: { cartSessionId, productId, quantity: delta, expiresAt },
+          });
+        }
 
-          if (existing) {
-            await tx.cartReservation.update({
-              where: { id: existing.id },
-              data: { quantity: existing.quantity + delta, expiresAt },
-            });
-          } else {
-            await tx.cartReservation.create({
-              data: { cartSessionId, productId, quantity: delta, expiresAt },
-            });
-          }
-
-          return { expiresAt: expiresAt.getTime() };
-        },
-        { isolationLevel: 'RepeatableRead' }
-      );
+        return { expiresAt: expiresAt.getTime() };
+      });
 
       return NextResponse.json({ success: true, expiresAt: result.expiresAt });
     } else {
@@ -174,26 +149,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Missing cartSessionId' }, { status: 400 });
     }
 
-    const reservations = await prisma.cartReservation.findMany({
-      where: { cartSessionId },
-    });
-
-    for (const r of reservations) {
-      try {
-        // Bug 4 fix: wrap increment + delete in a transaction so a partial failure
-        // (increment succeeds, delete fails) cannot leave the reservation alive while
-        // stock was already restored — preventing a double-restore on the next cleanup.
-        await prisma.$transaction([
-          prisma.product.update({
-            where: { id: r.productId },
-            data: { stock: { increment: r.quantity } },
-          }),
-          prisma.cartReservation.delete({ where: { id: r.id } }),
-        ]);
-      } catch {
-        // continue releasing others even if one fails
-      }
-    }
+    await releaseCartReservations(cartSessionId);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

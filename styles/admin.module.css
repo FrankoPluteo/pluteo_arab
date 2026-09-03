@@ -392,6 +392,253 @@
   margin: 0;
 }
 
+/* ── Admin section nav (tabs across admin pages) ── */
+.adminNav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ebe5e3;
+}
+
+.adminNavLink {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.adminNavLink:hover {
+  background: #f7f4f3;
+  color: var(--color-dark);
+}
+
+.adminNavLinkActive {
+  background: var(--color-dark);
+  color: #fff;
+}
+
+.adminNavLinkActive:hover {
+  background: var(--color-dark);
+  color: #fff;
+}
+
+/* ── Dashboard cards ── */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.dashboardCard {
+  display: block;
+  background: #fff;
+  border: 1px solid #ebe5e3;
+  border-radius: 10px;
+  padding: 26px 24px;
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboardCard:hover {
+  border-color: var(--color-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(108, 83, 78, 0.12);
+}
+
+.dashboardCardTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 8px;
+}
+
+.dashboardCardDesc {
+  font-size: 13px;
+  color: #888;
+  line-height: 1.5;
+}
+
+/* ── Toolbar (search / filters above a list) ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.toolbar .input {
+  width: auto;
+}
+
+/* ── Status badges ── */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.badgeOk {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeWarning {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badgeDanger {
+  background: #fce8e8;
+  color: #c62828;
+}
+
+/* ── Stock & price table ── */
+.productTableWrap {
+  background: #fff;
+  border: 1px solid #ebe5e3;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.productTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.productTable th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #aaa;
+  padding: 16px 14px;
+  border-bottom: 1px solid #f0ebe9;
+  white-space: nowrap;
+}
+
+.productTable td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f5f1ef;
+  vertical-align: middle;
+}
+
+.productTable tr:last-child td {
+  border-bottom: none;
+}
+
+.productThumbCell {
+  width: 52px;
+}
+
+.productThumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ebe5e3;
+  display: block;
+}
+
+.productThumbPlaceholder {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: #f7f4f3;
+  border: 1px solid #ebe5e3;
+}
+
+.productCellBrand {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #aaa;
+}
+
+.productCellName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.editCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editCell .input {
+  width: 100px;
+  padding: 8px 10px;
+}
+
+.inputInvalid {
+  border-color: #e53935 !important;
+}
+
+.fieldError {
+  font-size: 11px;
+  font-weight: 600;
+  color: #c62828;
+  white-space: nowrap;
+}
+
+.productActionsCell {
+  white-space: nowrap;
+}
+
+.productActionsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.undoBtn {
+  padding: 9px 12px;
+  background: none;
+  border: 1px solid #e0dbd9;
+  border-radius: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.undoBtn:hover {
+  border-color: var(--color-dark);
+  color: var(--color-dark);
+}
+
+.rowSuccess {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.rowError {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c62828;
+}
+
 @media (max-width: 768px) {
   .page {
     padding: 32px 16px 60px;
@@ -409,5 +656,17 @@
 
   .urlRow {
     flex-wrap: wrap;
+  }
+
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .productTable {
+    font-size: 13px;
+  }
+
+  .editCell .input {
+    width: 80px;
   }
 }

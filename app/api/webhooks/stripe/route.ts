@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { sendOrderConfirmation } from '@/lib/email';
 import { createBoxNowDeliveryRequest } from '@/lib/boxnow';
+import { releaseCartReservations, safelyDecrementStock } from '@/lib/cartReservation';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
@@ -64,63 +65,78 @@ export async function POST(request: Request) {
             : null;
           const cartSessionId = session.metadata?.cartSessionId;
 
-          // Handle stock: reservation was already deducted when item was added to cart.
-          // Use deleteMany (atomic) instead of findUnique+delete to eliminate the race
-          // where background cleanup could delete the reservation between our read and
-          // our delete, causing the catch to swallow the error and stock to never be
-          // decremented.  deleteMany.count tells us whether we deleted anything.
+          // Handle stock: reservation was already deducted when item was added to cart,
+          // and its hold is kept in lockstep with this Stripe session's expiry (extended
+          // at checkout-session creation, see /api/checkout) — so under normal operation
+          // the reservation below is still present and no further deduction is needed.
+          // Each item is isolated in its own try/catch, and the fallback deduction is
+          // clamp-safe (never throws, never goes negative), so a problem with one line
+          // item can never cascade into skipping the confirmation email, affiliate
+          // conversion, or promo tracking below.
           for (const item of items) {
-            if (cartSessionId) {
-              const { count } = await prisma.cartReservation.deleteMany({
-                where: { cartSessionId, productId: item.product.id },
-              });
+            try {
+              if (cartSessionId) {
+                const { count } = await prisma.cartReservation.deleteMany({
+                  where: { cartSessionId, productId: item.product.id },
+                });
 
-              if (count === 0) {
-                // Reservation already expired and stock was restored — deduct stock now
-                await prisma.product.update({
-                  where: { id: item.product.id },
-                  data: { stock: { decrement: item.quantity } },
+                if (count === 0) {
+                  // Reservation was already gone (expired despite the extended hold, or a
+                  // legacy/edge case) — deduct now via the clamped, non-throwing path.
+                  await safelyDecrementStock(item.product.id, item.quantity, order.orderNumber);
+                }
+                // count > 0: reservation was active, stock already decremented — nothing more to do
+              } else {
+                // No cartSessionId (legacy order) — deduct stock via the same safe path
+                await safelyDecrementStock(item.product.id, item.quantity, order.orderNumber);
+              }
+            } catch (stockError) {
+              console.error(
+                `Stock adjustment failed for order ${order.orderNumber}, product ${item.product.id}:`,
+                stockError
+              );
+            }
+          }
+
+          // Create affiliate conversion if order has an affiliate code — isolated so a
+          // failure here can't block the promo update or confirmation email below.
+          try {
+            if ((order as any).affiliateCode) {
+              const affiliate = await prisma.affiliate.findUnique({
+                where: { affiliateCode: (order as any).affiliateCode },
+                select: { id: true, status: true },
+              });
+              if (affiliate && affiliate.status === 'active') {
+                const COMMISSION_RATE = 0.05;
+                await prisma.affiliateConversion.upsert({
+                  where: { orderId: order.id },
+                  update: {},
+                  create: {
+                    affiliateId: affiliate.id,
+                    orderId: order.id,
+                    orderValue: order.total,
+                    commissionAmount: parseFloat((order.total * COMMISSION_RATE).toFixed(2)),
+                    status: 'pending',
+                  },
                 });
               }
-              // count > 0: reservation was active, stock already decremented — nothing more to do
-            } else {
-              // No cartSessionId (legacy order) — deduct stock as before
-              await prisma.product.update({
-                where: { id: item.product.id },
-                data: { stock: { decrement: item.quantity } },
-              });
             }
+          } catch (affiliateError) {
+            console.error(`Affiliate conversion failed for order ${order.orderNumber}:`, affiliateError);
           }
 
-          // Create affiliate conversion if order has an affiliate code
-          if ((order as any).affiliateCode) {
-            const affiliate = await prisma.affiliate.findUnique({
-              where: { affiliateCode: (order as any).affiliateCode },
-              select: { id: true, status: true },
-            });
-            if (affiliate && affiliate.status === 'active') {
-              const COMMISSION_RATE = 0.05;
-              await prisma.affiliateConversion.upsert({
-                where: { orderId: order.id },
-                update: {},
-                create: {
-                  affiliateId: affiliate.id,
-                  orderId: order.id,
-                  orderValue: order.total,
-                  commissionAmount: parseFloat((order.total * COMMISSION_RATE).toFixed(2)),
-                  status: 'pending',
-                },
+          // Increment promo usage only after payment is confirmed, not at checkout-session
+          // creation time, so abandoned checkouts don't inflate timesUsed. Isolated for the
+          // same reason as above.
+          try {
+            if ((order as any).promoCode) {
+              await prisma.promoCode.update({
+                where: { code: (order as any).promoCode },
+                data: { timesUsed: { increment: 1 } },
               });
             }
-          }
-
-          // Bug 5 fix: increment promo usage only after payment is confirmed, not at
-          // checkout-session creation time.  Abandoned checkouts no longer inflate timesUsed.
-          if ((order as any).promoCode) {
-            await prisma.promoCode.update({
-              where: { code: (order as any).promoCode },
-              data: { timesUsed: { increment: 1 } },
-            });
+          } catch (promoError) {
+            console.error(`Promo usage update failed for order ${order.orderNumber}:`, promoError);
           }
 
           const deliveryMethod = (order as any).shippingMethod;
@@ -210,8 +226,9 @@ export async function POST(request: Request) {
       }
 
       case 'checkout.session.expired': {
-        // Fired when a Stripe Checkout session is never completed (user abandoned, or 24 h
-        // elapsed).  Without this handler, orders for expired sessions stay 'pending' forever.
+        // Fired when a Stripe Checkout session is never completed (user abandoned, or the
+        // session's expires_at was reached). Without this handler, orders for expired
+        // sessions stay 'pending' forever.
         const session = event.data.object;
         console.log('Checkout session expired:', session.id);
 
@@ -220,8 +237,15 @@ export async function POST(request: Request) {
             where: { stripeSessionId: session.id, paymentStatus: 'pending' },
             data: { paymentStatus: 'expired' },
           });
-          // CartReservations for this session have a 15-min TTL and will have been cleaned up
-          // by background expiry long before Stripe's 24-h session timeout — no stock action needed.
+
+          // The CartReservation hold for this session is set (at checkout-session creation)
+          // to expire at the same time as the Stripe session itself, so it's still present
+          // right now — release it explicitly rather than waiting on opportunistic TTL
+          // cleanup, so the stock becomes available to other shoppers immediately.
+          const cartSessionId = session.metadata?.cartSessionId;
+          if (cartSessionId) {
+            await releaseCartReservations(cartSessionId);
+          }
         } catch (dbError) {
           console.error('Database update error:', dbError);
         }

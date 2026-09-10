@@ -9,6 +9,7 @@ import { calculateShipping, FREE_SHIPPING_THRESHOLD, isFreeShippingEligible } fr
 import Footer from '@/components/Footer';
 import TesterModal from '@/components/TesterModal';
 import { useLanguage } from '@/lib/languageContext';
+import { useCartPrefill } from '@/lib/cartPrefill';
 
 function formatTime(ms: number): string {
   if (ms <= 0) return '00:00';
@@ -50,10 +51,17 @@ export default function CartPage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasFetched = useRef(false);
 
+  // Applies /cart?add=<productId>&promo=<code> share links before the reservation
+  // sync below runs, so a link's items are reserved exactly once.
+  const prefill = useCartPrefill(setCartExpiresAt);
+
   // On mount: fetch existing reservation expiry, or create reservations if none exist.
   // Depends on cartSessionId + items.length so it re-runs after Zustand hydrates
   // from localStorage (first render always has items = [] and a random cartSessionId).
   useEffect(() => {
+    // Wait for a share link to finish adding its items, otherwise this effect would
+    // reserve the same products a second time.
+    if (prefill.pending) return;
     if (!cartSessionId || items.length === 0 || hasFetched.current) return;
     hasFetched.current = true;
 
@@ -102,7 +110,7 @@ export default function CartPage() {
     }
 
     syncReservations().catch(() => {});
-  }, [cartSessionId, items.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cartSessionId, items.length, prefill.pending]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Countdown ticker
   useEffect(() => {
@@ -240,11 +248,25 @@ export default function CartPage() {
     }
   }
 
+  if (items.length === 0 && prefill.pending) {
+    return (
+      <div>
+        <Navbar />
+        <div className={styles.cartContainer}>
+          <div className={styles.emptyCart}>
+            <h2>{t.cart.preparingCart}</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div>
         <Navbar />
         <div className={styles.cartContainer}>
+          {prefill.error && <div className={styles.stockError}>{prefill.error}</div>}
           <div className={styles.emptyCart}>
             <h2>{t.cart.empty.heading}</h2>
             <p>{t.cart.empty.subheading}</p>
@@ -270,8 +292,8 @@ export default function CartPage() {
           </div>
         )}
 
-        {stockError && (
-          <div className={styles.stockError}>{stockError}</div>
+        {(stockError || prefill.error) && (
+          <div className={styles.stockError}>{stockError || prefill.error}</div>
         )}
 
         <div className={styles.cartLayout}>

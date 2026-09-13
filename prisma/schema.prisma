@@ -44,6 +44,7 @@ model Product {
   baseNotesHr       String[]
   reviews           Review[]
   reservations      CartReservation[]
+  minimaxSku        String?           @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
@@ -137,6 +138,11 @@ model Order {
 
   abandonedEmail1SentAt DateTime?
   abandonedEmail2SentAt DateTime?
+
+  minimaxInvoiceNumber String?
+  minimaxJir           String?
+  fiscalizationStatus  String?
+  fiscalizedAt         DateTime?
 
   @@index([customerEmail])
   @@index([orderNumber])

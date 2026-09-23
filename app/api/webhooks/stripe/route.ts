@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { sendOrderConfirmation } from '@/lib/email';
 import { createBoxNowDeliveryRequest } from '@/lib/boxnow';
 import { releaseCartReservations, safelyDecrementStock } from '@/lib/cartReservation';
+import { fiscalizeOrder } from '@/lib/minimax/fiscalize';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
@@ -58,6 +59,10 @@ export async function POST(request: Request) {
             console.error('Order not found after update for session:', session.id);
             break;
           }
+
+          // Fiscalization via Minimax runs in the background after this handler returns —
+          // it must never block or fail the Stripe webhook response (see fiscalizeOrder).
+          after(() => fiscalizeOrder(order.id));
 
           const items = JSON.parse(order.items as string);
           const testerItem = (order as any).testerItem

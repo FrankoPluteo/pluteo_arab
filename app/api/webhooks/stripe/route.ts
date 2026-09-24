@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma';
 import { sendOrderConfirmation } from '@/lib/email';
 import { createBoxNowDeliveryRequest } from '@/lib/boxnow';
 import { releaseCartReservations, safelyDecrementStock } from '@/lib/cartReservation';
-import { fiscalizeOrder } from '@/lib/minimax/fiscalize';
 import { addBuyerToKupci } from '@/lib/resendContacts';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
@@ -63,7 +62,16 @@ export async function POST(request: Request) {
 
           // Fiscalization via Minimax runs in the background after this handler returns —
           // it must never block or fail the Stripe webhook response (see fiscalizeOrder).
-          after(() => fiscalizeOrder(order.id));
+          // Imported lazily so a module load failure in the Minimax/pdf-parse chain can't
+          // take down the whole webhook route (payment status, stock, confirmation email).
+          after(async () => {
+            try {
+              const { fiscalizeOrder } = await import('@/lib/minimax/fiscalize');
+              await fiscalizeOrder(order.id);
+            } catch (fiscalError) {
+              console.error(`Fiscalization could not run for order ${order.orderNumber}:`, fiscalError);
+            }
+          });
 
           // Put the buyer in the Resend "Kupci" segment (creating the contact if needed).
           // Background + fully caught: a Resend failure must never affect the order or webhook.

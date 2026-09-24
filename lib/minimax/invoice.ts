@@ -1,4 +1,3 @@
-import { PDFParse } from 'pdf-parse';
 import { minimaxFetch } from './client';
 
 // Shipping is invoiced as its own catalog item (Type: Usluga) so that the invoice rows
@@ -100,6 +99,9 @@ async function extractJirFromAttachment(documentId: number, attachmentId: number
 
   const attachment = await response.json();
   const buffer = Buffer.from(attachment.AttachmentData, 'base64');
+  // Loaded lazily: a static import made pdf-parse/pdfjs load with the Stripe webhook route,
+  // and when that load failed on Vercel every webhook returned 500 before marking orders paid.
+  const { PDFParse } = await import('pdf-parse');
   const parser = new PDFParse({ data: buffer });
   const { text } = await parser.getText();
 

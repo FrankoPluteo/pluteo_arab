@@ -211,7 +211,6 @@ function escapeHtml(value: string): string {
 
 export interface LoyaltyEmailVars {
   firstName: string;
-  productName: string;
   code: string;
   expiresAt: Date;
   promoLink: string;
@@ -222,7 +221,7 @@ export interface LoyaltyEmailVars {
 // confirmation (600px card, black header bar, Montserrat, gray palette, uppercase CTA,
 // same footer), with only the content changed.
 export function buildLoyaltyEmail(vars: LoyaltyEmailVars): { subject: string; html: string; text: string } {
-  const subject = `Hvala ti za ${vars.productName}`;
+  const subject = 'Naša zahvala za tvoju narudžbu';
   const greeting = vars.firstName ? `Bok ${vars.firstName},` : 'Bok,';
   const expiry = formatDateHr(vars.expiresAt);
   const year = new Date().getFullYear();

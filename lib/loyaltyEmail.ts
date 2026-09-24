@@ -21,7 +21,6 @@ export type LoyaltyOutcome =
   | 'skipped_abandoned_cart_opt_out'
   | 'skipped_checkout_opt_out'
   | 'skipped_unsubscribed'
-  | 'skipped_no_products'
   | 'skipped_already_claimed'
   | 'send_error';
 
@@ -30,7 +29,6 @@ export interface LoyaltyRow {
   email: string;
   paidAt: string;
   daysSinceOrder: number;
-  product: string | null;
   outcome: LoyaltyOutcome;
   note?: string;
 }
@@ -39,23 +37,6 @@ export function buildMarketingUnsubscribeLink(email: string, baseUrl: string): s
   const normalized = normalizeEmail(email);
   const sig = signPayload(`marketing:${normalized}`);
   return `${baseUrl}/api/unsubscribe/marketing?email=${encodeURIComponent(normalized)}&sig=${sig}`;
-}
-
-interface OrderItemLike {
-  unitPrice?: number;
-  product?: { name?: string; price?: number; discountAmount?: number };
-}
-
-// "Most expensive product in the order" by the unit price actually charged.
-export function pickHeadlineProduct(items: OrderItemLike[]): string | null {
-  let best: { name: string; price: number } | null = null;
-  for (const item of items) {
-    const name = item?.product?.name;
-    if (!name) continue;
-    const price = Number(item.unitPrice ?? (item.product?.price ?? 0) - (item.product?.discountAmount ?? 0));
-    if (!best || price > best.price) best = { name, price };
-  }
-  return best?.name ?? null;
 }
 
 interface JobOptions {
@@ -91,19 +72,16 @@ export async function runLoyaltyEmailJob(options: JobOptions): Promise<{
 
   for (const order of candidates) {
     const email = normalizeEmail(order.customerEmail);
-    const items = JSON.parse(order.items as string) as OrderItemLike[];
-    const product = pickHeadlineProduct(items);
     const row: LoyaltyRow = {
       orderNumber: order.orderNumber,
       email,
       paidAt: order.paidAt!.toISOString(),
       daysSinceOrder: Math.round(((now.getTime() - order.paidAt!.getTime()) / DAY_MS) * 10) / 10,
-      product,
       outcome: 'would_send',
     };
 
     try {
-      row.outcome = await processOrder(order, email, product, baseUrl, options.dryRun, now, row);
+      row.outcome = await processOrder(order, email, baseUrl, options.dryRun, now, row);
       const skippedForOptOutOrReorder =
         row.outcome.startsWith('skipped_') &&
         row.outcome !== 'skipped_already_sent' &&
@@ -134,7 +112,6 @@ async function discardUnsentClaim(orderId: string): Promise<void> {
 async function processOrder(
   order: Prisma.OrderGetPayload<object>,
   email: string,
-  product: string | null,
   baseUrl: string,
   dryRun: boolean,
   now: Date,
@@ -169,7 +146,6 @@ async function processOrder(
   if (contact?.unsubscribed) return 'skipped_unsubscribed';
   if (!contact) row.note = 'no Resend contact (not unsubscribed)';
 
-  if (!product) return 'skipped_no_products';
   if (dryRun) return 'would_send';
 
   // Claim the order before sending: PostPurchaseEmail.orderId is unique, so an overlapping
@@ -215,7 +191,6 @@ async function processOrder(
   const result = await sendLoyaltyEmail({
     customerEmail: email,
     firstName: getFirstName(order.customerName).trim(),
-    productName: product,
     code,
     expiresAt,
     promoLink: `${baseUrl}/cart?promo=${code}`,

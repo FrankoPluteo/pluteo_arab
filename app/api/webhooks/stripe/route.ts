@@ -47,7 +47,7 @@ export async function POST(request: Request) {
           });
 
           if (count === 0) {
-            console.log('Webhook already processed for session (idempotent skip):', session.id);
+            console.log('No unpaid order for session (already processed, or no order has this session id):', session.id);
             break;
           }
 

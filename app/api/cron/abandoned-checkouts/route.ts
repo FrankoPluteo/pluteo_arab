@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isCheckoutSessionPaid } from '@/lib/stripe';
 import { sendAbandonedCartEmail1, sendAbandonedCartEmail2 } from '@/lib/email';
 import {
   buildItemNameList,
@@ -18,6 +19,18 @@ type Step = 1 | 2;
 async function processOrder(orderId: string, step: Step, dryRun: boolean): Promise<string> {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order || order.paymentStatus === 'paid') return 'now_paid';
+
+  // The order can still read unpaid while its payment went through (webhook failing or
+  // delayed) — never send a recovery email for a checkout Stripe says is paid. If Stripe
+  // can't be reached, skip this run; the email is not claimed yet, so the next run retries.
+  if (order.stripeSessionId) {
+    try {
+      if (await isCheckoutSessionPaid(order.stripeSessionId)) return 'paid_in_stripe';
+    } catch (error) {
+      console.error(`Abandoned cart: Stripe session check failed for order ${order.orderNumber}:`, error);
+      return 'stripe_check_failed';
+    }
+  }
 
   const optOut = await prisma.abandonedCartOptOut.findUnique({
     where: { email: order.customerEmail.toLowerCase() },

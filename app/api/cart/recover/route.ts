@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { stripe, isCheckoutSessionPaid } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { calculateShipping, isFreeShippingEligible, ShippingMethod } from '@/lib/shipping';
 import { verifyPayload } from '@/lib/signedToken';
@@ -28,6 +28,20 @@ export async function GET(request: Request) {
 
   if (order.paymentStatus === 'paid') {
     return NextResponse.redirect(`${appUrl}/order/success?session_id=${order.stripeSessionId}`, 302);
+  }
+
+  // The order can read unpaid while its session was actually paid (webhook failing or
+  // delayed). Creating a new session here would overwrite stripeSessionId, and the paid
+  // session's webhook could then never find the order again.
+  if (order.stripeSessionId) {
+    try {
+      if (await isCheckoutSessionPaid(order.stripeSessionId)) {
+        return NextResponse.redirect(`${appUrl}/order/success?session_id=${order.stripeSessionId}`, 302);
+      }
+    } catch (error) {
+      console.error('Cart recovery: Stripe session check failed:', error);
+      return fallback;
+    }
   }
 
   try {

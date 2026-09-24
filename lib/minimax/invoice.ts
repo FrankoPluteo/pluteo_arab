@@ -101,9 +101,18 @@ async function extractJirFromAttachment(documentId: number, attachmentId: number
   const buffer = Buffer.from(attachment.AttachmentData, 'base64');
   // Loaded lazily: a static import made pdf-parse/pdfjs load with the Stripe webhook route,
   // and when that load failed on Vercel every webhook returned 500 before marking orders paid.
+  // pdf-parse/worker must load first: it provides the canvas polyfills (DOMMatrix etc.) pdfjs
+  // needs in Node, and the worker as a data URL so no worker file has to be found on disk.
+  const { CanvasFactory, getData } = await import('pdf-parse/worker');
   const { PDFParse } = await import('pdf-parse');
-  const parser = new PDFParse({ data: buffer });
-  const { text } = await parser.getText();
+  PDFParse.setWorker(getData());
+  const parser = new PDFParse({ data: buffer, CanvasFactory });
+  let text: string;
+  try {
+    ({ text } = await parser.getText());
+  } finally {
+    await parser.destroy();
+  }
 
   return text.match(/JIR:\s*([0-9a-fA-F-]{36})/)?.[1] ?? null;
 }

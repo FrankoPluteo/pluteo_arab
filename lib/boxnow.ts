@@ -82,3 +82,35 @@ export async function createBoxNowDeliveryRequest(params: {
 
   return response.json();
 }
+
+export interface BoxNowLockerLocation {
+  address: string;
+  city: string;
+  postalCode: string;
+}
+
+// Orders only store the locker id and "addressLine1, postalCode" (the checkout widget's
+// city isn't kept), so the locker's city is looked up here from BoxNow's locker list.
+// Returns null when the locker isn't in the list (e.g. decommissioned since the order).
+export async function getBoxNowLockerLocation(lockerId: string): Promise<BoxNowLockerLocation | null> {
+  const token = await getAccessToken();
+
+  const response = await fetch(`${BOXNOW_API_URL}/api/v1/destinations?locationType=apm`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`BoxNow destinations request failed (${response.status}): ${errorText}`);
+  }
+
+  const { data } = await response.json();
+  const locker = (data as any[]).find((d) => String(d.id) === String(lockerId));
+  if (!locker) return null;
+
+  return {
+    address: locker.addressLine1 || '',
+    city: locker.addressLine2 || '',
+    postalCode: locker.postalCode || '',
+  };
+}

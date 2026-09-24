@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { getBoxNowLockerLocation } from '@/lib/boxnow';
 import { findOrCreateMinimaxCustomer } from './customer';
 import { getMinimaxItemId } from './item';
 import { buildIssuedInvoicePayload, submitIssuedInvoice, InvoiceLineInput, SHIPPING_ITEM_SKU } from './invoice';
@@ -7,6 +8,38 @@ interface OrderItem {
   product: { id: string; name: string };
   quantity: number;
   unitPrice: number;
+}
+
+// Minimax won't create a customer without a city and postal code. BoxNow orders have
+// neither (the buyer only picks a locker), so the locker's own address is used instead.
+async function customerAddressForOrder(order: {
+  shippingMethod: string;
+  shippingAddress: string;
+  shippingCity: string;
+  shippingZip: string;
+  boxnowLockerId: string | null;
+}): Promise<{ shippingAddress: string; shippingCity: string; shippingZip: string }> {
+  const current = {
+    shippingAddress: order.shippingAddress,
+    shippingCity: order.shippingCity,
+    shippingZip: order.shippingZip,
+  };
+  if (order.shippingMethod !== 'boxnow' || (order.shippingCity && order.shippingZip)) {
+    return current;
+  }
+  if (!order.boxnowLockerId) {
+    throw new Error('BoxNow order has no locker id, cannot resolve customer city/postal code');
+  }
+
+  const locker = await getBoxNowLockerLocation(order.boxnowLockerId);
+  if (!locker?.city || !locker.postalCode) {
+    throw new Error(`BoxNow locker ${order.boxnowLockerId} not found or has no city/postal code`);
+  }
+  return {
+    shippingAddress: locker.address,
+    shippingCity: locker.city,
+    shippingZip: locker.postalCode,
+  };
 }
 
 // Runs the full Minimax flow for one order: find/create the customer, resolve each
@@ -47,9 +80,7 @@ export async function fiscalizeOrder(orderId: string): Promise<void> {
     const customerId = await findOrCreateMinimaxCustomer({
       customerName: order.customerName,
       customerEmail: order.customerEmail,
-      shippingAddress: order.shippingAddress,
-      shippingCity: order.shippingCity,
-      shippingZip: order.shippingZip,
+      ...(await customerAddressForOrder(order)),
     });
 
     const lines: InvoiceLineInput[] = [];

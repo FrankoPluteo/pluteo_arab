@@ -188,6 +188,176 @@ export async function sendAbandonedCartEmail2(vars: {
   }
 }
 
+// dd.mm.yyyy. in Croatian time. Built by hand because hr-HR locale output varies between
+// Node/ICU versions (it can insert spaces after the dots).
+export function formatDateHr(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Zagreb',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)!.value;
+  return `${get('day')}.${get('month')}.${get('year')}.`;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+export interface LoyaltyEmailVars {
+  firstName: string;
+  productName: string;
+  code: string;
+  expiresAt: Date;
+  promoLink: string;
+  unsubscribeLink: string;
+}
+
+// Post purchase thank you with a one time 20% code. Same visual language as the order
+// confirmation (600px card, black header bar, Montserrat, gray palette, uppercase CTA,
+// same footer), with only the content changed.
+export function buildLoyaltyEmail(vars: LoyaltyEmailVars): { subject: string; html: string; text: string } {
+  const subject = `Hvala ti za ${vars.productName}`;
+  const greeting = vars.firstName ? `Bok ${vars.firstName},` : 'Bok,';
+  const expiry = formatDateHr(vars.expiresAt);
+  const year = new Date().getFullYear();
+
+  const html = `
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F7F7F7;font-family:'Montserrat',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F7F7;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#111111;padding:32px 32px 32px 32px;text-align:center;">
+              <p style="margin:0;font-size:14px;font-weight:300;letter-spacing:7px;color:rgba(255,255,255,0.9);text-transform:uppercase;">PLUTEO</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding:36px 32px 36px 32px;">
+
+              <p style="margin:0 0 6px 0;font-size:14px;color:#111111;font-weight:400;">${escapeHtml(greeting)}</p>
+              <p style="margin:0 0 20px 0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">hvala ti na povjerenju i narudžbi. Puno nam znači.</p>
+              <p style="margin:0 0 20px 0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;">Kao malu zahvalu, evo tvog osobnog koda za 20% popusta na sve:</p>
+
+              <!-- Code -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F7F7;margin-bottom:12px;">
+                <tr>
+                  <td align="center" style="padding:18px;font-size:24px;font-weight:500;letter-spacing:6px;color:#111111;">${escapeHtml(vars.code)}</td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 28px 0;font-size:13px;color:#888888;line-height:1.9;font-weight:300;text-align:center;">Vrijedi do ${expiry}</p>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+                <tr>
+                  <td align="center">
+                    <a href="${escapeHtml(vars.promoLink)}" style="display:inline-block;padding:14px 36px;background-color:#111111;color:#ffffff;text-decoration:none;font-size:10px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;">Iskoristi popust</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:13px;color:#111111;font-weight:400;">Tvoj Pluteo</p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#F7F7F7;padding:22px 32px;border-top:1px solid #E5E5E5;text-align:center;">
+              <img
+                src="https://pluteo.shop/Pluteo%20Logo%20Icon.svg"
+                alt="Pluteo"
+                width="30"
+                height="17"
+                style="display:block;margin:0 auto 12px auto;opacity:0.25;"
+              />
+              <p style="margin:0 0 4px 0;font-size:10px;color:#AAAAAA;letter-spacing:0.5px;">Vonta Grupa d.o.o &nbsp;&middot;&nbsp; Dre&#382;nik 6, 10257 Zagreb &nbsp;&middot;&nbsp; OIB: 87510848203</p>
+              <p style="margin:0 0 12px 0;font-size:10px;color:#AAAAAA;letter-spacing:0.5px;">IBAN: HR5524020061101312303</p>
+              <p style="margin:0 0 12px 0;font-size:10px;color:#AAAAAA;">&copy; ${year} Pluteo &nbsp;&middot;&nbsp; <a href="https://pluteo.shop" style="color:#AAAAAA;text-decoration:none;">pluteo.shop</a></p>
+              <p style="margin:0;font-size:10px;color:#AAAAAA;">Ne želiš više primati ponude i novosti? <a href="${escapeHtml(vars.unsubscribeLink)}" style="color:#AAAAAA;text-decoration:underline;">Odjavi se ovdje</a>.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
+
+  const text = [
+    greeting,
+    'hvala ti na povjerenju i narudžbi. Puno nam znači.',
+    'Kao malu zahvalu, evo tvog osobnog koda za 20% popusta na sve:',
+    vars.code,
+    `Vrijedi do ${expiry}`,
+    `Iskoristi popust: ${vars.promoLink}`,
+    'Tvoj Pluteo',
+    `Ne želiš više primati ponude i novosti? Odjavi se ovdje: ${vars.unsubscribeLink}`,
+  ].join('\n\n');
+
+  return { subject, html, text };
+}
+
+export async function sendLoyaltyEmail(
+  vars: LoyaltyEmailVars & { customerEmail: string; idempotencyKey: string }
+) {
+  const { subject, html, text } = buildLoyaltyEmail(vars);
+
+  try {
+    const payload = {
+      from: 'Pluteo <orders@pluteo.shop>',
+      replyTo: 'pluteoinfo@gmail.com',
+      to: [vars.customerEmail],
+      subject,
+      html,
+      text,
+      headers: {
+        'List-Unsubscribe': `<${vars.unsubscribeLink}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    };
+
+    // Retry on Resend's rate limit; the idempotency key makes retries safe.
+    let { data, error } = await resend.emails.send(payload, { idempotencyKey: vars.idempotencyKey });
+    for (const delayMs of [1000, 2000, 4000]) {
+      if (error?.name !== 'rate_limit_exceeded') break;
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      ({ data, error } = await resend.emails.send(payload, { idempotencyKey: vars.idempotencyKey }));
+    }
+
+    if (error) {
+      console.error('Loyalty email error:', error);
+      return { success: false as const, error };
+    }
+
+    return { success: true as const, data };
+  } catch (error) {
+    console.error('Failed to send loyalty email:', error);
+    return { success: false as const, error };
+  }
+}
+
 export async function sendOrderConfirmation(orderData: {
   orderNumber: string;
   customerEmail: string;

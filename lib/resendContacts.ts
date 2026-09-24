@@ -162,3 +162,22 @@ export async function addBuyerToKupci(opts: {
 
   return { contact: 'existing', unsubscribedSet };
 }
+
+// Global marketing opt out: the Resend contact's unsubscribed flag is the single source of
+// truth. A buyer who has no contact yet is created already unsubscribed, so a later
+// Kupci sync (which never touches the flag on existing contacts) can't resubscribe them.
+export async function unsubscribeContact(email: string): Promise<void> {
+  const normalized = normalizeEmail(email);
+  const contact = await getContactByEmail(normalized);
+
+  if (!contact) {
+    const { error } = await call(() => resend.contacts.create({ email: normalized, unsubscribed: true }));
+    if (error) fail('contacts.create', error);
+    return;
+  }
+
+  if (!contact.unsubscribed) {
+    const { error } = await call(() => resend.contacts.update({ id: contact.id, unsubscribed: true }));
+    if (error) fail('contacts.update', error);
+  }
+}

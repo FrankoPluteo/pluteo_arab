@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { findOrCreateMinimaxCustomer } from './customer';
 import { getMinimaxItemId } from './item';
-import { buildIssuedInvoicePayload, submitIssuedInvoice, InvoiceLineInput } from './invoice';
+import { buildIssuedInvoicePayload, submitIssuedInvoice, InvoiceLineInput, SHIPPING_ITEM_SKU } from './invoice';
 
 interface OrderItem {
   product: { id: string; name: string };
@@ -20,8 +20,10 @@ export async function fiscalizeOrder(orderId: string): Promise<void> {
     return;
   }
 
-  if (order.minimaxJir) {
-    console.log(`Order ${order.orderNumber} already fiscalized (JIR ${order.minimaxJir}), skipping`);
+  // An invoice number means an invoice was already issued in Minimax (even if the JIR
+  // couldn't be read off it), and issuing again would create a duplicate fiscal invoice.
+  if (order.minimaxJir || order.minimaxInvoiceNumber) {
+    console.log(`Order ${order.orderNumber} already fiscalized (invoice ${order.minimaxInvoiceNumber}, JIR ${order.minimaxJir}), skipping`);
     return;
   }
 
@@ -64,7 +66,9 @@ export async function fiscalizeOrder(orderId: string): Promise<void> {
       });
     }
 
-    const payload = buildIssuedInvoicePayload(order, customerId, lines);
+    const shippingItemId = order.shippingCost > 0 ? await getMinimaxItemId(SHIPPING_ITEM_SKU) : null;
+
+    const payload = buildIssuedInvoicePayload(order, customerId, lines, shippingItemId);
     const result = await submitIssuedInvoice(payload);
 
     await prisma.order.update({

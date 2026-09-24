@@ -1,6 +1,11 @@
 import { PDFParse } from 'pdf-parse';
 import { minimaxFetch } from './client';
 
+// Shipping is invoiced as its own catalog item (Type: Usluga) so that the invoice rows
+// always sum to the same total as the payment amount, instead of the order total silently
+// including a shipping cost with no row behind it.
+export const SHIPPING_ITEM_SKU = 'DOSTAVA';
+
 export interface InvoiceLineInput {
   itemId: number;
   quantity: number;
@@ -9,14 +14,42 @@ export interface InvoiceLineInput {
 
 interface OrderForInvoice {
   total: number;
+  shippingCost: number;
 }
 
 export function buildIssuedInvoicePayload(
   order: OrderForInvoice,
   customerId: number,
-  lines: InvoiceLineInput[]
+  lines: InvoiceLineInput[],
+  shippingItemId: number | null
 ) {
   const today = new Date().toISOString().slice(0, 10);
+  const vatRate = { ID: Number(process.env.MINIMAX_VAT_RATE_ID) };
+
+  const rows = lines.map((line, index) => ({
+    RowNumber: index + 1,
+    Item: { ID: line.itemId },
+    Quantity: line.quantity,
+    UnitOfMeasurement: 'kom',
+    Price: line.unitPrice,
+    VatRate: vatRate,
+    VATPercent: 0,
+  }));
+
+  if (order.shippingCost > 0) {
+    if (!shippingItemId) {
+      throw new Error('Order has shippingCost > 0 but no shippingItemId was resolved for the DOSTAVA row');
+    }
+    rows.push({
+      RowNumber: rows.length + 1,
+      Item: { ID: shippingItemId },
+      Quantity: 1,
+      UnitOfMeasurement: 'kom',
+      Price: order.shippingCost,
+      VatRate: vatRate,
+      VATPercent: 0,
+    });
+  }
 
   return {
     Customer: { ID: customerId },
@@ -28,15 +61,7 @@ export function buildIssuedInvoicePayload(
     // Required even though it's not settable via the payload the task described — without
     // it Minimax rejects the draft outright ("Nepravilna oznaka za vrstu računa.").
     InvoiceType: 'R',
-    IssuedInvoiceRows: lines.map((line, index) => ({
-      RowNumber: index + 1,
-      Item: { ID: line.itemId },
-      Quantity: line.quantity,
-      UnitOfMeasurement: 'kom',
-      Price: line.unitPrice,
-      VatRate: { ID: Number(process.env.MINIMAX_VAT_RATE_ID) },
-      VATPercent: 0,
-    })),
+    IssuedInvoiceRows: rows,
     IssuedInvoicePaymentMethods: [
       {
         PaymentMethod: { ID: Number(process.env.MINIMAX_PAYMENT_METHOD_ID) },
@@ -126,7 +151,13 @@ export async function submitIssuedInvoice(payload: IssuedInvoicePayload): Promis
   const documentId = issued?.Document?.ID;
   const attachmentId = issued?.InvoiceAttachment?.ID;
   if (documentId && attachmentId) {
-    jir = await extractJirFromAttachment(documentId, attachmentId);
+    // The invoice is already issued at this point, so a failure reading the PDF must not
+    // bubble up and make the caller treat (and later retry) the whole order as failed.
+    try {
+      jir = await extractJirFromAttachment(documentId, attachmentId);
+    } catch (error) {
+      console.error(`Minimax invoice ${invoiceNumber} issued but JIR extraction threw:`, error);
+    }
   }
   if (!jir) {
     console.warn(`Minimax invoice ${invoiceNumber} issued but JIR could not be extracted`);

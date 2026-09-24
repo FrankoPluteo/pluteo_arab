@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
+  // pdfjs (used by pdf-parse to read the JIR off Minimax invoice PDFs) loads its worker file
+  // at runtime and breaks when bundled, so it must stay a plain node_modules import.
+  serverExternalPackages: ['pdf-parse', 'pdfjs-dist'],
   async redirects() {
     return [
       {

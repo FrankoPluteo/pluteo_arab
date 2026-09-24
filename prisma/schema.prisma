@@ -146,6 +146,8 @@ model Order {
 
   newsletterOptOut     Boolean   @default(false)
 
+  postPurchaseEmail    PostPurchaseEmail?
+
   @@index([customerEmail])
   @@index([orderNumber])
   @@index([paymentStatus])
@@ -214,4 +216,17 @@ model EmailCapture {
   email              String    @unique
   createdAt          DateTime  @default(now())
   welcomeEmailSentAt DateTime?
+}
+
+model PostPurchaseEmail {
+  id          String    @id @default(cuid())
+  orderId     String    @unique
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  email       String
+  code        String
+  promoCodeId String
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
 }

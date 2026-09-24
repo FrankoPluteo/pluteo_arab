@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
+import { normalizeEmail } from '@/lib/resendContacts';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
-  const { email } = await request.json();
+  const { email: rawEmail } = await request.json();
+  // Resend treats "Ana@x.com" and "ana@x.com" as different contacts, so always store
+  // the trimmed lowercase form to stop new duplicate contacts being created.
+  const email = typeof rawEmail === 'string' ? normalizeEmail(rawEmail) : rawEmail;
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: 'Invalid email.' }, { status: 400 });

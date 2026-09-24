@@ -5,6 +5,7 @@ import { sendOrderConfirmation } from '@/lib/email';
 import { createBoxNowDeliveryRequest } from '@/lib/boxnow';
 import { releaseCartReservations, safelyDecrementStock } from '@/lib/cartReservation';
 import { fiscalizeOrder } from '@/lib/minimax/fiscalize';
+import { addBuyerToKupci } from '@/lib/resendContacts';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
@@ -63,6 +64,21 @@ export async function POST(request: Request) {
           // Fiscalization via Minimax runs in the background after this handler returns —
           // it must never block or fail the Stripe webhook response (see fiscalizeOrder).
           after(() => fiscalizeOrder(order.id));
+
+          // Put the buyer in the Resend "Kupci" segment (creating the contact if needed).
+          // Background + fully caught: a Resend failure must never affect the order or webhook.
+          after(async () => {
+            try {
+              const outcome = await addBuyerToKupci({
+                email: order.customerEmail,
+                fullName: order.customerName,
+                optOut: order.newsletterOptOut,
+              });
+              console.log(`Kupci sync for order ${order.orderNumber}:`, outcome);
+            } catch (kupciError) {
+              console.error(`Kupci sync failed for order ${order.orderNumber}:`, kupciError);
+            }
+          });
 
           const items = JSON.parse(order.items as string);
           const testerItem = (order as any).testerItem

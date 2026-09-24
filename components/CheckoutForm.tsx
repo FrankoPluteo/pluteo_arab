@@ -23,6 +23,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
   const [error, setError] = useState('');
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [selectedLocker, setSelectedLocker] = useState<SelectedLocker | null>(null);
+  const [newsletterOptOut, setNewsletterOptOut] = useState(false);
   const { t, language } = useLanguage();
 
   // Keep a stable ref to the setter so the widget callback never goes stale
@@ -120,6 +121,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
           language,
           customerInfo: {
             ...formData,
+            newsletterOptOut,
             shippingMethod,
             boxnowLockerId: selectedLocker?.id ?? null,
             boxnowLockerAddress: selectedLocker
@@ -257,6 +259,15 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
           required
         />
       </div>
+
+      <label className={styles.optOut}>
+        <input
+          type="checkbox"
+          checked={newsletterOptOut}
+          onChange={(e) => setNewsletterOptOut(e.target.checked)}
+        />
+        <span>{t.checkout.newsletterOptOut}</span>
+      </label>
 
       <div className={styles.formGroup}>
         <label htmlFor="phone">

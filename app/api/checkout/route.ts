@@ -278,6 +278,7 @@ export async function POST(request: Request) {
         promoCode: validatedPromoCode,
         promoDiscount,
         affiliateCode: validatedAffiliateCode,
+        newsletterOptOut: customerInfo.newsletterOptOut === true,
         paymentStatus: 'pending',
         orderStatus: 'processing',
         utmSource: utm?.utm_source || null,

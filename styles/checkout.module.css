@@ -103,6 +103,26 @@
   border-color: #111111;
 }
 
+.optOut {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: -6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #555555;
+  cursor: pointer;
+}
+
+.optOut input {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0 0;
+  accent-color: #111111;
+  cursor: pointer;
+}
+
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;

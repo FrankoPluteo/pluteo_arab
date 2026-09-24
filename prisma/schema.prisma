@@ -144,6 +144,8 @@ model Order {
   fiscalizationStatus  String?
   fiscalizedAt         DateTime?
 
+  newsletterOptOut     Boolean   @default(false)
+
   @@index([customerEmail])
   @@index([orderNumber])
   @@index([paymentStatus])

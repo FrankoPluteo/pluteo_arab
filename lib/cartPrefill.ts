@@ -28,11 +28,33 @@ interface AddSpec {
   quantity: number;
 }
 
+export type CodeProblemKey = 'invalid' | 'expired' | 'used' | 'notStarted' | 'notApplicable';
+
+/** Maps an /api/promo rejection `reason` to a key of t.cart.codeProblems. */
+export function codeProblemKey(reason: string | undefined): CodeProblemKey {
+  switch (reason) {
+    case 'expired':
+      return 'expired';
+    case 'usage_limit':
+    case 'per_user':
+      return 'used';
+    case 'not_started':
+      return 'notStarted';
+    case 'min_order':
+    case 'product_restriction':
+      return 'notApplicable';
+    default:
+      return 'invalid';
+  }
+}
+
 export interface CartPrefillState {
   /** True while the link is still being applied — the cart is not really empty yet. */
   pending: boolean;
-  /** Set when part of the link could not be applied (sold out, bad code). */
+  /** Set when part of the link could not be applied (sold out). */
   error: string;
+  /** Set when the link's code was rejected; render it with t.cart.codeProblems[codeProblem]. */
+  codeProblem: CodeProblemKey | null;
 }
 
 function parseAddSpecs(params: URLSearchParams): AddSpec[] {
@@ -83,6 +105,7 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
     return params.getAll('add').length > 0 || hasCodeParam(params);
   });
   const [error, setError] = useState('');
+  const [codeProblem, setCodeProblem] = useState<CodeProblemKey | null>(null);
   const hasRun = useRef(false);
 
   useEffect(() => {
@@ -140,8 +163,8 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
       }
 
       if (code) {
-        const applied = await applyCodeFromLink(code);
-        if (!applied) problems.push(`Code ${code} could not be applied.`);
+        const result = await applyCodeFromLink(code);
+        if (!result.applied) setCodeProblem(result.problem);
       }
 
       if (latestExpiresAt) onReservation?.(latestExpiresAt);
@@ -156,7 +179,7 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
       .finally(() => setPending(false));
   }, [pending, onReservation]);
 
-  return { pending, error };
+  return { pending, error, codeProblem };
 }
 
 function hasCodeParam(params: URLSearchParams): boolean {
@@ -164,7 +187,9 @@ function hasCodeParam(params: URLSearchParams): boolean {
 }
 
 /** Same promo-then-affiliate resolution the manual code form uses. */
-async function applyCodeFromLink(code: string): Promise<boolean> {
+async function applyCodeFromLink(
+  code: string
+): Promise<{ applied: true } | { applied: false; problem: CodeProblemKey }> {
   const state = useCart.getState();
 
   const promoRes = await fetch('/api/promo', {
@@ -179,7 +204,17 @@ async function applyCodeFromLink(code: string): Promise<boolean> {
   const promoData = await promoRes.json();
   if (promoData.valid) {
     state.applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping);
-    return true;
+    return { applied: true };
+  }
+
+  // Emailed links are often opened with an empty cart. Minimum order and product rules can't
+  // be judged yet, so keep the code and let the cart re-check it once items are added.
+  if (
+    state.items.length === 0 &&
+    (promoData.reason === 'min_order' || promoData.reason === 'product_restriction')
+  ) {
+    state.applyPromo(code, 0, false);
+    return { applied: true };
   }
 
   const affRes = await fetch('/api/affiliates/validate', {
@@ -190,8 +225,8 @@ async function applyCodeFromLink(code: string): Promise<boolean> {
   const affData = await affRes.json();
   if (affData.valid) {
     state.applyAffiliate(code, affData.name);
-    return true;
+    return { applied: true };
   }
 
-  return false;
+  return { applied: false, problem: codeProblemKey(promoData.reason) };
 }

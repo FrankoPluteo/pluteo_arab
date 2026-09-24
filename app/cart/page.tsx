@@ -9,7 +9,7 @@ import { calculateShipping, FREE_SHIPPING_THRESHOLD, isFreeShippingEligible } fr
 import Footer from '@/components/Footer';
 import TesterModal from '@/components/TesterModal';
 import { useLanguage } from '@/lib/languageContext';
-import { useCartPrefill } from '@/lib/cartPrefill';
+import { useCartPrefill, codeProblemKey, CodeProblemKey } from '@/lib/cartPrefill';
 
 function formatTime(ms: number): string {
   if (ms <= 0) return '00:00';
@@ -43,6 +43,7 @@ export default function CartPage() {
   const [codeInput, setCodeInput] = useState('');
   const [codeStatus, setCodeStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [codeError, setCodeError] = useState('');
+  const [codeNotice, setCodeNotice] = useState<CodeProblemKey | null>(null);
   const [stockError, setStockError] = useState('');
   const [showTesterModal, setShowTesterModal] = useState(false);
 
@@ -200,8 +201,56 @@ export default function CartPage() {
   const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
+  const itemsSignature = items.map((i) => `${i.product.id}:${i.quantity}`).join('|');
+
+  // A percent code's discount depends on the subtotal, but the store keeps the number it was
+  // computed with when the code was applied (possibly on an empty cart, via an emailed link).
+  // Re-check the saved code whenever the cart changes so the shown discount is always right,
+  // and drop it with a message if it has since expired, been used up, or no longer fits.
+  useEffect(() => {
+    if (!promoCode || prefill.pending) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/promo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: promoCode,
+            subtotal,
+            cartItems: items.map((item) => ({ product: { name: item.product.name } })),
+          }),
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.valid) {
+          if (data.discountAmount !== promoDiscount || data.freeShipping !== promoFreeShipping) {
+            applyPromo(data.code, data.discountAmount, data.freeShipping);
+          }
+          return;
+        }
+        const problem = codeProblemKey(data.reason);
+        // With an empty cart, minimum order / product rules can't be judged yet: keep the code.
+        if (problem === 'notApplicable' && items.length === 0) return;
+        removePromo();
+        setCodeNotice(problem);
+      } catch {
+        // Offline or a server hiccup: keep what we have; checkout re-validates server side.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [promoCode, subtotal, itemsSignature, prefill.pending]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const problemKey = prefill.codeProblem ?? codeNotice;
+  const codeProblemNotice = problemKey ? (
+    <div className={styles.codeNotice}>{t.cart.codeProblems[problemKey]}</div>
+  ) : null;
+
   async function handleApplyCode(e: React.FormEvent) {
     e.preventDefault();
+    setCodeNotice(null);
     const code = codeInput.trim().toUpperCase();
     if (!code) return;
     setCodeStatus('loading');
@@ -267,6 +316,10 @@ export default function CartPage() {
         <Navbar />
         <div className={styles.cartContainer}>
           {prefill.error && <div className={styles.stockError}>{prefill.error}</div>}
+          {codeProblemNotice}
+          {promoCode && !problemKey && (
+            <div className={styles.codeNotice}>{t.cart.codeReady(promoCode)}</div>
+          )}
           <div className={styles.emptyCart}>
             <h2>{t.cart.empty.heading}</h2>
             <p>{t.cart.empty.subheading}</p>
@@ -295,6 +348,8 @@ export default function CartPage() {
         {(stockError || prefill.error) && (
           <div className={styles.stockError}>{stockError || prefill.error}</div>
         )}
+
+        {codeProblemNotice}
 
         <div className={styles.cartLayout}>
           <div className={styles.cartItems}>

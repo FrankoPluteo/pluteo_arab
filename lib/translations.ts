@@ -106,6 +106,15 @@ export const translations = {
       codePlaceholder: 'Promo or affiliate code',
       discountApplied: 'Discount applied',
       invalidCode: 'Invalid promo or affiliate code.',
+      codeProblems: {
+        invalid: "This code isn't valid. You can keep shopping without it.",
+        expired: 'This code has expired.',
+        used: 'This code has already been used.',
+        notStarted: "This code isn't active yet.",
+        notApplicable: "This code can't be applied to the current cart.",
+      },
+      codeReady: (code: string) =>
+        `Code ${code} is saved. Add items to your cart and the discount is applied automatically.`,
       apply: 'APPLY',
       discount: 'Discount',
       total: 'Total',
@@ -466,6 +475,15 @@ export const translations = {
       codePlaceholder: 'Promo ili partnerski kod',
       discountApplied: 'Popust primjenjen',
       invalidCode: 'Nevažeći promo ili partnerski kod.',
+      codeProblems: {
+        invalid: 'Ovaj kod nije važeći. Možete nastaviti kupovinu i bez njega.',
+        expired: 'Ovaj kod je istekao.',
+        used: 'Ovaj kod je već iskorišten.',
+        notStarted: 'Ovaj kod još nije aktivan.',
+        notApplicable: 'Ovaj kod se ne može primijeniti na trenutnu košaricu.',
+      },
+      codeReady: (code: string) =>
+        `Kod ${code} je spremljen. Dodajte proizvode u košaricu i popust će se primijeniti automatski.`,
       apply: 'PRIMIJENI',
       discount: 'Popust',
       total: 'Ukupno',

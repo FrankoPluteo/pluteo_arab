@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   const { code, subtotal, customerEmail, cartItems } = await request.json();
 
   if (!code) {
-    return NextResponse.json({ valid: false, message: 'Enter a promo code.' });
+    return NextResponse.json({ valid: false, reason: 'not_found', message: 'Enter a promo code.' });
   }
 
   const promo = await prisma.promoCode.findUnique({
@@ -13,26 +13,27 @@ export async function POST(request: Request) {
   });
 
   if (!promo || !promo.isActive) {
-    return NextResponse.json({ valid: false, message: 'Invalid promo code.' });
+    return NextResponse.json({ valid: false, reason: 'not_found', message: 'Invalid promo code.' });
   }
 
   const now = new Date();
 
   if (promo.startsAt && now < promo.startsAt) {
-    return NextResponse.json({ valid: false, message: 'This promo code is not yet active.' });
+    return NextResponse.json({ valid: false, reason: 'not_started', message: 'This promo code is not yet active.' });
   }
 
   if (promo.endsAt && now > promo.endsAt) {
-    return NextResponse.json({ valid: false, message: 'This promo code has expired.' });
+    return NextResponse.json({ valid: false, reason: 'expired', message: 'This promo code has expired.' });
   }
 
   if (promo.usageLimitTotal !== null && promo.timesUsed >= promo.usageLimitTotal) {
-    return NextResponse.json({ valid: false, message: 'This promo code has reached its usage limit.' });
+    return NextResponse.json({ valid: false, reason: 'usage_limit', message: 'This promo code has reached its usage limit.' });
   }
 
   if (subtotal < promo.minOrderValue) {
     return NextResponse.json({
       valid: false,
+      reason: 'min_order',
       message: `Minimum order of €${promo.minOrderValue.toFixed(2)} required for this code.`,
     });
   }
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
     if (userUsageCount >= promo.usageLimitPerUser) {
       return NextResponse.json({
         valid: false,
+        reason: 'per_user',
         message: 'You have already used this promo code the maximum number of times.',
       });
     }
@@ -60,6 +62,7 @@ export async function POST(request: Request) {
     if (!hasRequired) {
       return NextResponse.json({
         valid: false,
+        reason: 'product_restriction',
         message: 'This promo code only applies to selected products. Make sure one of the eligible perfumes is in your cart.',
       });
     }

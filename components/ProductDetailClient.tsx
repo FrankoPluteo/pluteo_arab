@@ -16,6 +16,17 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [selectedImage, setSelectedImage] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState('');
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const copyDiscountCode = async () => {
+    try {
+      await navigator.clipboard.writeText('PLUTEO10');
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable — the code is still visible to copy by hand
+    }
+  };
 
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
@@ -172,12 +183,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           </div>
 
           <div className={styles.discountBanner}>
-            <span className={styles.discountBannerTag}>%</span>
-            <div className={styles.discountBannerContent}>
-              <span className={styles.discountBannerLabel}>10% off your order</span>
-              <span className={styles.discountBannerCode}>PLUTEO10</span>
-            </div>
-            <span className={styles.discountBannerHint}>Use at checkout</span>
+            <p className={styles.discountBannerText}>
+              {t.product.promoCodeText} <strong>PLUTEO10</strong>
+            </p>
+            <button type="button" onClick={copyDiscountCode} className={styles.discountBannerCopy}>
+              {codeCopied ? t.product.codeCopied : t.product.copyCode}
+            </button>
           </div>
 
           {isLowStock && (

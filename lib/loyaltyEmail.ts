@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { createLoyaltyPromoCode } from '@/lib/loyaltyCode';
-import { sendLoyaltyEmail } from '@/lib/email';
+import { formatDateHr, sendLoyaltyEmail } from '@/lib/email';
 import { getFirstName } from '@/lib/abandonedCart';
 import { getContactByEmail, normalizeEmail, sleep } from '@/lib/resendContacts';
 import { signPayload } from '@/lib/signedToken';
@@ -31,6 +31,40 @@ export interface LoyaltyRow {
   daysSinceOrder: number;
   outcome: LoyaltyOutcome;
   note?: string;
+}
+
+const OUTCOME_LABELS: Record<LoyaltyOutcome, string> = {
+  would_send: 'would send',
+  sent: 'sent',
+  skipped_already_sent: 'skipped (already sent)',
+  skipped_reordered: 'skipped (reordered)',
+  skipped_abandoned_cart_opt_out: 'skipped (abandoned cart opt out)',
+  skipped_checkout_opt_out: 'skipped (checkout opt out)',
+  skipped_unsubscribed: 'skipped (unsubscribed)',
+  skipped_already_claimed: 'skipped (claimed by a parallel run)',
+  send_error: 'failed',
+};
+
+// Internal summary for pluteoinfo@gmail.com. Returns null for an empty window (no email).
+export function buildLoyaltySummary(rows: LoyaltyRow[], dryRun: boolean): { subject: string; text: string } | null {
+  if (rows.length === 0) return null;
+
+  const count = (pred: (o: LoyaltyOutcome) => boolean) => rows.filter((r) => pred(r.outcome)).length;
+  const skipped = count((o) => o.startsWith('skipped_'));
+  const failed = count((o) => o === 'send_error');
+
+  const subject = dryRun
+    ? `[LOYALTY] dry run: ${count((o) => o === 'would_send')} would send, ${skipped} skipped${failed ? `, ${failed} failed` : ''}`
+    : `[LOYALTY] sent ${count((o) => o === 'sent')}, skipped ${skipped}, failed ${failed}`;
+
+  const lines = rows.map((r) => {
+    let result = OUTCOME_LABELS[r.outcome];
+    if (r.outcome === 'send_error' && r.note) result += `: ${r.note}`;
+    else if (r.outcome === 'skipped_reordered' && r.note) result += `, ${r.note}`;
+    return `${r.email} | ${formatDateHr(new Date(r.paidAt))} | ${r.daysSinceOrder} days | ${result}`;
+  });
+
+  return { subject, text: lines.join('\n') };
 }
 
 export function buildMarketingUnsubscribeLink(email: string, baseUrl: string): string {

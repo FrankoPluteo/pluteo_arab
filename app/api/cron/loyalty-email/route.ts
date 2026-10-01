@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { runLoyaltyEmailJob } from '@/lib/loyaltyEmail';
+import { buildLoyaltySummary, runLoyaltyEmailJob } from '@/lib/loyaltyEmail';
+import { sendInternalAlert } from '@/lib/email';
 import { isWithinSendWindow } from '@/lib/abandonedCart';
 
 export const maxDuration = 60;
@@ -36,6 +37,10 @@ async function handle(request: Request) {
 
   const { rows, tally } = await runLoyaltyEmailJob({ dryRun });
   console.log('Loyalty email cron run complete', { dryRun, tally });
+
+  const summary = buildLoyaltySummary(rows, dryRun);
+  if (summary) await sendInternalAlert(summary.subject, summary.text);
+
   return NextResponse.json({ dryRun, tally, rows });
 }
 

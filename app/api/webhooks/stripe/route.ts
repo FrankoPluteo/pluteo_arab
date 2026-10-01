@@ -1,7 +1,7 @@
 import { NextResponse, after } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
-import { sendOrderConfirmation } from '@/lib/email';
+import { sendInternalAlert, sendOrderConfirmation } from '@/lib/email';
 import { createBoxNowDeliveryRequest } from '@/lib/boxnow';
 import { releaseCartReservations, safelyDecrementStock } from '@/lib/cartReservation';
 import { addBuyerToKupci } from '@/lib/resendContacts';
@@ -85,6 +85,11 @@ export async function POST(request: Request) {
               console.log(`Kupci sync for order ${order.orderNumber}:`, outcome);
             } catch (kupciError) {
               console.error(`Kupci sync failed for order ${order.orderNumber}:`, kupciError);
+              const message = kupciError instanceof Error ? kupciError.message : String(kupciError);
+              await sendInternalAlert(
+                `[KUPCI] sync failed for ${order.customerEmail}`,
+                `Kupci sync failed for ${order.customerEmail} (order ${order.orderNumber}): ${message}`
+              );
             }
           });
 

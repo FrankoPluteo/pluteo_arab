@@ -209,6 +209,22 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
+// Plain text alert to the shop inbox. Never throws: Vercel Hobby keeps runtime logs for
+// only about an hour, so this is the durable record, and it must never break its caller.
+export async function sendInternalAlert(subject: string, text: string): Promise<void> {
+  try {
+    const { error } = await resend.emails.send({
+      from: 'Pluteo <orders@pluteo.shop>',
+      to: ['pluteoinfo@gmail.com'],
+      subject,
+      text,
+    });
+    if (error) console.error('Internal alert email error:', error);
+  } catch (error) {
+    console.error('Failed to send internal alert email:', error);
+  }
+}
+
 export interface LoyaltyEmailVars {
   firstName: string;
   code: string;

@@ -4,7 +4,7 @@ import Footer from '@/components/Footer';
 import { prisma, withReviewAggregates } from '@/lib/prisma';
 import ProductsContent from './ProductsContent';
 
-const BASE_URL = 'https://pluteo.shop';
+const BASE_URL = 'https://www.pluteo.shop';
 
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const params = await searchParams;
@@ -20,27 +20,29 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
   let description: string;
 
   if (params.brand && !params.gender) {
-    title = `${params.brand} parfemi – kupite online | Pluteo`;
-    description = `Otkrijte kolekciju ${params.brand} parfema. Originalni arabijski i orijentalni mirisi uz brzu dostavu diljem Hrvatske.`;
+    title = `${params.brand} parfemi - kupite online`;
+    description = `Otkrijte kolekciju ${params.brand} parfema. Originalni arapski i orijentalni mirisi uz brzu dostavu diljem Hrvatske.`;
   } else if (params.gender === 'male' && !params.brand) {
-    title = 'Muški arabijski parfemi – kupite online | Pluteo';
-    description = 'Istražite našu ponudu muških arabijskih parfema. Premium orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+    title = 'Muški arapski parfemi - kupite online';
+    description = 'Istražite našu ponudu muških arapskih parfema. Originalni orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
   } else if (params.gender === 'female' && !params.brand) {
-    title = 'Ženski arabijski parfemi – kupite online | Pluteo';
-    description = 'Istražite našu ponudu ženskih arabijskih parfema. Premium orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+    title = 'Ženski arapski parfemi - kupite online';
+    description = 'Istražite našu ponudu ženskih arapskih parfema. Originalni orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
   } else if (params.search) {
-    title = `Rezultati pretrage: "${params.search}" | Pluteo`;
-    description = `Rezultati pretrage arabijskih parfema za "${params.search}". Pronađite savršeni miris uz brzu dostavu diljem Hrvatske.`;
+    title = `Rezultati pretrage: "${params.search}"`;
+    description = `Rezultati pretrage arapskih parfema za "${params.search}". Pronađite savršeni miris uz brzu dostavu diljem Hrvatske.`;
   } else {
-    title = 'Arabijski parfemi – kupite online | Pluteo';
-    description = 'Pregledajte našu kolekciju autentičnih arabijskih parfema, oud mirisa i luksuznih orijentalnih mirisa. Lattafa, Armaf i French Avenue — brza dostava diljem Hrvatske.';
+    title = 'Arapski parfemi - kupite online';
+    description = 'Pregledajte našu kolekciju autentičnih arapskih parfema, oud mirisa i luksuznih orijentalnih mirisa. Lattafa, Armaf i French Avenue - brza dostava diljem Hrvatske.';
   }
 
   return {
     title,
     description,
-    keywords: 'arabski parfemi, oud parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, luksuzni orijentalni mirisi, dugotrajni parfemi hrvatska, niche parfemi online',
+    keywords: 'arapski parfemi, arabski parfemi, premium arapski parfemi, oud parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, luksuzni orijentalni mirisi, dugotrajni parfemi hrvatska, niche parfemi online',
     alternates: { canonical },
+    // Search result pages are thin/duplicate content — keep them out of the index
+    ...(params.search && { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,

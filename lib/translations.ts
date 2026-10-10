@@ -529,7 +529,7 @@ export const translations = {
 
     about: {
       title: 'O PLUTEU',
-      leadText: 'Dobrodošli u Pluteo, vaše premium odredište za autentične arapske parfeme i luksuzne oud mirise',
+      leadText: 'Dobrodošli u Pluteo, vaše odredište za autentične arapske parfeme i luksuzne oud mirise',
       ourStoryTitle: 'Naša Priča',
       ourStoryBody: "Mi smo kurirani online parfumerij fokusiran na modernu arapsku parfumeriju, koji nudi pažljivo odabrane arapske mirise definirane karakterom, izrazom i laganom elegancijom. Naš izbor odražava suvremeni pristup orijentalnoj parfumeriji, kombiniran s profinjeným stilom koji ostaje samopouzdan, bogat i zavodljiv.\n\nVjerujemo da je miris oblik identiteta. Naša misija je pomoći vam otkriti dugotrajne parfeme koji se osjećaju osobno, izražajno i neodoljivo. Svaki oud miris i arapski parfem u našoj kolekciji odabran je s namjerom, kvalitetom i karakterom na umu — od smjelih drvenih kompozicija do delikatnih cvjetnih orijentala.",
       whatAreTitle: 'Što Su Arapski Parfemi?',

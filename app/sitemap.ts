@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://pluteo.shop';
+  const baseUrl = 'https://www.pluteo.shop';
 
   // Fetch all products for dynamic URLs
   const products = await prisma.product.findMany({

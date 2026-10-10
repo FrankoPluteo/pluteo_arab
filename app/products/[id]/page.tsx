@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const brandName = product.brand?.name || '';
   const genderLabel =
-    product.gender === 'men' ? 'muški' : product.gender === 'women' ? 'ženski' : 'unisex';
-  const title = `${product.name} – ${brandName} | Pluteo`;
+    product.gender === 'male' ? 'muški' : product.gender === 'female' ? 'ženski' : 'unisex';
+  const title = `${brandName} ${product.name} ${product.concentration} ${product.size}ml - ${genderLabel} arapski parfem`;
   const rawDesc = product.descriptionHr || product.description || '';
 
   const trimToWord = (text: string, limit: number): string => {
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     return (cut > 0 ? text.slice(0, cut) : text.slice(0, limit)) + '…';
   };
 
-  const prefix = `${brandName} ${product.name} ${product.concentration} ${product.size}ml — ${genderLabel} arabijski parfem. `;
+  const prefix = `${brandName} ${product.name} ${product.concentration} ${product.size}ml - ${genderLabel} arapski parfem. `;
   const suffix = '. Brza dostava diljem Hrvatske.';
   const descBudget = 155 - prefix.length - suffix.length;
   const description = `${prefix}${trimToWord(rawDesc, Math.max(descBudget, 20))}${suffix}`;
@@ -47,30 +47,32 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   return {
     title,
     description,
-    keywords: `${product.name}, ${brandName}, ${brandName} ${product.name}, arabski parfem, oud parfem, ${product.concentration}, ${genderLabel} parfem, luksuzni parfem hrvatska, dugotrajni parfem, orijentalni parfem`,
+    keywords: `${product.name}, ${brandName}, ${brandName} ${product.name}, arapski parfem, arabski parfem, premium arapski parfem, oud parfem, ${product.concentration}, ${genderLabel} parfem, luksuzni parfem hrvatska, dugotrajni parfem, orijentalni parfem`,
     alternates: {
-      canonical: `https://pluteo.shop/products/${product.id}`,
+      canonical: `https://www.pluteo.shop/products/${product.id}`,
     },
     openGraph: {
-      title: `${product.name} – ${brandName} — kupite originalni arabijski parfem | Pluteo`,
+      title: `${brandName} ${product.name} - originalni arapski parfem | Pluteo`,
       description,
-      url: `https://pluteo.shop/products/${product.id}`,
+      url: `https://www.pluteo.shop/products/${product.id}`,
       siteName: 'Pluteo',
-      images: product.images?.length
-        ? product.images.map((img) => ({
-            url: img,
-            width: 800,
-            height: 800,
-            alt: `${brandName} ${product.name} ${product.concentration} – arabijski parfem`,
-          }))
-        : [{ url: 'https://pluteo.shop/og-image.jpg', width: 1200, height: 630 }],
+      // Without product images, the site-wide app/opengraph-image is used
+      ...(product.images?.length && {
+        images: product.images.map((img) => ({
+          url: img,
+          width: 800,
+          height: 800,
+          alt: `${brandName} ${product.name} ${product.concentration} - arapski parfem`,
+        })),
+      }),
+      locale: 'hr_HR',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${product.name} – ${brandName} arabijski parfem | Pluteo`,
+      title: `${brandName} ${product.name} - arapski parfem | Pluteo`,
       description: `${trimToWord(rawDesc, 140)}. Kupite na Pluteo.`,
-      images: product.images?.length ? [product.images[0]] : ['https://pluteo.shop/og-image.jpg'],
+      ...(product.images?.length && { images: [product.images[0]] }),
     },
   };
 }
@@ -83,26 +85,44 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const reviewStats = await prisma.review.aggregate({
+    where: { productId: product.id },
+    _avg: { rating: true },
+    _count: { rating: true },
+  });
+
   const brandName = product.brand?.name || '';
   const finalPrice = product.price - product.discountAmount;
   const hasDiscount = product.discountAmount > 0;
+
+  const productUrl = `https://www.pluteo.shop/products/${product.id}`;
 
   // JSON-LD Product structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: `${brandName} ${product.name}`,
-    description: product.description,
+    description: product.descriptionHr || product.description,
+    url: productUrl,
     image: product.images?.length ? product.images : undefined,
     brand: {
       '@type': 'Brand',
       name: brandName,
     },
     sku: product.id,
-    category: 'Perfume',
+    category: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+    ...(reviewStats._count.rating > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: (reviewStats._avg.rating ?? 0).toFixed(1),
+        reviewCount: reviewStats._count.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    }),
     offers: {
       '@type': 'Offer',
-      url: `https://pluteo.shop/products/${product.id}`,
+      url: productUrl,
       priceCurrency: 'EUR',
       price: finalPrice.toFixed(2),
       ...(hasDiscount && {
@@ -170,6 +190,24 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ],
   };
 
+  const genderCrumb =
+    product.gender === 'male'
+      ? { name: 'Muški parfemi', item: 'https://www.pluteo.shop/products?gender=male' }
+      : product.gender === 'female'
+        ? { name: 'Ženski parfemi', item: 'https://www.pluteo.shop/products?gender=female' }
+        : null;
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { name: 'Početna', item: 'https://www.pluteo.shop' },
+      { name: 'Parfemi', item: 'https://www.pluteo.shop/products' },
+      ...(genderCrumb ? [genderCrumb] : []),
+      { name: `${brandName} ${product.name}`, item: productUrl },
+    ].map((crumb, index) => ({ '@type': 'ListItem', position: index + 1, ...crumb })),
+  };
+
   // Serialize the product data for the client component
   const serializedProduct = JSON.parse(JSON.stringify(product));
 
@@ -179,6 +217,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <ProductDetailClient product={serializedProduct} />
       <Footer />

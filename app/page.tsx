@@ -9,7 +9,8 @@ function HomeJsonLd() {
     '@type': 'WebSite',
     name: 'Pluteo',
     url: 'https://www.pluteo.shop',
-    description: 'Premium Arabian perfumes and oud fragrances shipped across Croatia. Authentic Lattafa, Armaf, and French Avenue luxury fragrances.',
+    description: 'Premium arapski parfemi i oud mirisi uz brzu dostavu diljem Hrvatske. Originalni Lattafa, Armaf i French Avenue parfemi.',
+    inLanguage: 'hr-HR',
     potentialAction: {
       '@type': 'SearchAction',
       target: 'https://www.pluteo.shop/products?search={search_term_string}',

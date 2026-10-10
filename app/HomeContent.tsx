@@ -50,7 +50,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           <Image
             fill
             src={wallpaperhome}
-            alt="Premium arabijski parfemi i oud mirisi – Pluteo Hrvatska"
+            alt="Arapski parfemi i oud mirisi - Pluteo Hrvatska"
             priority
             quality={70}
             sizes="100vw"
@@ -58,13 +58,13 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
           />
         </div>
         <div className={styles.heroOverlay} />
-        <h1 className="sr-only">Pluteo — Premium Arabian Perfumes &amp; Oud Fragrances in Croatia</h1>
+        <h1 className="sr-only">Pluteo - arapski parfemi i oud mirisi u Hrvatskoj</h1>
 
         <div className={styles.heroContent}>
           <Image
             className={styles.heroLogo}
             src={logolong}
-            alt="Pluteo — arabijska parfumerija, Hrvatska"
+            alt="Pluteo - arapska parfumerija, Hrvatska"
             width={493}
             height={310}
             priority
@@ -107,7 +107,7 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             <div className={styles.spotlightImageWrap}>
               <Image
                 src={spotlightProduct.images[0]}
-                alt={`${spotlightProduct.brand.name} ${spotlightProduct.name} – arabijski parfem`}
+                alt={`${spotlightProduct.brand.name} ${spotlightProduct.name} – arapski parfem`}
                 fill
                 style={{ objectFit: 'contain' }}
                 sizes="(max-width: 900px) 100vw, 50vw"
@@ -149,8 +149,8 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
       {/* ── Brand panels ─────────────────────────────────── */}
       <div className={styles.brandSection} data-fade>
         {[
-          { src: lattafaimg, alt: 'Lattafa parfemi – luksuzni arabijski mirisi', name: 'Lattafa', href: '/products?brand=Lattafa' },
-          { src: armafimg, alt: 'Armaf parfemi – premium orijentalni mirisi', name: 'Armaf', href: '/products?brand=Armaf' },
+          { src: lattafaimg, alt: 'Lattafa parfemi – luksuzni arapski mirisi', name: 'Lattafa', href: '/products?brand=Lattafa' },
+          { src: armafimg, alt: 'Armaf parfemi – luksuzni orijentalni mirisi', name: 'Armaf', href: '/products?brand=Armaf' },
           { src: frenchavenueimg, alt: 'French Avenue parfemi – moderni luksuzni mirisi', name: 'French Avenue', href: '/products?brand=French+Avenue' },
           { src: ahmedimg, alt: 'Ahmed Al Maghribi parfemi – luksuzni orijentalni mirisi', name: 'Ahmed Al Maghribi', href: '/products?brand=Ahmed+Al+Maghribi' },
         ].map((brand) => (

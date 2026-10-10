@@ -2,15 +2,15 @@ import { Metadata } from 'next';
 import ContactContent from './ContactContent';
 
 export const metadata: Metadata = {
-  title: 'Kontakt | Pluteo – Arabijski parfemi',
-  description: 'Kontaktirajte Pluteo — vaš online parfumerijski shop za arabijske i nišne parfeme u Hrvatskoj. Odgovaramo u kratkom roku.',
+  title: 'Kontakt',
+  description: 'Kontaktirajte Pluteo - vaš online parfumerijski shop za arapske i nišne parfeme u Hrvatskoj. Odgovaramo u kratkom roku.',
   alternates: {
-    canonical: 'https://pluteo.shop/contact',
+    canonical: 'https://www.pluteo.shop/contact',
   },
   openGraph: {
-    title: 'Kontakt | Pluteo – Arabijski parfemi',
-    description: 'Kontaktirajte Pluteo — vaš online parfumerijski shop za arabijske i nišne parfeme u Hrvatskoj.',
-    url: 'https://pluteo.shop/contact',
+    title: 'Kontakt | Pluteo - Arapski parfemi',
+    description: 'Kontaktirajte Pluteo - vaš online parfumerijski shop za arapske i nišne parfeme u Hrvatskoj.',
+    url: 'https://www.pluteo.shop/contact',
   },
 };
 

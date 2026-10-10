@@ -98,7 +98,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   <div className={styles.slideImageWrap}>
                     <Image
                       src={img}
-                      alt={`${product.brand?.name || ''} ${product.name} – arabijski parfem, fotografija ${index + 1}`}
+                      alt={`${product.brand?.name || ''} ${product.name} – arapski parfem, fotografija ${index + 1}`}
                       fill
                       style={{ objectFit: 'contain' }}
                       loading="lazy"
@@ -115,7 +115,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               <div className={styles.mainImageWrap}>
                 <Image
                   src={images[selectedImage]}
-                  alt={`${product.brand?.name || ''} ${product.name} – ${product.concentration} ${product.size}ml arabijski parfem`}
+                  alt={`${product.brand?.name || ''} ${product.name} – ${product.concentration} ${product.size}ml arapski parfem`}
                   fill
                   style={{ objectFit: 'contain' }}
                   sizes="(max-width: 1024px) 100vw, 50vw"

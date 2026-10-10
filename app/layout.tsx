@@ -8,29 +8,30 @@ import ClientProviders from '@/components/ClientProviders';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://pluteo.shop'),
+  metadataBase: new URL('https://www.pluteo.shop'),
   title: {
-    default: 'Pluteo — Premium arabijski parfemi i oud mirisi | Hrvatska',
-    template: '%s | Pluteo – Arabijski parfemi',
+    default: 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska',
+    template: '%s | Pluteo',
   },
-  description: 'Pluteo — premium arabijski i nišni parfemi uz brzu dostavu diljem Hrvatske. Originalni mirisi Lattafa, Armaf i French Avenue. 100% originalni proizvodi.',
-  keywords: 'arabski parfemi, arapski parfemi, oud parfemi, parfemi hrvatska, luksuzni parfemi, orijentalni parfemi, dugotrajni parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, niche parfemi, parfem za muškarce, parfem za žene, kupiti parfem online, arabian perfumes, oud perfumes',
+  description: 'Arapski parfemi i oud mirisi uz brzu dostavu diljem Hrvatske. 100% originalni Lattafa, Armaf i French Avenue parfemi - dugotrajni orijentalni mirisi za nju i njega.',
+  keywords: 'arapski parfemi, arabski parfemi, arabijski parfemi, premium arapski parfemi, premium parfemi, oud parfemi, parfemi hrvatska, luksuzni parfemi, orijentalni parfemi, dugotrajni parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, niche parfemi, parfem za muškarce, parfem za žene, kupiti parfem online, arabian perfumes, oud perfumes',
+  applicationName: 'Pluteo',
   authors: [{ name: 'Pluteo' }],
   alternates: {
-    canonical: 'https://pluteo.shop',
+    canonical: 'https://www.pluteo.shop',
   },
   openGraph: {
-    title: 'Pluteo — Premium arabijski parfemi i oud mirisi',
-    description: 'Otkrijte autentične arabijske parfeme Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
-    url: 'https://pluteo.shop',
+    title: 'Pluteo - Arapski parfemi i oud mirisi',
+    description: 'Otkrijte autentične arapske parfeme Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
+    url: 'https://www.pluteo.shop',
     siteName: 'Pluteo',
     locale: 'hr_HR',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pluteo — Arabijski i oud parfemi | Hrvatska',
-    description: 'Originalni arabijski parfemi Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
+    title: 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska',
+    description: 'Originalni arapski parfemi Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
   },
   robots: {
     index: true,
@@ -94,9 +95,9 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'Pluteo',
-              url: 'https://pluteo.shop',
-              logo: 'https://pluteo.shop/logo.png',
-              description: 'Pluteo — premium arabijski i nišni parfemi uz brzu dostavu diljem Hrvatske.',
+              url: 'https://www.pluteo.shop',
+              logo: 'https://www.pluteo.shop/pluteo-logo-email.png',
+              description: 'Pluteo - premium arapski i nišni parfemi uz brzu dostavu diljem Hrvatske.',
               contactPoint: {
                 '@type': 'ContactPoint',
                 email: 'pluteoinfo@gmail.com',

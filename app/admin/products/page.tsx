@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import s from '@/styles/admin.module.css';
+import { computeMargins, PROMO_DISCOUNTS, type Margins } from '@/lib/margins';
 
 interface ProductRow {
   id: string;
@@ -11,6 +12,8 @@ interface ProductRow {
   brandName: string;
   image: string | null;
   price: number;
+  discountAmount: number;
+  wholesalePrice: number | null;
   stock: number;
 }
 
@@ -20,6 +23,31 @@ interface Draft {
 }
 
 type RowFeedback = { type: 'success' | 'error'; msg: string };
+
+interface MarginColumn {
+  key: string;
+  label: string;
+  kind: 'money' | 'percent';
+  value: (m: Margins) => number | null;
+}
+
+const MARGIN_COLUMNS: MarginColumn[] = [
+  { key: 'wholesale', label: 'Wholesale', kind: 'money', value: (m) => m.wholesalePrice },
+  { key: 'margin', label: 'Margin', kind: 'money', value: (m) => m.margin },
+  { key: 'marginPercent', label: 'Margin %', kind: 'percent', value: (m) => m.marginPercent },
+  ...PROMO_DISCOUNTS.flatMap((pct): MarginColumn[] => [
+    { key: `margin${pct}`, label: `Margin −${pct}%`, kind: 'money', value: (m) => m.atPromo[pct]?.margin ?? null },
+    { key: `marginPercent${pct}`, label: `% at −${pct}%`, kind: 'percent', value: (m) => m.atPromo[pct]?.marginPercent ?? null },
+  ]),
+];
+
+// 'product' and 'price' plus every MARGIN_COLUMNS key.
+type Sort = { key: string; dir: 'asc' | 'desc' };
+
+function formatMarginValue(value: number | null, kind: MarginColumn['kind']) {
+  if (value === null) return '—';
+  return kind === 'money' ? value.toFixed(2) : `${value.toFixed(1)}%`;
+}
 
 function omit<T extends Record<string, unknown>>(obj: T, key: string): T {
   return Object.fromEntries(Object.entries(obj).filter(([k]) => k !== key)) as T;
@@ -40,20 +68,38 @@ export default function AdminStockPricePage() {
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [rowStatus, setRowStatus] = useState<Record<string, RowFeedback>>({});
+  const [costError, setCostError] = useState('');
+  const [sort, setSort] = useState<Sort>({ key: 'product', dir: 'asc' });
 
   useEffect(() => {
-    fetch('/api/products')
+    // Wholesale prices come from an admin-only endpoint; if it fails the table still
+    // works and the margin columns just show "—".
+    const costs = fetch('/api/admin/product-costs')
       .then((r) => {
         if (!r.ok) throw new Error();
-        return r.json();
+        return r.json() as Promise<Record<string, number>>;
       })
-      .then((data: any[]) => {
+      .catch(() => {
+        setCostError('Could not load wholesale prices, so margins are not shown.');
+        return {} as Record<string, number>;
+      });
+
+    Promise.all([
+      fetch('/api/products').then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }),
+      costs,
+    ])
+      .then(([data, wholesaleById]: [any[], Record<string, number>]) => {
         const rows: ProductRow[] = data.map((p) => ({
           id: p.id,
           name: p.name,
           brandName: p.brand?.name || 'Unknown',
           image: p.images?.[0] ?? null,
           price: p.price,
+          discountAmount: p.discountAmount ?? 0,
+          wholesalePrice: wholesaleById[p.id] ?? null,
           stock: p.stock,
         }));
         rows.sort((a, b) => a.brandName.localeCompare(b.brandName) || a.name.localeCompare(b.name));
@@ -69,14 +115,53 @@ export default function AdminStockPricePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Margins use the saved price, so they update after Save rather than while typing.
+  const margins = useMemo(
+    () => Object.fromEntries(products.map((p) => [p.id, computeMargins(p.price, p.discountAmount, p.wholesalePrice)])),
+    [products]
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return products.filter((p) => {
+    const rows = products.filter((p) => {
       if (lowStockOnly && p.stock > 3) return false;
       if (!q) return true;
       return p.name.toLowerCase().includes(q) || p.brandName.toLowerCase().includes(q);
     });
-  }, [products, query, lowStockOnly]);
+
+    // products is already in brand/name order.
+    if (sort.key === 'product') return sort.dir === 'asc' ? rows : [...rows].reverse();
+
+    const column = MARGIN_COLUMNS.find((c) => c.key === sort.key);
+    const value = (p: ProductRow) => (column ? column.value(margins[p.id]) : p.price);
+    // Products without a wholesale price always sort last, whichever the direction.
+    return [...rows].sort((a, b) => {
+      const va = value(a);
+      const vb = value(b);
+      if (va === null || vb === null) return va === vb ? 0 : va === null ? 1 : -1;
+      return sort.dir === 'asc' ? va - vb : vb - va;
+    });
+  }, [products, query, lowStockOnly, sort, margins]);
+
+  function toggleSort(key: string) {
+    setSort((cur) =>
+      cur.key === key
+        ? { key, dir: cur.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: key === 'product' ? 'asc' : 'desc' }
+    );
+  }
+
+  function sortHeader(key: string, label: string) {
+    const active = sort.key === key;
+    return (
+      <th aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+        <button type="button" className={s.sortBtn} onClick={() => toggleSort(key)}>
+          {label}
+          <span className={s.sortArrow}>{active ? (sort.dir === 'asc' ? '▲' : '▼') : ''}</span>
+        </button>
+      </th>
+    );
+  }
 
   function setDraft(id: string, field: keyof Draft, value: string) {
     setDrafts((d) => ({ ...d, [id]: { ...d[id], [field]: value } }));
@@ -142,7 +227,7 @@ export default function AdminStockPricePage() {
   return (
     <>
       <Navbar />
-      <div className={s.page} style={{ marginTop: '100px', maxWidth: '1200px' }}>
+      <div className={s.page} style={{ marginTop: '100px', maxWidth: '1600px' }}>
         <div className={s.header}>
           <h1 className={s.title}>STOCK &amp; PRICE</h1>
           <p className={s.subtitle}>
@@ -160,6 +245,7 @@ export default function AdminStockPricePage() {
         </div>
 
         {loadError && <div className={`${s.banner} ${s.bannerError}`}>{loadError}</div>}
+        {costError && <div className={`${s.banner} ${s.bannerError}`}>{costError}</div>}
 
         <div className={s.toolbar}>
           <input
@@ -191,11 +277,14 @@ export default function AdminStockPricePage() {
               <thead>
                 <tr>
                   <th aria-hidden="true"></th>
-                  <th>Product</th>
+                  {sortHeader('product', 'Product')}
                   <th>Status</th>
-                  <th>Price (€)</th>
+                  {sortHeader('price', 'Price (€)')}
                   <th>Stock</th>
                   <th aria-hidden="true"></th>
+                  {MARGIN_COLUMNS.map((c) => (
+                    <Fragment key={c.key}>{sortHeader(c.key, c.label)}</Fragment>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -272,6 +361,15 @@ export default function AdminStockPricePage() {
                           </div>
                         )}
                       </td>
+                      {MARGIN_COLUMNS.map((c) => {
+                        const value = c.value(margins[row.id]);
+                        const negative = c.key !== 'wholesale' && value !== null && value < 0;
+                        return (
+                          <td key={c.key} className={`${s.marginCell} ${negative ? s.marginNegative : ''}`}>
+                            {formatMarginValue(value, c.kind)}
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })}

@@ -45,12 +45,25 @@ model Product {
   reviews           Review[]
   reservations      CartReservation[]
   minimaxSku        String?           @unique
+  cost              ProductCost?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
   @@index([brandId])
   @@index([isFeatured])
   @@index([isBestSeller])
+}
+
+// Supplier purchase price, kept off Product so the many queries that return whole
+// product rows to the storefront never expose it. Written by scripts/import-wholesale-prices.ts.
+// No row (or a null wholesalePrice) means "no known supplier price".
+model ProductCost {
+  productId      String   @id
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  wholesalePrice Decimal? @db.Decimal(10, 2)
+  sourceDocument String?  // supplier invoice/order number the price came from
+  sourceDate     DateTime?
+  updatedAt      DateTime @updatedAt
 }
 
 model CartReservation {

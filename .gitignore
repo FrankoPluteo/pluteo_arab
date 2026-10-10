@@ -42,3 +42,7 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+
+# supplier invoices and stock lists (used by scripts/import-wholesale-prices.ts)
+/data/

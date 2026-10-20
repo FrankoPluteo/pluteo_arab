@@ -18,9 +18,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        // Old summer campaign links now land on the autumn campaign; query strings
+        // (promo, utm_*) are carried over by Next.js automatically.
         source: '/ljeto',
-        destination: '/',
-        permanent: true,
+        destination: '/jesen',
+        statusCode: 301,
       },
     ];
   },

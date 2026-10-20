@@ -182,6 +182,17 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
   return { pending, error, codeProblem };
 }
 
+/**
+ * Pre-applies a code on a campaign landing page, the same way a /cart?promo= link does.
+ * Leaves the cart alone if that code is already applied.
+ */
+export async function applyLandingCode(code: string) {
+  await whenHydrated();
+  const { promoCode, affiliateCode } = useCart.getState();
+  if (promoCode === code || affiliateCode === code) return { applied: true } as const;
+  return applyCodeFromLink(code);
+}
+
 function hasCodeParam(params: URLSearchParams): boolean {
   return Boolean(params.get('promo') || params.get('code') || params.get('ref'));
 }

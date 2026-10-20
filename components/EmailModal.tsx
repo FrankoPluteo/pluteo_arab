@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
+import { captureEmail } from '@/lib/emailCapture';
 import styles from '@/styles/emailmodal.module.css';
 
 export default function EmailModal() {
@@ -22,13 +23,7 @@ export default function EmailModal() {
     e.preventDefault();
     if (!email) return;
 
-    await fetch('/api/emails', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-
-    localStorage.setItem('email_captured', email);
+    await captureEmail(email);
     setSubmitted(true);
   }
 

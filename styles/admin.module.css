@@ -13,7 +13,7 @@
 }
 
 .title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 26px;
   font-weight: 700;
   color: var(--color-dark);
@@ -61,7 +61,7 @@
 }
 
 .sectionTitle {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -113,7 +113,7 @@
   border: 2px solid #e0dbd9;
   border-radius: 6px;
   font-size: 14px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   color: #333;
   background: #fff;
   transition: border-color 0.2s ease;
@@ -218,7 +218,7 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -244,7 +244,7 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -345,7 +345,7 @@
   color: #c62828;
   border: none;
   border-radius: 6px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -368,7 +368,7 @@
   color: white;
   border: none;
   border-radius: 6px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -451,7 +451,7 @@
 }
 
 .dashboardCardTitle {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: var(--color-dark);
@@ -611,7 +611,7 @@
   background: none;
   border: 1px solid #e0dbd9;
   border-radius: 6px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 12px;
   font-weight: 600;
   color: #888;

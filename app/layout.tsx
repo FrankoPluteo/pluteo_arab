@@ -1,11 +1,20 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import Script from 'next/script';
+import { Inter, Montserrat } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import ClientProviders from '@/components/ClientProviders';
 
 const inter = Inter({ subsets: ['latin'] });
+
+// Self-hosted at build time instead of loading from Google Fonts, so no visitor's IP
+// reaches Google. Only used by a few pages (order success, affiliate, admin), so it is
+// not preloaded everywhere; the browser fetches it where a style asks for it.
+const montserrat = Montserrat({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-montserrat',
+  display: 'swap',
+  preload: false,
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.pluteo.shop'),
@@ -56,38 +65,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="hr">
+    <html lang="hr" className={montserrat.variable}>
       <head />
       <body className={inter.className}>
-        {/* Meta Pixel — afterInteractive defers load until page is interactive,
-            eliminating the render-blocking penalty from the inline <head> script */}
-        <Script
-          id="meta-pixel"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '1530674275072054');
-              fbq('track', 'PageView');
-            `,
-          }}
-        />
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: 'none' }}
-            alt=""
-            src="https://www.facebook.com/tr?id=1530674275072054&ev=PageView&noscript=1"
-          />
-        </noscript>
+        {/* The Meta Pixel is loaded by components/MetaPixel.tsx, only after cookie
+            consent. There is no <noscript> pixel: without JS consent can't be given. */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

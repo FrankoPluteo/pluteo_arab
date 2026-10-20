@@ -6,6 +6,8 @@ import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { applyLandingCode } from '@/lib/cartPrefill';
 import { trackMetaEvent } from '@/lib/metaPixel';
+import { captureEmail, EMAIL_PATTERN } from '@/lib/emailCapture';
+import { getUrlCode } from '@/lib/attribution';
 import styles from '@/styles/jesen.module.css';
 
 interface TrackerProps {
@@ -14,7 +16,10 @@ interface TrackerProps {
   contentIds: string[];
 }
 
-/** Runs once per visit: stores UTM params, applies the campaign code and fires ViewContent. */
+/**
+ * Runs once per visit: applies the campaign code and fires ViewContent. UTM params are
+ * captured site wide by AttributionCapture, not here.
+ */
 export function JesenTracker({ defaultCode, contentIds }: TrackerProps) {
   const hasRun = useRef(false);
 
@@ -22,31 +27,8 @@ export function JesenTracker({ defaultCode, contentIds }: TrackerProps) {
     if (hasRun.current) return;
     hasRun.current = true;
 
-    const params = new URLSearchParams(window.location.search);
-
-    // Persist UTM params for checkout to send with the order (see CheckoutForm).
-    const source = params.get('utm_source');
-    const medium = params.get('utm_medium');
-    const campaign = params.get('utm_campaign');
-    if (source || medium || campaign) {
-      try {
-        localStorage.setItem(
-          'utm',
-          JSON.stringify({
-            utm_source: source ?? '',
-            utm_medium: medium ?? '',
-            utm_campaign: campaign ?? '',
-          })
-        );
-      } catch {
-        // localStorage not available — ignore
-      }
-    }
-
     // A code in the link wins (e.g. an affiliate's); otherwise the campaign code is pre-applied.
-    const code = (params.get('promo') || params.get('code') || params.get('ref') || defaultCode || '')
-      .trim()
-      .toUpperCase();
+    const code = getUrlCode(new URLSearchParams(window.location.search)) || (defaultCode ?? '').trim().toUpperCase();
     if (code) {
       applyLandingCode(code).catch(() => {
         // The cart re-validates the code and checkout re-checks it server side.
@@ -176,5 +158,86 @@ export function CartBar() {
         </Link>
       </div>
     </>
+  );
+}
+
+/**
+ * Quiet newsletter line under the final CTA. Same signup as the popup (captureEmail),
+ * and like the popup it fires no pixel event. It only touches the 'email_captured'
+ * flag, never the cart, the applied code or the stored UTM params.
+ */
+export function NewsletterSignup() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'done'>('idle');
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === 'sending') return;
+
+    const normalized = email.trim().toLowerCase();
+    if (!EMAIL_PATTERN.test(normalized)) {
+      setError('Upiši ispravnu e-mail adresu.');
+      return;
+    }
+
+    setError(null);
+    setStatus('sending');
+    try {
+      if (!(await captureEmail(normalized))) throw new Error('rejected');
+      setStatus('done');
+    } catch {
+      setError('Prijava nije uspjela. Pokušaj ponovno.');
+      setStatus('idle');
+    }
+  }
+
+  return (
+    // One persistent live region, so both the error and the success line that
+    // replaces the form are announced by screen readers.
+    <section className={styles.newsletter} aria-label="Novosti na mail" aria-live="polite">
+      {status === 'done' ? (
+        <p className={styles.newsletterLine}>Hvala, javimo se s novim mirisima.</p>
+      ) : (
+        <form className={styles.newsletterForm} onSubmit={handleSubmit} noValidate>
+          <label htmlFor="jesen-email" className={styles.newsletterLine}>
+            Ne želiš kupiti danas? Ostavi mail za nove mirise.
+          </label>
+          <div className={styles.newsletterRow}>
+            <input
+              id="jesen-email"
+              type="email"
+              name="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="tvoj@email.com"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError(null);
+              }}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? 'jesen-email-error jesen-email-note' : 'jesen-email-note'}
+              className={styles.newsletterInput}
+            />
+            <button
+              type="submit"
+              className={styles.newsletterBtn}
+              disabled={status === 'sending'}
+            >
+              {status === 'sending' ? 'Šaljem…' : 'Prijavi me'}
+            </button>
+          </div>
+          {error && (
+            <p id="jesen-email-error" className={styles.newsletterError}>
+              {error}
+            </p>
+          )}
+          <p id="jesen-email-note" className={styles.newsletterNote}>
+            Šaljemo samo novosti o mirisima. Odjava je moguća u svakom trenutku.
+          </p>
+        </form>
+      )}
+    </section>
   );
 }

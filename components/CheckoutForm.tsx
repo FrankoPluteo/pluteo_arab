@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
+import { getAttribution } from '@/lib/attribution';
 import styles from '@/styles/checkout.module.css';
 import { calculateShipping, isFreeShippingEligible, ShippingMethod } from '@/lib/shipping';
 
@@ -99,13 +100,8 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     setError('');
 
     try {
-      let utmData: Record<string, string> = {};
-      try {
-        const stored = localStorage.getItem('utm');
-        if (stored) utmData = JSON.parse(stored);
-      } catch {
-        // localStorage not available — skip UTM
-      }
+      // First-touch campaign params from the landing page, if still within 30 days
+      const utmData = getAttribution() ?? {};
 
       const response = await fetch('/api/checkout', {
         method: 'POST',

@@ -1,27 +1,48 @@
 /* Autumn campaign (/jesen). Palette is scoped to this page, 60/30/10:
    --jesen-bg dominant, --jesen-panel secondary, --jesen-accent for CTAs and highlights.
    Contrast (WCAG AA):
-     #FFFFFF on #230007  18.9:1    #F29559 on #230007  8.6:1
-     #230007 on #F29559   8.6:1    #FFFFFF on #776258  5.7:1
-   #F29559 on #776258 is only 2.5:1, so accent never carries text on panels;
-   it is used as a background with dark text there instead. */
+     #FFFFFF on #230007  19.5:1    #D8CC34 on #230007  11.7:1
+     #230007 on #D8CC34  11.7:1    #FFFFFF on #A35200   5.6:1
+     #230007 on #FFFFFF  19.5:1    #A35200 vs #230007   3.5:1
+   #D8CC34 on #A35200 is only 3.3:1, so accent never carries text on panels;
+   it is used as a background with dark text there instead.
+   Focus rings are white everywhere (5.6:1 on panels, 19.5:1 on the page).
+
+   Type: Playfair Display 400 (normal + italic) for headings, loaded in
+   app/jesen/layout.tsx. Body is the root Inter; only 400 and 600 are used.
+
+   Memorable detail: each product name is set huge and straddles the edge of
+   its #A35200 panel, half on the panel and half on the page. */
 
 .page {
   --jesen-bg: #230007;
-  --jesen-panel: #776258;
-  --jesen-accent: #F29559;
+  --jesen-panel: #A35200;
+  --jesen-accent: #D8CC34;
   --jesen-text: #FFFFFF;
   --jesen-text-muted: rgba(255, 255, 255, 0.8);
+  --jesen-display: var(--font-jesen-display), Georgia, 'Times New Roman', serif;
+  --jesen-gutter: 16px;
+  --jesen-max: 1320px;
 
   background: var(--jesen-bg);
   color: var(--jesen-text);
   min-height: 100vh;
+  overflow-x: clip;
+}
+
+.page a,
+.page button {
+  cursor: pointer;
 }
 
 .page a:focus-visible,
 .page button:focus-visible {
   outline: 2px solid var(--jesen-text);
-  outline-offset: 2px;
+  outline-offset: 3px;
+}
+
+.page em {
+  font-style: italic;
 }
 
 /* ── Header ───────────────────────────────────────────── */
@@ -30,9 +51,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1120px;
+  max-width: var(--jesen-max);
   margin: 0 auto;
-  padding: 12px 16px 0;
+  padding: 10px var(--jesen-gutter) 0;
 }
 
 .logoLink {
@@ -42,7 +63,7 @@
 }
 
 .logoImg {
-  height: 44px;
+  height: 40px;
   width: auto;
 }
 
@@ -53,6 +74,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
+  margin-right: -10px;
   color: var(--jesen-text);
 }
 
@@ -67,39 +89,47 @@
   background: var(--jesen-accent);
   color: var(--jesen-bg);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 18px;
   text-align: center;
 }
 
-/* ── Hero ─────────────────────────────────────────────── */
+/* ── Hero: left aligned, the headline does the work ───── */
 
 .hero {
-  max-width: 640px;
+  max-width: var(--jesen-max);
   margin: 0 auto;
-  padding: 16px 16px 24px;
-  text-align: center;
+  padding: 28px var(--jesen-gutter) 36px;
 }
 
 .eyebrow {
   color: var(--jesen-accent);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 3px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .headline {
-  margin-top: 8px;
-  font-size: clamp(30px, 8.5vw, 52px);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  max-width: 9ch;
+  margin-top: 14px;
+  font-family: var(--jesen-display);
+  font-size: clamp(3.5rem, 16vw, 11rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+.headline em {
+  color: var(--jesen-accent);
+}
+
+.heroAside {
+  margin-top: 22px;
 }
 
 .subheadline {
-  max-width: 34ch;
-  margin: 10px auto 0;
+  max-width: 30ch;
   color: var(--jesen-text-muted);
   font-size: 16px;
   line-height: 1.5;
@@ -107,9 +137,8 @@
 
 .promo {
   margin-top: 16px;
-  padding: 12px 14px;
-  border: 1px solid var(--jesen-panel);
-  border-radius: 4px;
+  padding-left: 14px;
+  border-left: 2px solid var(--jesen-accent);
 }
 
 .promoMain {
@@ -119,7 +148,7 @@
 
 .promoCode {
   color: var(--jesen-accent);
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
 }
 
 .promoSub {
@@ -129,51 +158,87 @@
   line-height: 1.5;
 }
 
-/* ── Products ─────────────────────────────────────────── */
+/* ── Chapters ─────────────────────────────────────────── */
 
-.productsSection {
-  max-width: 1120px;
+.chapters {
+  max-width: var(--jesen-max);
   margin: 0 auto;
-  padding: 0 16px;
+  scroll-margin-top: 16px;
 }
 
-.productsGrid {
+.chapter {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  padding-bottom: 88px;
 }
 
-.card {
+/* Product photos ship with a baked in white background. Instead of fighting it,
+   each photo sits on a white mount, framed by the #A35200 panel like a print. */
+.frame {
+  position: relative;
   display: flex;
   flex-direction: column;
+  margin-left: 40px;
+  padding: 18px 20px calc(clamp(2.75rem, 13vw, 7.5rem) * 0.6 + 32px);
   background: var(--jesen-panel);
-  border-radius: 4px;
-  overflow: hidden;
 }
 
-/* Product photos ship with a baked in white background, so the tile matches it
-   and the photo reads edge to edge instead of as a box inside a box. */
-.imageWrap {
+/* Asymmetry on mobile: panels alternate between the right and left edge */
+.chapter:nth-of-type(odd) .frame {
+  margin-right: 0;
+  margin-left: 40px;
+}
+
+.chapter:nth-of-type(even) .frame {
+  margin-right: 40px;
+  margin-left: 0;
+}
+
+.frameMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.chapterNo {
+  font-family: var(--jesen-display);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.mount {
   position: relative;
+  width: 78%;
   aspect-ratio: 1;
+  margin: 16px auto 0;
   background: #FFFFFF;
+}
+
+.chapter:nth-of-type(even) .mount {
+  margin-right: 8%;
+}
+
+.chapter:nth-of-type(odd) .mount {
+  margin-left: 8%;
 }
 
 .productImg {
   object-fit: contain;
-  padding: 8%;
+  padding: 7%;
 }
 
 .badgeSoldOut,
 .badgeLowStock {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 14px;
+  right: 14px;
   padding: 5px 8px;
-  border-radius: 2px;
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
@@ -187,87 +252,100 @@
   color: var(--jesen-bg);
 }
 
-.cardInfo {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 12px 12px 0;
+.chapterBody {
+  position: relative;
+  padding: 0 var(--jesen-gutter);
 }
 
-.cardBrand {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+/* The name climbs back up over the bottom edge of the panel */
+.chapterName {
+  position: relative;
+  margin-top: -0.6em;
+  font-family: var(--jesen-display);
+  font-size: clamp(2.75rem, 13vw, 7.5rem);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
-.cardName {
-  margin-top: 4px;
-  font-size: 15px;
-  font-weight: 500;
+.character {
+  margin-top: 18px;
+  color: var(--jesen-accent);
+  font-family: var(--jesen-display);
+  font-size: 22px;
+  font-style: italic;
   line-height: 1.3;
 }
 
-.cardDetails {
-  margin-top: 2px;
-  font-size: 12px;
+.notes {
+  margin-top: 6px;
+  color: var(--jesen-text-muted);
+  font-size: 15px;
+  line-height: 1.5;
 }
 
-.cardPricing {
-  margin-top: auto;
-  padding-top: 10px;
+.details {
+  margin-top: 2px;
+  color: var(--jesen-text-muted);
+  font-size: 13px;
+}
+
+.buy {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 20px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--jesen-panel);
+}
+
+.pricing {
+  min-width: 0;
 }
 
 .priceRow {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 2px 8px;
-}
-
-.oldPrice {
-  font-size: 12px;
-  text-decoration: line-through;
+  gap: 0 8px;
 }
 
 .price {
-  font-size: 17px;
-  font-weight: 600;
+  font-family: var(--jesen-display);
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.oldPrice {
+  color: var(--jesen-text-muted);
+  font-size: 13px;
 }
 
 .codePrice {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 3px 7px;
-  border-radius: 2px;
-  background: var(--jesen-accent);
-  color: var(--jesen-bg);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.cardActions {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 12px 4px;
+  margin-top: 2px;
+  color: var(--jesen-accent);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .addBtn {
-  min-height: 44px;
-  padding: 0 8px;
+  min-height: 52px;
+  padding: 0 14px;
   border: none;
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--jesen-accent);
   color: var(--jesen-bg);
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 200ms ease;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 .addBtn:hover:not(:disabled) {
-  opacity: 0.88;
+  background: var(--jesen-text);
 }
 
 .addBtn:disabled {
@@ -276,117 +354,174 @@
 
 .addBtnSoldOut {
   background: transparent;
-  border: 1px solid var(--jesen-text);
+  box-shadow: inset 0 0 0 1px var(--jesen-text-muted);
   color: var(--jesen-text);
   cursor: not-allowed;
 }
 
+.addBtnSoldOut:disabled {
+  cursor: not-allowed;
+}
+
 .detailsLink {
-  display: flex;
+  display: inline-flex;
+  grid-column: 1 / -1;
   align-items: center;
-  justify-content: center;
-  min-height: 40px;
+  justify-self: end;
+  min-height: 44px;
   color: var(--jesen-text);
   font-size: 13px;
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration-color: var(--jesen-panel);
+  text-underline-offset: 4px;
+  transition: text-decoration-color 200ms ease;
 }
 
-/* ── Value section ────────────────────────────────────── */
-
-.valueSection {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 48px 16px;
-}
-
-.sectionTitle {
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-.valueList {
-  display: grid;
-  gap: 12px;
-  margin-top: 20px;
-  list-style: none;
-}
-
-.valueItem {
-  padding: 18px 16px;
-  border: 1px solid var(--jesen-panel);
-  border-radius: 4px;
-}
-
-.valueItem::before {
-  content: '';
-  display: block;
-  width: 24px;
-  height: 2px;
-  margin-bottom: 12px;
-  background: var(--jesen-accent);
-}
-
-.valueTitle {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.valueText {
-  margin-top: 6px;
-  color: var(--jesen-text-muted);
-  font-size: 15px;
-  line-height: 1.6;
+.detailsLink:hover {
+  text-decoration-color: var(--jesen-text);
 }
 
 /* ── Final CTA ────────────────────────────────────────── */
 
 .finalCta {
-  padding: 40px 16px;
+  padding: 64px var(--jesen-gutter) 72px;
   background: var(--jesen-panel);
-  text-align: center;
+}
+
+.finalTitle {
+  max-width: 8ch;
+  font-family: var(--jesen-display);
+  font-size: clamp(3.25rem, 15vw, 10rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+.finalAside {
+  margin-top: 28px;
 }
 
 .finalText {
-  max-width: 36ch;
-  margin: 10px auto 0;
+  max-width: 34ch;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.facts {
+  margin-top: 14px;
+  list-style: none;
   font-size: 15px;
   line-height: 1.5;
 }
 
+.facts li + li {
+  margin-top: 4px;
+}
+
 .ctaButton {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  margin-top: 20px;
-  padding: 0 28px;
-  border-radius: 2px;
-  background: var(--jesen-accent);
-  color: var(--jesen-bg);
-  font-size: 15px;
+  min-height: 56px;
+  margin-top: 28px;
+  padding: 0 32px;
+  background: var(--jesen-bg);
+  color: var(--jesen-text);
+  font-size: 16px;
   font-weight: 600;
   text-decoration: none;
-  transition: opacity 200ms ease;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 .ctaButton:hover {
-  opacity: 0.88;
+  background: var(--jesen-text);
+  color: var(--jesen-bg);
 }
 
-/* ── Legal footer ─────────────────────────────────────── */
+/* ── Newsletter line: deliberately quieter than every product CTA.
+   No fill, small type, panel colored hairlines; accent only for the focus ring. ── */
 
-.legal {
-  padding: 24px 16px;
+.newsletter {
+  max-width: var(--jesen-max);
+  margin: 0 auto;
+  padding: 40px var(--jesen-gutter) 48px;
+}
+
+.newsletterLine {
+  display: block;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.newsletterRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.newsletterInput {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--jesen-panel);
+  border-radius: 0;
+  background: transparent;
+  color: var(--jesen-text);
+  font: inherit;
+  font-size: 16px; /* 16px keeps iOS from zooming into the field */
+}
+
+.newsletterInput::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletterInput[aria-invalid='true'] {
+  border-color: var(--jesen-text);
+}
+
+.newsletterBtn {
+  flex: none;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--jesen-panel);
+  border-radius: 0;
+  background: transparent;
+  color: var(--jesen-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+
+.newsletterBtn:hover:not(:disabled) {
+  border-color: var(--jesen-text);
+}
+
+.newsletterBtn:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.page .newsletterInput:focus-visible,
+.page .newsletterBtn:focus-visible {
+  outline: 2px solid var(--jesen-accent);
+  outline-offset: 2px;
+}
+
+.newsletterError {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.newsletterNote {
+  margin-top: 8px;
   color: var(--jesen-text-muted);
   font-size: 12px;
-  text-align: center;
-}
-
-.legal a {
-  color: var(--jesen-text);
-  text-underline-offset: 3px;
+  line-height: 1.5;
 }
 
 /* ── Sticky cart bar (after the first add) ────────────── */
@@ -405,14 +540,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  padding: 10px var(--jesen-gutter) calc(10px + env(safe-area-inset-bottom));
   background: var(--jesen-bg);
   border-top: 1px solid var(--jesen-panel);
 }
 
 .cartBarText {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .cartBarBtn {
@@ -420,41 +555,133 @@
   align-items: center;
   min-height: 44px;
   padding: 0 18px;
-  border-radius: 2px;
   background: var(--jesen-accent);
   color: var(--jesen-bg);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
+  transition: background-color 200ms ease;
 }
 
-/* ── Larger screens ───────────────────────────────────── */
+.cartBarBtn:hover {
+  background: var(--jesen-text);
+}
+
+/* ── Light motion: mounts slide in from the panel's outer side as they scroll in.
+   Horizontal only, so a mount never moves into the band the name crosses.
+   The first chapter is left still so the first screen never shows it mid move.
+   Transform only, CSS only, skipped entirely when motion is reduced. ── */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .chapter:not(:first-of-type) .mount {
+      animation: jesen-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+  }
+}
+
+.chapter:nth-of-type(odd) .mount {
+  --jesen-settle-x: 20px;
+}
+
+.chapter:nth-of-type(even) .mount {
+  --jesen-settle-x: -20px;
+}
+
+@keyframes jesen-settle {
+  from {
+    transform: translateX(var(--jesen-settle-x));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ── Tablet ───────────────────────────────────────────── */
 
 @media (min-width: 768px) {
+  .page {
+    --jesen-gutter: 40px;
+  }
+
   .hero {
-    padding: 32px 16px 40px;
+    padding-top: 48px;
+    padding-bottom: 72px;
   }
 
-  .productsGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 20px;
+  .heroAside {
+    max-width: 420px;
+    margin-left: auto;
+    margin-top: 8px;
   }
 
-  .valueSection {
-    padding: 72px 16px;
+  .chapter {
+    padding-bottom: 128px;
   }
 
-  .sectionTitle {
-    font-size: 30px;
+  .chapter:nth-of-type(odd) .frame {
+    margin-left: 22%;
   }
 
-  .valueList {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
+  .chapter:nth-of-type(even) .frame {
+    margin-right: 22%;
+  }
+
+  .frame {
+    padding: 24px 28px calc(clamp(2.75rem, 13vw, 7.5rem) * 0.6 + 32px);
+  }
+
+  .mount {
+    width: 66%;
+  }
+
+  .chapterBody {
+    max-width: 640px;
+  }
+
+  .chapter:nth-of-type(odd) .chapterBody {
+    padding-left: var(--jesen-gutter);
+  }
+
+  .chapter:nth-of-type(even) .chapterBody {
+    margin-left: auto;
   }
 
   .finalCta {
-    padding: 64px 16px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    align-items: end;
+    gap: 40px;
+    padding-top: 96px;
+    padding-bottom: 104px;
+  }
+
+  .finalAside {
+    margin-top: 0;
+  }
+
+  .ctaButton {
+    display: inline-flex;
+  }
+
+  /* Line and field share one row; the notes sit under the field */
+  .newsletterForm {
+    display: grid;
+    grid-template-columns: auto minmax(0, 420px);
+    justify-content: start;
+    align-items: center;
+    column-gap: 32px;
+  }
+
+  .newsletterRow {
+    margin-top: 0;
+  }
+
+  .newsletterError,
+  .newsletterNote {
+    grid-column: 2;
   }
 
   .cartBar {
@@ -463,9 +690,175 @@
   }
 }
 
+/* ── Desktop: panel and text share a 12 column grid, the name crosses over ── */
+
+@media (min-width: 1024px) {
+  .page {
+    --jesen-gutter: 56px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: end;
+    padding-bottom: 112px;
+  }
+
+  .eyebrow {
+    grid-column: 1 / -1;
+  }
+
+  .headline {
+    grid-column: 1 / 10;
+    max-width: none;
+  }
+
+  .heroAside {
+    grid-column: 10 / 13;
+    max-width: none;
+    margin: 0 0 1.25rem;
+  }
+
+  .chapters {
+    padding: 0 var(--jesen-gutter);
+  }
+
+  .chapter {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: center;
+    padding-bottom: 160px;
+  }
+
+  .frame,
+  .chapter:nth-of-type(odd) .frame,
+  .chapter:nth-of-type(even) .frame {
+    grid-row: 1;
+    margin: 0;
+    padding: 28px 32px 48px;
+  }
+
+  .chapter:nth-of-type(odd) .frame {
+    grid-column: 1 / 7;
+  }
+
+  .chapter:nth-of-type(even) .frame {
+    grid-column: 7 / 13;
+  }
+
+  /* The mount hugs the far side of the panel, leaving a wide brown margin on the
+     text side for the name to cross into. White text never lands on the mount. */
+  .mount,
+  .chapter:nth-of-type(odd) .mount,
+  .chapter:nth-of-type(even) .mount {
+    width: 70%;
+    margin-top: 24px;
+  }
+
+  .chapter:nth-of-type(odd) .mount {
+    margin-right: auto;
+    margin-left: 6%;
+  }
+
+  .chapter:nth-of-type(even) .mount {
+    margin-right: 6%;
+    margin-left: auto;
+  }
+
+  .chapterBody,
+  .chapter:nth-of-type(odd) .chapterBody,
+  .chapter:nth-of-type(even) .chapterBody {
+    position: relative;
+    z-index: 1;
+    grid-row: 1;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chapter:nth-of-type(odd) .chapterBody {
+    grid-column: 7 / 13;
+  }
+
+  .chapter:nth-of-type(even) .chapterBody {
+    grid-column: 1 / 7;
+    text-align: right;
+  }
+
+  .chapterName {
+    margin-top: 0;
+    font-size: clamp(4rem, 7vw, 7.25rem);
+  }
+
+  .chapter:nth-of-type(odd) .chapterName {
+    margin-left: -1.1em;
+  }
+
+  .chapter:nth-of-type(even) .chapterName {
+    margin-right: -1.1em;
+  }
+
+  /* Labels move to the panel's outer side, away from where the name crosses in */
+  .chapter:nth-of-type(even) .frameMeta {
+    justify-content: flex-end;
+  }
+
+  .chapter:nth-of-type(odd) .badgeSoldOut,
+  .chapter:nth-of-type(odd) .badgeLowStock {
+    top: auto;
+    right: auto;
+    bottom: 12px;
+    left: 32px;
+  }
+
+  .chapter:nth-of-type(even) .badgeSoldOut,
+  .chapter:nth-of-type(even) .badgeLowStock {
+    top: auto;
+    right: 32px;
+    bottom: 12px;
+  }
+
+  .chapter:nth-of-type(even) .priceRow {
+    justify-content: flex-end;
+  }
+
+  .chapter:nth-of-type(even) .buy {
+    margin-left: auto;
+  }
+
+  .character {
+    font-size: 26px;
+  }
+
+  .buy {
+    max-width: 460px;
+  }
+
+  .finalCta {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    padding-left: max(var(--jesen-gutter), calc((100% - var(--jesen-max)) / 2 + var(--jesen-gutter)));
+    padding-right: max(var(--jesen-gutter), calc((100% - var(--jesen-max)) / 2 + var(--jesen-gutter)));
+  }
+
+  .finalTitle {
+    grid-column: 1 / 9;
+    max-width: none;
+  }
+
+  .finalAside {
+    grid-column: 9 / 13;
+    margin-bottom: 1rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .addBtn,
-  .ctaButton {
+  .ctaButton,
+  .cartBarBtn,
+  .detailsLink,
+  .newsletterBtn {
     transition: none;
   }
 }

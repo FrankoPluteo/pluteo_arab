@@ -4,7 +4,8 @@ import Link from 'next/link';
 import type { Metadata, Viewport } from 'next';
 import { prisma } from '@/lib/prisma';
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
-import { JesenTracker, AddToCartButton, CartLink, CartBar } from './JesenClient';
+import Footer from '@/components/Footer';
+import { JesenTracker, AddToCartButton, CartLink, CartBar, NewsletterSignup } from './JesenClient';
 import styles from '@/styles/jesen.module.css';
 
 export const revalidate = 60;
@@ -150,69 +151,88 @@ export default async function JesenPage() {
       </header>
 
       <section className={styles.hero}>
-        <p className={styles.eyebrow}>Jesenski izbor</p>
-        <h1 className={styles.headline}>Jesen miriše toplije</h1>
-        <p className={styles.subheadline}>Dim, začini i vanilija. Četiri mirisa za hladnije dane.</p>
+        <p className={styles.eyebrow}>Jesenski izbor · {products.length} mirisa</p>
+        <h1 className={styles.headline}>
+          Jesen miriše <em>toplije.</em>
+        </h1>
+        <div className={styles.heroAside}>
+          <p className={styles.subheadline}>Dim, začini, kava i vanilija. Za dane kad zahladi.</p>
 
-        {promo && percentOff && (
-          <div className={styles.promo}>
-            <p className={styles.promoMain}>
-              {percentOff}% popusta s kodom <span className={styles.promoCode}>{promo.code}</span>
-            </p>
-            <p className={styles.promoSub}>
-              Kod je već dodan u košaricu, ne trebaš ga upisivati.
-              {promo.endsAt && ` Vrijedi do ${formatDate(promo.endsAt)}`}
-            </p>
-          </div>
-        )}
+          {promo && percentOff && (
+            <div className={styles.promo}>
+              <p className={styles.promoMain}>
+                {percentOff}% popusta s kodom <span className={styles.promoCode}>{promo.code}</span>
+              </p>
+              <p className={styles.promoSub}>
+                Kod je već u košarici, ne trebaš ga upisivati.
+                {promo.endsAt && ` Vrijedi do ${formatDate(promo.endsAt)}`}
+              </p>
+            </div>
+          )}
+        </div>
       </section>
 
-      <section id="mirisi" className={styles.productsSection} aria-labelledby="mirisi-naslov">
+      <section id="mirisi" className={styles.chapters} aria-labelledby="mirisi-naslov">
         <h2 id="mirisi-naslov" className="sr-only">Četiri jesenska mirisa</h2>
-        <div className={styles.productsGrid}>
-          {cards.map(({ product, finalPrice, codePrice }, index) => {
-            const soldOut = product.stock <= 0;
-            const lowStock = product.stock > 0 && product.stock <= 3;
-            return (
-              <article key={product.id} className={styles.card}>
-                <div className={styles.imageWrap}>
+        {cards.map(({ product, finalPrice, codePrice }, index) => {
+          const soldOut = product.stock <= 0;
+          const lowStock = product.stock > 0 && product.stock <= 3;
+          const character = product.fragranceProfilesHr.join(' · ');
+          const baseNotes = product.baseNotesHr.slice(0, 3).map((note) => note.trim().toLowerCase());
+          const chapterNo = String(index + 1).padStart(2, '0');
+          return (
+            <article
+              key={product.id}
+              className={styles.chapter}
+              aria-labelledby={`miris-${product.id}`}
+            >
+              <div className={styles.frame}>
+                <p className={styles.frameMeta}>
+                  <span className={styles.chapterNo}>{chapterNo}</span>
+                  <span>{product.brand.name}</span>
+                </p>
+                <div className={styles.mount}>
                   {product.images[0] && (
                     <Image
                       src={product.images[0]}
                       alt={`${product.brand.name} ${product.name}`}
                       fill
                       className={styles.productImg}
-                      sizes="(max-width: 767px) 46vw, 260px"
-                      priority={index < 2}
+                      sizes="(max-width: 1023px) 64vw, 400px"
+                      priority={index === 0}
                     />
                   )}
-                  {soldOut && <span className={styles.badgeSoldOut}>Rasprodano</span>}
-                  {lowStock && <span className={styles.badgeLowStock}>Gotovo nestalo</span>}
                 </div>
+                {soldOut && <span className={styles.badgeSoldOut}>Rasprodano</span>}
+                {lowStock && <span className={styles.badgeLowStock}>Gotovo nestalo</span>}
+              </div>
 
-                <div className={styles.cardInfo}>
-                  <p className={styles.cardBrand}>{product.brand.name}</p>
-                  <h3 className={styles.cardName}>{product.name}</h3>
-                  <p className={styles.cardDetails}>
-                    {product.concentration} · {product.size} ml
-                  </p>
+              <div className={styles.chapterBody}>
+                <h3 id={`miris-${product.id}`} className={styles.chapterName}>
+                  {product.name}
+                </h3>
+                {character && <p className={styles.character}>{character}</p>}
+                {baseNotes.length > 0 && (
+                  <p className={styles.notes}>U bazi: {baseNotes.join(', ')}</p>
+                )}
+                <p className={styles.details}>
+                  {product.concentration} · {product.size} ml
+                </p>
 
-                  <div className={styles.cardPricing}>
+                <div className={styles.buy}>
+                  <div className={styles.pricing}>
                     <p className={styles.priceRow}>
-                      {product.discountAmount > 0 && (
-                        <span className={styles.oldPrice}>€{product.price.toFixed(2)}</span>
-                      )}
                       <span className={styles.price}>€{finalPrice.toFixed(2)}</span>
+                      {product.discountAmount > 0 && (
+                        <s className={styles.oldPrice}>€{product.price.toFixed(2)}</s>
+                      )}
                     </p>
                     {codePrice !== null && promo && !soldOut && (
                       <p className={styles.codePrice}>
-                        €{codePrice.toFixed(2)} s {promo.code}
+                        €{codePrice.toFixed(2)} s kodom {promo.code}
                       </p>
                     )}
                   </div>
-                </div>
-
-                <div className={styles.cardActions}>
                   <AddToCartButton
                     product={JSON.parse(JSON.stringify(product))}
                     value={codePrice ?? finalPrice}
@@ -222,60 +242,42 @@ export default async function JesenPage() {
                     Detalji mirisa
                   </Link>
                 </div>
-              </article>
-            );
-          })}
+              </div>
+            </article>
+          );
+        })}
+      </section>
+
+      <section className={styles.finalCta} aria-labelledby="odaberi-naslov">
+        <h2 id="odaberi-naslov" className={styles.finalTitle}>
+          Koji miris je <em>tvoj?</em>
+        </h2>
+        <div className={styles.finalAside}>
+          {promo && percentOff && (
+            <p className={styles.finalText}>
+              Popust od {percentOff}% s kodom {promo.code} čeka te u košarici.
+            </p>
+          )}
+          <ul className={styles.facts}>
+            <li>Besplatna BOX NOW dostava od €{FREE_SHIPPING_THRESHOLD}</li>
+            <li>Besplatni tester od 2 ml uz svaku narudžbu</li>
+            <li>
+              Originalni{' '}
+              {brandNames.length > 1
+                ? `${brandNames.slice(0, -1).join(', ')} i ${brandNames[brandNames.length - 1]}`
+                : brandNames[0]}{' '}
+              parfemi
+            </li>
+          </ul>
+          <a href="#mirisi" className={styles.ctaButton}>
+            Odaberi miris
+          </a>
         </div>
       </section>
 
-      <section className={styles.valueSection} aria-labelledby="zasto-naslov">
-        <h2 id="zasto-naslov" className={styles.sectionTitle}>
-          Zašto baš ova četiri
-        </h2>
-        <ul className={styles.valueList}>
-          <li className={styles.valueItem}>
-            <h3 className={styles.valueTitle}>Topli akordi</h3>
-            <p className={styles.valueText}>
-              Duhan, tamjan, kava, vanilija i začini. Note koje griju kad zahladi.
-            </p>
-          </li>
-          <li className={styles.valueItem}>
-            <h3 className={styles.valueTitle}>Originalni parfemi</h3>
-            <p className={styles.valueText}>
-              {brandNames.length > 1
-                ? `${brandNames.slice(0, -1).join(', ')} i ${brandNames[brandNames.length - 1]}`
-                : brandNames[0]}
-              , 100% originalni. Dugotrajni mirisi koji se razvijaju na koži kroz cijeli dan.
-            </p>
-          </li>
-          <li className={styles.valueItem}>
-            <h3 className={styles.valueTitle}>Dostava i tester</h3>
-            <p className={styles.valueText}>
-              Besplatna BOX NOW dostava od €{FREE_SHIPPING_THRESHOLD}, a uz svaku narudžbu biraš
-              besplatni tester od 2 ml.
-            </p>
-          </li>
-        </ul>
-      </section>
+      <NewsletterSignup />
 
-      <section className={styles.finalCta}>
-        <h2 className={styles.sectionTitle}>Odaberi svoj jesenski miris</h2>
-        {promo && percentOff && (
-          <p className={styles.finalText}>
-            Popust od {percentOff}% s kodom {promo.code} čeka te u košarici.
-          </p>
-        )}
-        <a href="#mirisi" className={styles.ctaButton}>
-          Pogledaj mirise
-        </a>
-      </section>
-
-      <footer className={styles.legal}>
-        <p>
-          © Pluteo · <Link href="/legal">Uvjeti</Link> · <Link href="/contact">Kontakt</Link> ·{' '}
-          <Link href="/about">O nama</Link>
-        </p>
-      </footer>
+      <Footer />
 
       <CartBar />
     </div>

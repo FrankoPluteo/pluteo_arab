@@ -5,6 +5,7 @@ import Image from 'next/image';
 import styles from '@/styles/footer.module.css';
 import logoicon from '../public/pluteo_logo_short_white.svg';
 import { useLanguage } from '@/lib/languageContext';
+import { openConsentSettings } from '@/lib/consent';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -33,6 +34,10 @@ export default function Footer() {
           <nav className={styles.footerNav}>
             <Link href="/contact">{t.footer.helpAndSupport}</Link>
             <Link href="/legal">{t.footer.legalAndShipping}</Link>
+            <Link href="/privatnost">{t.footer.privacy}</Link>
+            <button type="button" className={styles.footerButton} onClick={openConsentSettings}>
+              {t.footer.cookieSettings}
+            </button>
             <span>Email: pluteoinfo@gmail.com</span>
           </nav>
         </div>

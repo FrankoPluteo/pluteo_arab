@@ -284,6 +284,7 @@ export async function POST(request: Request) {
         utmSource: utm?.utm_source || null,
         utmMedium: utm?.utm_medium || null,
         utmCampaign: utm?.utm_campaign || null,
+        utmPromo: typeof utm?.promo === 'string' && utm.promo ? utm.promo.slice(0, 64) : null,
       } as any,
     });
 

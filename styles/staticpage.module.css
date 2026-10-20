@@ -269,3 +269,12 @@
     padding: 24px 20px;
   }
 }
+
+/* Bulleted lists on /privatnost: indent so bullets sit inside the text column */
+.policyList {
+  padding-left: 20px;
+}
+
+.policyList li + li {
+  margin-top: 6px;
+}

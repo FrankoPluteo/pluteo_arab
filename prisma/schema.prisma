@@ -142,6 +142,7 @@ model Order {
   utmSource    String?
   utmMedium    String?
   utmCampaign  String?
+  utmPromo     String? // promo/affiliate code from the first landing link; promoCode is what was applied
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

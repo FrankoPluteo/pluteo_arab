@@ -13,43 +13,76 @@ import {
 } from '@/lib/consent';
 import styles from '@/styles/consentbanner.module.css';
 
-// Campaign landing pages get a one-row bar on mobile, so it stays off the products.
+// Campaign landing pages get a one-row bar while collapsed, so it stays off the products.
 const COMPACT_PATHS = ['/jesen'];
 
 interface Props {
-  /** Opened from "Postavke kolačića": start on the category toggles and take focus. */
+  /** Opened from "Postavke kolačića": start with the categories open and take focus. */
   startInSettings: boolean;
   onDone: () => void;
 }
 
 /**
- * Cookie consent. "Odbij sve" and "Prihvati sve" share one style so neither is nudged.
- * Fixed to the viewport, so it never shifts the page layout.
+ * The one cookie box. "Postavke" opens the categories inside the same box (Meta Pixel is
+ * just the Marketing category), so there is never a second popup. "Odbij sve" and
+ * "Prihvati sve" share one style so neither is nudged. Fixed to the viewport, so it never
+ * shifts the page layout.
  */
 export default function ConsentBanner({ startInSettings, onDone }: Props) {
-  const compact = COMPACT_PATHS.includes(usePathname());
   const { t } = useLanguage();
   const c = t.cookies;
-  const [view, setView] = useState<'main' | 'settings'>(startInSettings ? 'settings' : 'main');
+  const [expanded, setExpanded] = useState(startInSettings);
   const [draft, setDraft] = useState<ConsentState>(() => getConsent() ?? ALL_DENIED);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const compact = COMPACT_PATHS.includes(usePathname()) && !expanded;
 
   useEffect(() => {
-    if (view === 'settings') headingRef.current?.focus();
-  }, [view]);
+    if (startInSettings) headingRef.current?.focus();
+  }, [startInSettings]);
 
   function save(state: ConsentState) {
     setConsent(state);
     onDone();
   }
 
-  if (view === 'settings') {
-    return (
-      <section className={styles.banner} aria-labelledby="consent-heading">
-        <h2 id="consent-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
-          {c.heading}
-        </h2>
-        <ul className={styles.categories}>
+  return (
+    <section
+      className={`${styles.banner} ${compact ? styles.compact : ''}`}
+      aria-labelledby="consent-heading"
+    >
+      <h2
+        id="consent-heading"
+        ref={headingRef}
+        tabIndex={-1}
+        className={compact ? 'sr-only' : styles.heading}
+      >
+        {c.heading}
+      </h2>
+      <p className={styles.text}>
+        {compact ? (
+          c.compactText
+        ) : (
+          <>
+            {c.bannerText}{' '}
+            <Link href="/privatnost" className={styles.link}>
+              {c.more}
+            </Link>
+            {' ·'}
+          </>
+        )}{' '}
+        <button
+          type="button"
+          className={styles.textButton}
+          aria-expanded={expanded}
+          aria-controls="consent-categories"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {c.settings}
+        </button>
+      </p>
+
+      {expanded && (
+        <ul id="consent-categories" className={styles.categories}>
           <li className={styles.category}>
             <input id="consent-necessary" type="checkbox" checked disabled className={styles.checkbox} />
             <label htmlFor="consent-necessary">
@@ -84,49 +117,17 @@ export default function ConsentBanner({ startInSettings, onDone }: Props) {
             </label>
           </li>
         </ul>
-        <div className={styles.actionsThree}>
-          <button type="button" className={styles.button} onClick={() => save(ALL_DENIED)}>
-            {c.rejectAll}
-          </button>
-          <button type="button" className={styles.button} onClick={() => save(draft)}>
-            {c.saveChoice}
-          </button>
-          <button type="button" className={styles.button} onClick={() => save(ALL_GRANTED)}>
-            {c.acceptAll}
-          </button>
-        </div>
-        <Link href="/privatnost" className={styles.link}>
-          {c.privacyPolicy}
-        </Link>
-      </section>
-    );
-  }
+      )}
 
-  return (
-    <section
-      className={`${styles.banner} ${compact ? styles.compact : ''}`}
-      aria-label={c.heading}
-    >
-      <p className={styles.text}>
-        {compact ? (
-          c.compactText
-        ) : (
-          <>
-            {c.bannerText}{' '}
-            <Link href="/privatnost" className={styles.link}>
-              {c.more}
-            </Link>
-            {' ·'}
-          </>
-        )}{' '}
-        <button type="button" className={styles.textButton} onClick={() => setView('settings')}>
-          {c.settings}
-        </button>
-      </p>
-      <div className={styles.actions}>
+      <div className={expanded ? styles.actionsThree : styles.actions}>
         <button type="button" className={styles.button} onClick={() => save(ALL_DENIED)}>
           {c.rejectAll}
         </button>
+        {expanded && (
+          <button type="button" className={styles.button} onClick={() => save(draft)}>
+            {c.saveChoice}
+          </button>
+        )}
         <button type="button" className={styles.button} onClick={() => save(ALL_GRANTED)}>
           {c.acceptAll}
         </button>

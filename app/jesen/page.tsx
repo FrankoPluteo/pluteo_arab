@@ -153,7 +153,7 @@ export default async function JesenPage() {
       <section className={styles.hero}>
         <p className={styles.eyebrow}>Jesenski izbor · {products.length} mirisa</p>
         <h1 className={styles.headline}>
-          Jesen miriše <em>toplije.</em>
+          Jesenska <em>polica.</em>
         </h1>
         <div className={styles.heroAside}>
           <p className={styles.subheadline}>Dim, začini, kava i vanilija. Za dane kad zahladi.</p>

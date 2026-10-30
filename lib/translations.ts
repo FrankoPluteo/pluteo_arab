@@ -45,6 +45,23 @@ export const translations = {
       scentCtaTitle: 'Not sure which scent to choose?',
       scentCtaText: "Answer a few quick questions and we'll match you with a fragrance that fits your style and occasion.",
       scentCtaBtn: 'Find Your Scent',
+      giftLabel: 'Gift',
+      giftForHer: 'for her',
+      giftForHim: 'for him',
+      giftCta: 'Discover',
+    },
+
+    gift: {
+      label: 'Gift',
+      forHer: 'for her',
+      forHim: 'for him',
+      introHer: 'Fragrances we would wrap for her',
+      introHim: 'Fragrances we would wrap for him',
+      switchToHer: 'Gift for her',
+      switchToHim: 'Gift for him',
+      count: (n: number) => `${n} ${n === 1 ? 'fragrance' : 'fragrances'}`,
+      empty: 'The gift selection is being prepared. In the meantime, browse the whole collection.',
+      browseAll: 'Browse perfumes',
     },
 
     product: {
@@ -484,6 +501,23 @@ export const translations = {
       scentCtaTitle: 'Niste sigurni koji miris odabrati?',
       scentCtaText: 'Odgovorite na nekoliko kratkih pitanja i pronaći ćemo parfem koji savršeno odgovara vašem stilu i prigodi.',
       scentCtaBtn: 'Pronađite svoj miris',
+      giftLabel: 'Poklon',
+      giftForHer: 'za nju',
+      giftForHim: 'za njega',
+      giftCta: 'Otkrij',
+    },
+
+    gift: {
+      label: 'Poklon',
+      forHer: 'za nju',
+      forHim: 'za njega',
+      introHer: 'Mirisi koje bismo zamotali za nju',
+      introHim: 'Mirisi koje bismo zamotali za njega',
+      switchToHer: 'Poklon za nju',
+      switchToHim: 'Poklon za njega',
+      count: (n: number) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'miris' : 'mirisa'}`,
+      empty: 'Odabir poklona je u pripremi. U međuvremenu pogledajte cijelu kolekciju.',
+      browseAll: 'Pogledaj parfeme',
     },
 
     product: {

@@ -172,6 +172,32 @@
   z-index: 10;
 }
 
+/* The gift bow takes the top-right corner, so the logo drops to the bottom */
+.brandLogoBelowBow {
+  top: auto;
+  bottom: 10px;
+}
+
+/* Gift cards let the bow hang over the top-right corner: the knot (at
+   48.4% / 47.7% of the SVG box) sits ~36px inside the corner, so the loops
+   and tails reach ~55px past the edge (~23px on mobile). Grids using it need
+   a column gap and side padding of at least that (see poklon.module.css). */
+.giftCard {
+  position: relative;
+  overflow: visible;
+}
+
+.giftBow {
+  position: absolute;
+  top: -56px;
+  right: -63px;
+  width: 192px;
+  height: 192px;
+  z-index: 11;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.18));
+}
+
 .brandLogo img {
   width: 100%;
   height: 100%;
@@ -225,6 +251,15 @@
   border-color: #2A7A50 !important;
   color: #ffffff !important;
   pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .giftBow {
+    top: -23px;
+    right: -28px;
+    width: 136px;
+    height: 136px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

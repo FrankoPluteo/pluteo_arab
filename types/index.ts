@@ -13,6 +13,8 @@ export interface Product {
   discountAmount: number;
   isFeatured: boolean;
   isBestSeller: boolean;
+  isGiftMen: boolean;
+  isGiftWomen: boolean;
   stock: number;
   fragranceProfiles: string[];
   fragranceProfilesHr?: string[];

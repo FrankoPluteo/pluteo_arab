@@ -22,6 +22,8 @@ const EMPTY = {
   descriptionHr: '',
   isFeatured: false,
   isBestSeller: false,
+  isGiftMen: false,
+  isGiftWomen: false,
   // EN notes
   fragranceProfiles: '',
   topNotes: '',
@@ -78,6 +80,8 @@ export default function AddProductPage() {
           descriptionHr: form.descriptionHr || null,
           isFeatured: form.isFeatured,
           isBestSeller: form.isBestSeller,
+          isGiftMen: form.isGiftMen,
+          isGiftWomen: form.isGiftWomen,
           images,
           fragranceProfiles: splitTags(form.fragranceProfiles),
           topNotes: splitTags(form.topNotes),
@@ -192,6 +196,14 @@ export default function AddProductPage() {
               <label className={s.checkLabel}>
                 <input type="checkbox" name="isBestSeller" checked={form.isBestSeller} onChange={set} />
                 Best Seller badge
+              </label>
+              <label className={s.checkLabel}>
+                <input type="checkbox" name="isGiftWomen" checked={form.isGiftWomen} onChange={set} />
+                Gift for her page
+              </label>
+              <label className={s.checkLabel}>
+                <input type="checkbox" name="isGiftMen" checked={form.isGiftMen} onChange={set} />
+                Gift for him page
               </label>
             </div>
           </div>

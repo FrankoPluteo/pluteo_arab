@@ -14,6 +14,7 @@ import ahmedimg from '../public/ahmedalmaghribi.webp';
 import frenchavenueimg from '../public/frenchavenue.webp';
 import armafimg from '../public/armaf.webp';
 import wallpaperhome from '../public/homewallpapertest.webp';
+import giftIcon from '../public/gift-icon.svg';
 
 interface HomeContentProps {
   featuredProducts: Product[];
@@ -46,34 +47,60 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
     <div>
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className={styles.hero}>
-        <div className={styles.heroImage}>
-          <Image
-            fill
-            src={wallpaperhome}
-            alt="Arapski parfemi i oud mirisi - Pluteo Hrvatska"
-            priority
-            quality={70}
-            sizes="100vw"
-            style={{ objectFit: 'cover' }}
-          />
-        </div>
-        <div className={styles.heroOverlay} />
         <h1 className="sr-only">Pluteo - arapski parfemi i oud mirisi u Hrvatskoj</h1>
 
-        <div className={styles.heroContent}>
-          <Image
-            className={styles.heroLogo}
-            src={logolong}
-            alt="Pluteo - arapska parfumerija, Hrvatska"
-            width={493}
-            height={310}
-            priority
-          />
-          <div className={styles.heroRule} />
-          <p className={styles.heroTagline}>{t.home.tagline1}</p>
-          <p className={styles.heroTagline2}>{t.home.tagline2}</p>
-          <Link href="/products" className={styles.heroCta}>{t.home.shop}</Link>
+        <div className={styles.heroMedia}>
+          <div className={styles.heroImage}>
+            <Image
+              fill
+              src={wallpaperhome}
+              alt="Arapski parfemi i oud mirisi - Pluteo Hrvatska"
+              priority
+              quality={70}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
+          <div className={styles.heroOverlay} />
+
+          <div className={styles.heroContent}>
+            <Image
+              className={styles.heroLogo}
+              src={logolong}
+              alt="Pluteo - arapska parfumerija, Hrvatska"
+              width={493}
+              height={310}
+              priority
+            />
+            <div className={styles.heroRule} />
+            <p className={styles.heroTagline}>{t.home.tagline1}</p>
+            <p className={styles.heroTagline2}>{t.home.tagline2}</p>
+            <Link href="/products" className={styles.heroCta}>{t.home.shop}</Link>
+          </div>
         </div>
+
+        {/* Gift panel — right half on desktop, below the image on mobile */}
+        <nav className={styles.giftPanel} aria-label={t.home.giftLabel}>
+          {[
+            { href: '/poklon/za-nju', label: t.home.giftForHer },
+            { href: '/poklon/za-njega', label: t.home.giftForHim },
+          ].map((gift) => (
+            <Link key={gift.href} href={gift.href} className={styles.giftLink}>
+              <span className={styles.giftTitle}>
+                {t.home.giftLabel}
+                <br />
+                {gift.label}
+              </span>
+              <span className={styles.giftMore} aria-hidden="true">
+                {t.home.giftCta}
+                <span className={styles.giftArrow} />
+              </span>
+            </Link>
+          ))}
+          <div className={styles.giftRibbon} aria-hidden="true">
+            <Image src={giftIcon} alt="" className={styles.giftRibbonImage} priority />
+          </div>
+        </nav>
       </section>
 
       {/* ── Category strip ───────────────────────────────── */}

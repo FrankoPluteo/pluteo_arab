@@ -5,6 +5,14 @@
   height: 100vh;
   min-height: 640px;
   overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Left half — wallpaper with logo + CTA */
+.heroMedia {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -85,6 +93,117 @@
   background: #ffffff;
   color: #111111;
   border-color: #ffffff;
+}
+
+/* ── Hero gift panel (right half) ──────────────────────── */
+.giftPanel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #0a0a0a;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* Ribbon wraps the panel like a present: the SVG's horizontal strip
+   (centred at 38% of its box) lands on the split between the two links,
+   the vertical strip (centred at 62%) at --ribbon-x. The size is the
+   smallest square whose strips still reach every edge of the panel. */
+.giftRibbon {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  container-type: size;
+  pointer-events: none;
+}
+
+.giftRibbonImage {
+  --ribbon-x: 74cqw;
+  --ribbon-size: max(134cqh, 122cqw);
+  position: absolute;
+  left: calc(var(--ribbon-x) - 0.62 * var(--ribbon-size));
+  top: calc(50cqh - 0.38 * var(--ribbon-size));
+  width: var(--ribbon-size);
+  height: var(--ribbon-size);
+  max-width: none;
+}
+
+.giftLink {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 clamp(40px, 7vw, 112px);
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Hover shade sits under the ribbon; the text sits above it */
+.giftLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #161616;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.giftLink > span {
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.45);
+}
+
+/* Clears the transparent navbar so both labels sit optically centred */
+.giftLink:first-child {
+  padding-top: 72px;
+}
+
+.giftLink:hover::after {
+  opacity: 1;
+}
+
+.giftLink:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.7);
+  outline-offset: -12px;
+}
+
+.giftTitle {
+  font-size: clamp(30px, 3.6vw, 52px);
+  font-weight: 300;
+  letter-spacing: 6px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.giftMore {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 300ms ease;
+}
+
+.giftArrow {
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  transition: width 350ms ease;
+}
+
+.giftLink:hover .giftMore {
+  color: #ffffff;
+}
+
+.giftLink:hover .giftArrow {
+  width: 64px;
 }
 
 /* ── Category strip ────────────────────────────────────── */
@@ -417,16 +536,59 @@
   .spotlight {
     display: none;
   }
+
+  /* Half-width hero column is narrow on tablet */
+  .heroLogo {
+    width: 260px;
+  }
 }
 
 @media (max-width: 768px) {
+  /* Split stacks: wallpaper on top, gift panel below */
   .hero {
-    height: 100svh;
-    min-height: unset;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100svh;
+  }
+
+  /* Grows to fit logo + CTA; never shorter than ~60% of the screen */
+  .heroMedia {
+    flex: 1 0 auto;
+    min-height: 58svh;
+    padding: 88px 0 48px;
   }
 
   .heroLogo {
     width: 240px;
+  }
+
+  .giftPanel {
+    grid-template-rows: auto auto;
+  }
+
+  /* Extra room on the inner edges keeps the labels clear of the ribbon */
+  .giftLink,
+  .giftLink:first-child {
+    padding: 30px 24px 50px;
+  }
+
+  .giftLink + .giftLink {
+    padding: 50px 24px 30px;
+  }
+
+  .giftRibbonImage {
+    --ribbon-x: 76cqw;
+    --ribbon-size: max(134cqh, 124cqw);
+  }
+
+  .giftTitle {
+    font-size: 26px;
+    letter-spacing: 4px;
+  }
+
+  .giftMore {
+    margin-top: 16px;
   }
 
   .heroTagline,
@@ -515,6 +677,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .heroCta,
+  .giftLink::after,
+  .giftMore,
+  .giftArrow,
   .spotlightImageWrap,
   .brandBoxImage,
   .brandLink,

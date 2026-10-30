@@ -1,0 +1,178 @@
+/* ── Gift pages (/poklon/za-nju, /poklon/za-njega) ─────── */
+/* Sits flush under the fixed navbar */
+.page {
+  margin-top: 60px;
+}
+
+/* ── Header ──────────────────────────────────────────── */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 72px 24px 0;
+}
+
+.title {
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 300;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: #111111;
+}
+
+.intro {
+  margin-top: 14px;
+  max-width: 440px;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #777777;
+}
+
+/* ── Gift selection ──────────────────────────────────── */
+.section {
+  padding: 56px 80px 96px;
+  /* The bow's transparent box edge can poke past the padding on phones */
+  overflow-x: clip;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 64px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #111111;
+}
+
+.switchLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #777777;
+  text-decoration: none;
+  transition: color 250ms ease;
+}
+
+.switchArrow {
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  transition: width 350ms ease;
+}
+
+.switchLink:hover {
+  color: #111111;
+}
+
+.switchLink:hover .switchArrow {
+  width: 52px;
+}
+
+/* Wide gaps and side padding leave room for the bow hanging off each
+   card's corner (~55px sideways, ~27px up — see .giftBow in productcard). */
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 64px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 56px 0 24px;
+}
+
+.emptyText {
+  max-width: 420px;
+  margin-bottom: 32px;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #777777;
+}
+
+.emptyCta {
+  display: inline-block;
+  padding: 13px 40px;
+  background: #111111;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: 1px solid #111111;
+  transition: background-color 250ms ease, color 250ms ease;
+}
+
+.emptyCta:hover {
+  background: #ffffff;
+  color: #111111;
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .section {
+    padding: 48px 64px 80px;
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    margin-top: 53px;
+  }
+
+  .header {
+    padding: 48px 24px 0;
+  }
+
+  .title {
+    font-size: 24px;
+    letter-spacing: 4px;
+  }
+
+  .section {
+    padding: 40px 24px 64px;
+  }
+
+  .sectionHeader {
+    margin-bottom: 40px;
+  }
+
+  .productsGrid {
+    gap: 40px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switchLink,
+  .switchArrow,
+  .emptyCta {
+    transition: none;
+  }
+}

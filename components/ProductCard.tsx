@@ -8,12 +8,15 @@ import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import StarRating from './StarRating';
 import styles from '@/styles/productcard.module.css';
+import giftBow from '../public/gift-bow.svg';
 
 interface ProductCardProps {
   product: Product;
+  /** Gift pages: tie a bow on the top-right corner of the image. */
+  giftBow?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, giftBow: showGiftBow = false }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
   const { t } = useLanguage();
@@ -46,7 +49,13 @@ export default function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className={`${styles.productCard} ${outOfStock ? styles.outOfStock : ''}`}>
+    <div
+      className={`${styles.productCard} ${outOfStock ? styles.outOfStock : ''} ${showGiftBow ? styles.giftCard : ''}`}
+    >
+      {showGiftBow && (
+        <Image src={giftBow} alt="" aria-hidden="true" className={styles.giftBow} />
+      )}
+
       <Link href={`/products/${product.id}`} className={styles.productLink}>
         <div className={styles.productImage}>
           {product.images[0] ? (
@@ -65,7 +74,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {product.brand.logoUrl && (
-            <div className={styles.brandLogo}>
+            <div className={`${styles.brandLogo} ${showGiftBow ? styles.brandLogoBelowBow : ''}`}>
               {/* Keep plain <img> — brand logo URLs may be from any domain */}
               <img src={product.brand.logoUrl} alt={product.brand.name} loading="lazy" />
             </div>

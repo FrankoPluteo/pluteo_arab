@@ -15,7 +15,11 @@ interface ProductRow {
   discountAmount: number;
   wholesalePrice: number | null;
   stock: number;
+  isGiftMen: boolean;
+  isGiftWomen: boolean;
 }
+
+type GiftFlag = 'isGiftMen' | 'isGiftWomen';
 
 interface Draft {
   price: string;
@@ -101,6 +105,8 @@ export default function AdminStockPricePage() {
           discountAmount: p.discountAmount ?? 0,
           wholesalePrice: wholesaleById[p.id] ?? null,
           stock: p.stock,
+          isGiftMen: Boolean(p.isGiftMen),
+          isGiftWomen: Boolean(p.isGiftWomen),
         }));
         rows.sort((a, b) => a.brandName.localeCompare(b.brandName) || a.name.localeCompare(b.name));
         setProducts(rows);
@@ -224,6 +230,32 @@ export default function AdminStockPricePage() {
     }
   }
 
+  // Gift flags save straight away — there is nothing to validate, so no Save/Undo step.
+  async function toggleGift(row: ProductRow, flag: GiftFlag) {
+    const next = !row[flag];
+    setSaving(row.id);
+    setRowStatus((r) => omit(r, row.id));
+    setProducts((prev) => prev.map((p) => (p.id === row.id ? { ...p, [flag]: next } : p)));
+
+    try {
+      const res = await fetch(`/api/admin/products/${row.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [flag]: next }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Save failed.');
+
+      setRowStatus((r) => ({ ...r, [row.id]: { type: 'success', msg: 'Saved' } }));
+      setTimeout(() => setRowStatus((r) => omit(r, row.id)), 2500);
+    } catch (e: any) {
+      setProducts((prev) => prev.map((p) => (p.id === row.id ? { ...p, [flag]: !next } : p)));
+      setRowStatus((r) => ({ ...r, [row.id]: { type: 'error', msg: e.message || 'Save failed.' } }));
+    } finally {
+      setSaving(null);
+    }
+  }
+
   return (
     <>
       <Navbar />
@@ -282,6 +314,7 @@ export default function AdminStockPricePage() {
                   {sortHeader('price', 'Price (€)')}
                   <th>Stock</th>
                   <th aria-hidden="true"></th>
+                  <th>Gift page</th>
                   {MARGIN_COLUMNS.map((c) => (
                     <Fragment key={c.key}>{sortHeader(c.key, c.label)}</Fragment>
                   ))}
@@ -360,6 +393,28 @@ export default function AdminStockPricePage() {
                             {feedback.msg}
                           </div>
                         )}
+                      </td>
+                      <td>
+                        <div className={s.giftCell}>
+                          <label className={s.checkLabel}>
+                            <input
+                              type="checkbox"
+                              checked={row.isGiftWomen}
+                              disabled={isSaving}
+                              onChange={() => toggleGift(row, 'isGiftWomen')}
+                            />
+                            Her
+                          </label>
+                          <label className={s.checkLabel}>
+                            <input
+                              type="checkbox"
+                              checked={row.isGiftMen}
+                              disabled={isSaving}
+                              onChange={() => toggleGift(row, 'isGiftMen')}
+                            />
+                            Him
+                          </label>
+                        </div>
                       </td>
                       {MARGIN_COLUMNS.map((c) => {
                         const value = c.value(margins[row.id]);

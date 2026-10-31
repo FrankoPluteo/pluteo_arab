@@ -72,7 +72,7 @@ export default function AffiliateDashboardPage() {
   return (
     <>
       <Navbar />
-      <div className={styles.dashPage}>
+      <div className={`${styles.dashPage} ph-mask`}>
         <div className={styles.dashContainer}>
           <h1 className={styles.title} style={{ textAlign: 'left', marginBottom: '32px' }}>
             AFFILIATE DASHBOARD

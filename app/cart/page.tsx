@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import TesterModal from '@/components/TesterModal';
 import { useLanguage } from '@/lib/languageContext';
 import { useCartPrefill, codeProblemKey, CodeProblemKey } from '@/lib/cartPrefill';
+import { productProps, track, trackPromo } from '@/lib/analytics';
 
 function formatTime(ms: number): string {
   if (ms <= 0) return '00:00';
@@ -155,6 +156,8 @@ export default function CartPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cartSessionId, productId, delta: -quantity }),
     });
+    const removed = items.find((i) => i.product.id === productId);
+    if (removed) track('remove_from_cart', { ...productProps(removed.product), quantity, source: 'cart' });
     removeItem(productId);
     if (items.length <= 1) {
       setCartExpiresAt(null);
@@ -187,6 +190,11 @@ export default function CartPage() {
     }
 
     updateQuantity(productId, newQty);
+    track(delta > 0 ? 'add_to_cart' : 'remove_from_cart', {
+      ...productProps(currentItem.product),
+      quantity: Math.abs(delta),
+      source: 'cart',
+    });
     if (data.expiresAt) {
       setCartExpiresAt(data.expiresAt);
     }
@@ -232,6 +240,14 @@ export default function CartPage() {
         const problem = codeProblemKey(data.reason);
         // With an empty cart, minimum order / product rules can't be judged yet: keep the code.
         if (problem === 'notApplicable' && items.length === 0) return;
+        trackPromo({
+          code: promoCode,
+          code_type: 'promo',
+          source: 'recheck',
+          success: false,
+          reason: 'revalidation_dropped',
+          server_reason: data.reason || 'not_found',
+        });
         removePromo();
         setCodeNotice(problem);
       } catch {
@@ -269,6 +285,7 @@ export default function CartPage() {
       const promoData = await promoRes.json();
       if (promoData.valid) {
         applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping);
+        trackPromo({ code: promoData.code, code_type: 'promo', source: 'manual', success: true, discount: promoData.discountAmount });
         setCodeStatus('idle');
         setCodeInput('');
         return;
@@ -283,12 +300,14 @@ export default function CartPage() {
       const affData = await affRes.json();
       if (affData.valid) {
         applyAffiliate(code, affData.name);
+        trackPromo({ code, code_type: 'affiliate', source: 'manual', success: true });
         setCodeStatus('idle');
         setCodeInput('');
         return;
       }
 
       // 3. Neither matched
+      trackPromo({ code, code_type: 'promo', source: 'manual', success: false, reason: promoData.reason || 'not_found' });
       setCodeStatus('error');
       setCodeError(t.cart.invalidCode ?? 'Invalid promo or affiliate code.');
     } catch {

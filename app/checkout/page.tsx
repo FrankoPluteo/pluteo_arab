@@ -45,7 +45,8 @@ export default function CheckoutPage() {
     <div>
       <Navbar />
 
-      <div className={styles.checkoutContainer}>
+      {/* ph-mask: session replay shows no text from the checkout (contact details, locker) */}
+      <div className={`${styles.checkoutContainer} ph-mask`}>
         <h1 className={styles.pageTitle}>{t.checkout.title}</h1>
 
         <div className={styles.checkoutLayout}>

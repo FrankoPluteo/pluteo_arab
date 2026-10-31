@@ -36,10 +36,15 @@ function logSkipped(...args: unknown[]) {
 
 /**
  * Loads Meta's script and sends the PageView. Only call after consent: this is what sets
- * the _fbp cookie. Safe to call more than once.
+ * the _fbp cookie. Safe to call more than once: an already loaded pixel that was revoked
+ * in this page session is granted again instead.
  */
 export function loadMetaPixel() {
-  if (typeof window === 'undefined' || window.fbq || !hasMarketingConsent()) return;
+  if (typeof window === 'undefined' || !hasMarketingConsent()) return;
+  if (window.fbq) {
+    window.fbq('consent', 'grant');
+    return;
+  }
   if (!isTrackingHost()) {
     logSkipped('init + PageView');
     return;
@@ -66,9 +71,30 @@ export function loadMetaPixel() {
   fbq('track', 'PageView');
 }
 
-/** Tells an already loaded pixel to stop sending, after the visitor withdraws consent. */
+const META_COOKIES = ['_fbp', '_fbc'];
+
+/**
+ * Expires Meta's cookies. They are set on the top domain (.pluteo.shop), so every parent
+ * domain of the current host is tried, plus the host-only cookie.
+ */
+function clearMetaCookies() {
+  const labels = window.location.hostname.split('.');
+  const domains = [''];
+  for (let i = 0; i < labels.length - 1; i++) domains.push(`; Domain=.${labels.slice(i).join('.')}`);
+  for (const name of META_COOKIES) {
+    for (const domain of domains) {
+      document.cookie = `${name}=; Max-Age=0; Path=/${domain}`;
+    }
+  }
+}
+
+/**
+ * After the visitor withdraws consent: tells an already loaded pixel to stop sending and
+ * deletes the _fbp/_fbc cookies (also left over from an earlier visit).
+ */
 export function revokeMetaPixel() {
   window.fbq?.('consent', 'revoke');
+  clearMetaCookies();
 }
 
 /**

@@ -8,6 +8,7 @@ import ProductFilters from '@/components/ProductFilters';
 import SearchBar from '@/components/SearchBar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
+import { brandList } from '@/lib/analytics';
 import styles from '@/styles/products.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
@@ -55,6 +56,15 @@ export default function ProductsContent({
     pageHeading = 'Arapski parfemi';
   }
 
+  // Analytics list name; a search wins over filters, then brand, then gender.
+  const list = search
+    ? 'search'
+    : brandFilter
+      ? brandList(brandFilter)
+      : genderFilter
+        ? `gender-${genderFilter}`
+        : 'catalog';
+
   return (
     <div className={styles.productsContainer}>
       <h1 className="sr-only">{pageHeading}</h1>
@@ -73,8 +83,8 @@ export default function ProductsContent({
       {products.length > 0 ? (
         <>
           <div className={styles.productsGrid}>
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product, index) => (
+              <ProductCard key={product.id} product={product} list={list} position={skip + index} />
             ))}
           </div>
 

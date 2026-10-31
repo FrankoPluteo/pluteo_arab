@@ -1,5 +1,7 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { CONSENT_COOKIE_NAME, decodeConsent } from "@/lib/consentCookie";
 import { isCheckoutSessionPaid } from "@/lib/stripe";
 import OrderSuccessClient, { type PurchaseData } from "./OrderSuccessClient";
 
@@ -14,12 +16,15 @@ interface StoredItem {
  * confirmed paid. The session_id in the URL is just a lookup key: payment is checked on
  * our Order row, and against Stripe while the webhook has not marked the order yet.
  */
-async function getConfirmedPurchase(sessionId: string | undefined): Promise<PurchaseData | null> {
+async function getConfirmedPurchase(
+  sessionId: string | undefined,
+  analyticsConsent: boolean
+): Promise<PurchaseData | null> {
   if (!sessionId) return null;
 
   const order = await prisma.order.findUnique({
     where: { stripeSessionId: sessionId },
-    select: { id: true, total: true, items: true, paymentStatus: true },
+    select: { id: true, total: true, items: true, paymentStatus: true, customerEmail: true, createdAt: true },
   });
   if (!order) return null;
 
@@ -48,7 +53,21 @@ async function getConfirmedPurchase(sessionId: string | undefined): Promise<Purc
     orderId: order.id,
     value: toCents(order.total),
     contents,
+    buyer: analyticsConsent ? await getBuyer(order.customerEmail, order.createdAt) : null,
   };
+}
+
+/**
+ * Who to identify in PostHog. Only called with analytics consent, so without it the email
+ * never reaches the client payload. first_order_at is the buyer's earliest paid order.
+ */
+async function getBuyer(email: string, thisOrderAt: Date): Promise<NonNullable<PurchaseData["buyer"]>> {
+  const first = await prisma.order.findFirst({
+    where: { customerEmail: email, paymentStatus: "paid" },
+    orderBy: { createdAt: "asc" },
+    select: { createdAt: true },
+  });
+  return { email, firstOrderAt: (first?.createdAt ?? thisOrderAt).toISOString() };
 }
 
 export default async function Page({
@@ -57,8 +76,13 @@ export default async function Page({
   searchParams: Promise<{ session_id?: string | string[] }>;
 }) {
   const { session_id } = await searchParams;
+  // The banner mirrors the choice in this cookie, so the server can respect it too.
+  const analyticsConsent = decodeConsent((await cookies()).get(CONSENT_COOKIE_NAME)?.value)?.analytics === true;
   // Tracking must never break the page a paying customer lands on.
-  const purchase = await getConfirmedPurchase(typeof session_id === "string" ? session_id : undefined).catch(
+  const purchase = await getConfirmedPurchase(
+    typeof session_id === "string" ? session_id : undefined,
+    analyticsConsent
+  ).catch(
     (error) => {
       console.error("[order/success] purchase lookup failed", error);
       return null;

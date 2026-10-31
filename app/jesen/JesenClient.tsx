@@ -8,6 +8,7 @@ import { applyLandingCode } from '@/lib/cartPrefill';
 import { trackMetaEvent } from '@/lib/metaPixel';
 import { captureEmail, EMAIL_PATTERN } from '@/lib/emailCapture';
 import { getUrlCode } from '@/lib/attribution';
+import { productProps, track } from '@/lib/analytics';
 import styles from '@/styles/jesen.module.css';
 
 interface TrackerProps {
@@ -28,9 +29,10 @@ export function JesenTracker({ defaultCode, contentIds }: TrackerProps) {
     hasRun.current = true;
 
     // A code in the link wins (e.g. an affiliate's); otherwise the campaign code is pre-applied.
-    const code = getUrlCode(new URLSearchParams(window.location.search)) || (defaultCode ?? '').trim().toUpperCase();
+    const urlCode = getUrlCode(new URLSearchParams(window.location.search));
+    const code = urlCode || (defaultCode ?? '').trim().toUpperCase();
     if (code) {
-      applyLandingCode(code).catch(() => {
+      applyLandingCode(code, urlCode ? 'url' : 'landing').catch(() => {
         // The cart re-validates the code and checkout re-checks it server side.
       });
     }
@@ -51,9 +53,11 @@ interface AddToCartButtonProps {
   /** What the customer pays for one bottle, sent with the AddToCart event. */
   value: number;
   soldOut: boolean;
+  /** 0-based place on the page, for analytics. */
+  position: number;
 }
 
-export function AddToCartButton({ product, value, soldOut }: AddToCartButtonProps) {
+export function AddToCartButton({ product, value, soldOut, position }: AddToCartButtonProps) {
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
   const [status, setStatus] = useState<'idle' | 'loading' | 'added'>('idle');
@@ -83,6 +87,13 @@ export function AddToCartButton({ product, value, soldOut }: AddToCartButtonProp
         content_type: 'product',
         value,
         currency: 'EUR',
+      });
+      track('add_to_cart', {
+        ...productProps(product),
+        quantity: 1,
+        source: 'card',
+        list: 'jesen-landing',
+        position,
       });
       setStatus('added');
       setTimeout(() => setStatus('idle'), 1500);
@@ -185,6 +196,7 @@ export function NewsletterSignup() {
     setStatus('sending');
     try {
       if (!(await captureEmail(normalized))) throw new Error('rejected');
+      track('newsletter_signup', { source: 'jesen' });
       setStatus('done');
     } catch {
       setError('Prijava nije uspjela. Pokušaj ponovno.');

@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { useLanguage } from "@/lib/languageContext";
 import { onConsentChange } from "@/lib/consent";
 import { trackMetaEvent } from "@/lib/metaPixel";
+import { identifyBuyer } from "@/lib/analytics";
 import styles from "@/styles/ordersuccess.module.css";
 
 /** A paid order, as confirmed server side in page.tsx. */
@@ -14,6 +15,8 @@ export interface PurchaseData {
   orderId: string;
   value: number;
   contents: { id: string; quantity: number; item_price: number }[];
+  /** Only present when the visitor's consent cookie allows analytics (see page.tsx). */
+  buyer: { email: string; firstOrderAt: string } | null;
 }
 
 /**
@@ -66,6 +69,12 @@ export default function OrderSuccessClient({ purchase }: { purchase: PurchaseDat
   const [loading, setLoading] = useState(true);
   const { t } = useLanguage();
   usePurchaseEvent(purchase);
+
+  // The purchase itself is sent by the Stripe webhook; this only names the buyer in PostHog.
+  const buyer = purchase?.buyer;
+  useEffect(() => {
+    if (buyer) identifyBuyer(buyer.email, { first_order_at: buyer.firstOrderAt });
+  }, [buyer]);
 
   useEffect(() => {
     setLoading(false);

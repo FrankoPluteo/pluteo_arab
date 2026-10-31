@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
+import { productCaptureAttributes, productProps, track } from '@/lib/analytics';
 import StarRating from './StarRating';
 import styles from '@/styles/productcard.module.css';
 import giftBow from '../public/gift-bow.svg';
@@ -14,9 +15,13 @@ interface ProductCardProps {
   product: Product;
   /** Gift pages: tie a bow on the top-right corner of the image. */
   giftBow?: boolean;
+  /** Where the card is shown, for analytics, e.g. "homepage-bestsellers" or "brand-lattafa". */
+  list: string;
+  /** 0-based index in that list. */
+  position: number;
 }
 
-export default function ProductCard({ product, giftBow: showGiftBow = false }: ProductCardProps) {
+export default function ProductCard({ product, giftBow: showGiftBow = false, list, position }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
   const { t } = useLanguage();
@@ -44,6 +49,7 @@ export default function ProductCard({ product, giftBow: showGiftBow = false }: P
     }
 
     addItem(product);
+    track('add_to_cart', { ...productProps(product), quantity: 1, source: 'card', list, position });
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   }
@@ -51,6 +57,7 @@ export default function ProductCard({ product, giftBow: showGiftBow = false }: P
   return (
     <div
       className={`${styles.productCard} ${outOfStock ? styles.outOfStock : ''} ${showGiftBow ? styles.giftCard : ''}`}
+      {...productCaptureAttributes(product, list, position)}
     >
       {showGiftBow && (
         <Image src={giftBow} alt="" aria-hidden="true" className={styles.giftBow} />

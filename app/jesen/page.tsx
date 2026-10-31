@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { Metadata, Viewport } from 'next';
 import { prisma } from '@/lib/prisma';
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
+import { productCaptureAttributes } from '@/lib/analyticsProps';
 import Footer from '@/components/Footer';
 import { JesenTracker, AddToCartButton, CartLink, CartBar, NewsletterSignup } from './JesenClient';
 import styles from '@/styles/jesen.module.css';
@@ -185,6 +186,7 @@ export default async function JesenPage() {
               key={product.id}
               className={styles.chapter}
               aria-labelledby={`miris-${product.id}`}
+              {...productCaptureAttributes(product, 'jesen-landing', index)}
             >
               <div className={styles.frame}>
                 <p className={styles.frameMeta}>
@@ -237,6 +239,7 @@ export default async function JesenPage() {
                     product={JSON.parse(JSON.stringify(product))}
                     value={codePrice ?? finalPrice}
                     soldOut={soldOut}
+                    position={index}
                   />
                   <Link href={`/products/${product.id}`} className={styles.detailsLink}>
                     Detalji mirisa

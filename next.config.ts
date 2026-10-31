@@ -10,6 +10,20 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/webhooks/stripe': ['./node_modules/@napi-rs/canvas-linux-x64-gnu/**'],
   },
+  // PostHog goes through our own domain (see lib/analytics.ts api_host), so ad blockers
+  // don't drop it and no request leaves for posthog.com from the browser.
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://eu-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/ingest/:path*',
+        destination: 'https://eu.i.posthog.com/:path*',
+      },
+    ];
+  },
   async redirects() {
     return [
       {

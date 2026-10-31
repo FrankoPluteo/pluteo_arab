@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
+import { productCaptureAttributes } from '@/lib/analytics';
 import styles from '@/styles/recommendation.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
@@ -394,11 +395,15 @@ export default function RecommendationContent() {
               <p className={styles.errorMessage}>{q.noResults}</p>
             ) : (
               <div className={styles.resultsGrid}>
-                {results.map(({ product, reason }) => {
+                {results.map(({ product, reason }, index) => {
                   const finalPrice = product.price - product.discountAmount;
                   const hasDiscount = product.discountAmount > 0;
                   return (
-                    <div key={product.id} className={styles.resultCard}>
+                    <div
+                      key={product.id}
+                      className={styles.resultCard}
+                      {...productCaptureAttributes(product, 'find-your-scent', index)}
+                    >
                       <div className={styles.resultImageWrap}>
                         {product.images[0] ? (
                           <div className={styles.resultImageInner}>

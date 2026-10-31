@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
+import { productCaptureAttributes } from '@/lib/analytics';
 import styles from '@/styles/home.module.css';
 import logolong from '../public/Pluteo Logo Long.svg';
 import lattafaimg from '../public/lattafa.webp';
@@ -125,7 +126,11 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
 
       {/* ── Bestseller spotlight ─────────────────────────── */}
       {spotlightProduct && spotlightProduct.images[0] && (
-        <section className={styles.spotlight} data-fade>
+        <section
+          className={styles.spotlight}
+          data-fade
+          {...productCaptureAttributes(spotlightProduct, 'homepage-spotlight', 0)}
+        >
           <Link
             href={`/products/${spotlightProduct.id}`}
             className={styles.spotlightImageCol}
@@ -166,8 +171,8 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             <Link href="/products" className={styles.sectionViewAll}>{t.home.viewAll}</Link>
           </div>
           <div className={styles.productsGrid}>
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {featuredProducts.map((product, index) => (
+              <ProductCard key={product.id} product={product} list="homepage-featured" position={index} />
             ))}
           </div>
         </section>
@@ -207,8 +212,8 @@ export default function HomeContent({ featuredProducts, bestSellers }: HomeConte
             <Link href="/products" className={styles.sectionViewAll}>{t.home.viewAll}</Link>
           </div>
           <div className={styles.productsGrid}>
-            {bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {bestSellers.map((product, index) => (
+              <ProductCard key={product.id} product={product} list="homepage-bestsellers" position={index} />
             ))}
           </div>
         </section>

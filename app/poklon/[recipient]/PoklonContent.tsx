@@ -41,8 +41,14 @@ export default function PoklonContent({ recipient, products }: PoklonContentProp
 
           {products.length > 0 ? (
             <div className={styles.productsGrid}>
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} giftBow />
+              {products.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  giftBow
+                  list={forHer ? 'gift-her' : 'gift-him'}
+                  position={index}
+                />
               ))}
             </div>
           ) : (

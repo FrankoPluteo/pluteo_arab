@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
+import { productProps, track } from '@/lib/analytics';
 import ReviewSummary from './ReviewSummary';
 import styles from '@/styles/productdetails.module.css';
 
@@ -31,6 +32,11 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
   const { t, language } = useLanguage();
+
+  // Keyed on the id so moving between products client side counts each view once.
+  useEffect(() => {
+    track('product_viewed', productProps(product));
+  }, [product.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finalPrice = product.price - product.discountAmount;
   const hasDiscount = product.discountAmount > 0;
@@ -81,6 +87,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       }
 
       addItem(product);
+      track('add_to_cart', { ...productProps(product), quantity: 1, source: 'product_page' });
     } finally {
       setIsAdding(false);
     }

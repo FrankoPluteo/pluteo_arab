@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { captureEmail } from '@/lib/emailCapture';
+import { track } from '@/lib/analytics';
 import styles from '@/styles/emailmodal.module.css';
 
 export default function EmailModal() {
@@ -23,7 +24,7 @@ export default function EmailModal() {
     e.preventDefault();
     if (!email) return;
 
-    await captureEmail(email);
+    if (await captureEmail(email)) track('newsletter_signup', { source: 'popup' });
     setSubmitted(true);
   }
 

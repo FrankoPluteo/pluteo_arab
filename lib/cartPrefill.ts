@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
+import { productProps, track, trackPromo, type PromoSource } from '@/lib/analytics';
 
 /**
  * Share-link cart prefill.
@@ -159,11 +160,12 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
         if (spec.quantity > 1) {
           useCart.getState().updateQuantity(spec.productId, spec.quantity);
         }
+        track('add_to_cart', { ...productProps(product), quantity: spec.quantity, source: 'url_param' });
         if (reserveData.expiresAt) latestExpiresAt = reserveData.expiresAt;
       }
 
       if (code) {
-        const result = await applyCodeFromLink(code);
+        const result = await applyCodeFromLink(code, 'url');
         if (!result.applied) setCodeProblem(result.problem);
       }
 
@@ -185,12 +187,13 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
 /**
  * Pre-applies a code on a campaign landing page, the same way a /cart?promo= link does.
  * Leaves the cart alone if that code is already applied.
+ * @param source 'url' when the code came from the link, 'landing' for the page's own code
  */
-export async function applyLandingCode(code: string) {
+export async function applyLandingCode(code: string, source: PromoSource) {
   await whenHydrated();
   const { promoCode, affiliateCode } = useCart.getState();
   if (promoCode === code || affiliateCode === code) return { applied: true } as const;
-  return applyCodeFromLink(code);
+  return applyCodeFromLink(code, source);
 }
 
 function hasCodeParam(params: URLSearchParams): boolean {
@@ -199,7 +202,8 @@ function hasCodeParam(params: URLSearchParams): boolean {
 
 /** Same promo-then-affiliate resolution the manual code form uses. */
 async function applyCodeFromLink(
-  code: string
+  code: string,
+  source: PromoSource
 ): Promise<{ applied: true } | { applied: false; problem: CodeProblemKey }> {
   const state = useCart.getState();
 
@@ -215,6 +219,7 @@ async function applyCodeFromLink(
   const promoData = await promoRes.json();
   if (promoData.valid) {
     state.applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping);
+    trackPromo({ code: promoData.code, code_type: 'promo', source, success: true, discount: promoData.discountAmount });
     return { applied: true };
   }
 
@@ -225,6 +230,7 @@ async function applyCodeFromLink(
     (promoData.reason === 'min_order' || promoData.reason === 'product_restriction')
   ) {
     state.applyPromo(code, 0, false);
+    trackPromo({ code, code_type: 'promo', source, success: true, deferred: true, server_reason: promoData.reason });
     return { applied: true };
   }
 
@@ -236,8 +242,10 @@ async function applyCodeFromLink(
   const affData = await affRes.json();
   if (affData.valid) {
     state.applyAffiliate(code, affData.name);
+    trackPromo({ code, code_type: 'affiliate', source, success: true });
     return { applied: true };
   }
 
+  trackPromo({ code, code_type: 'promo', source, success: false, reason: promoData.reason || 'not_found' });
   return { applied: false, problem: codeProblemKey(promoData.reason) };
 }

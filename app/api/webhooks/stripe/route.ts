@@ -5,6 +5,7 @@ import { sendInternalAlert, sendOrderConfirmation } from '@/lib/email';
 import { createBoxNowDeliveryRequest } from '@/lib/boxnow';
 import { releaseCartReservations, safelyDecrementStock } from '@/lib/cartReservation';
 import { addBuyerToKupci } from '@/lib/resendContacts';
+import { captureServerEvent } from '@/lib/posthogServer';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
@@ -98,6 +99,36 @@ export async function POST(request: Request) {
             ? JSON.parse((order as any).testerItem as string)
             : null;
           const cartSessionId = session.metadata?.cartSessionId;
+
+          // PostHog purchase, joined to the browser session through the distinct_id that
+          // /api/checkout put in the metadata. Without analytics consent no person profile
+          // is created. Background, like the syncs above: it never affects the order.
+          after(async () => {
+            const consented = session.metadata?.analytics_consent === '1';
+            const toCents = (amount: number) => Math.round(amount * 100) / 100;
+            const purchased = items as {
+              product: { id: string; name: string; brand?: { name: string } };
+              unitPrice: number;
+              quantity: number;
+            }[];
+            await captureServerEvent(session.metadata?.ph_distinct_id || order.id, 'purchase', {
+              order_id: order.id,
+              order_number: order.orderNumber,
+              value: toCents(order.total),
+              currency: 'EUR',
+              items: purchased.map((item) => ({
+                product_id: item.product.id,
+                name: item.product.name,
+                brand: item.product.brand?.name,
+                price: toCents(item.unitPrice),
+                quantity: item.quantity,
+              })),
+              item_count: purchased.reduce((sum, item) => sum + item.quantity, 0),
+              promo_code: order.promoCode ?? null,
+              influencer_code: order.affiliateCode ?? null,
+              ...(consented ? {} : { $process_person_profile: false }),
+            });
+          });
 
           // Handle stock: reservation was already deducted when item was added to cart,
           // and its hold is kept in lockstep with this Stripe session's expiry (extended

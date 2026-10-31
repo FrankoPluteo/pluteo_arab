@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { getAttribution } from '@/lib/attribution';
+import { getAnalyticsContext, track } from '@/lib/analytics';
 import styles from '@/styles/checkout.module.css';
 import { calculateShipping, isFreeShippingEligible, ShippingMethod } from '@/lib/shipping';
 
@@ -99,6 +100,15 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     setLoading(true);
     setError('');
 
+    const funnelProps = {
+      cart_value: Math.round(total * 100) / 100,
+      item_count: items.reduce((sum, item) => sum + item.quantity, 0),
+      promo_code: promoCode ?? null,
+      affiliate_code: affiliateCode ?? null,
+      shipping_method: shippingMethod,
+    };
+    track('checkout_started', funnelProps);
+
     try {
       // First-touch campaign params from the landing page, if still within 30 days
       const utmData = getAttribution() ?? {};
@@ -115,6 +125,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
           affiliateCode: affiliateCode ?? undefined,
           utm: utmData,
           language,
+          analytics: getAnalyticsContext(),
           customerInfo: {
             ...formData,
             newsletterOptOut,
@@ -142,6 +153,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       }
     } catch (err: any) {
       console.error('Checkout error:', err);
+      track('checkout_failed', { ...funnelProps, error: err.message || 'unknown' });
       setError(err.message || t.checkout.somethingWentWrong);
       setLoading(false);
     }
@@ -205,15 +217,16 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         Visibility is toggled via the `hidden` style prop.
       */}
       <div className={styles.boxnowSection} style={{ display: boxnowHidden ? 'none' : 'flex' }}>
-        {/* Widget renders content inside this div */}
-        <div id="boxnowmap" />
+        {/* Widget renders content inside this div. ph-no-capture: the chosen locker
+            (and the map around it) never reaches PostHog autocapture or session replay. */}
+        <div id="boxnowmap" className="ph-no-capture" />
 
         <button type="button" className={`boxnow-map-widget-button ${styles.boxnowSelectBtn}`}>
           {selectedLocker ? t.checkout.changeLocker : t.checkout.selectLocker}
         </button>
 
         {selectedLocker ? (
-          <div className={styles.selectedLockerInfo}>
+          <div className={`${styles.selectedLockerInfo} ph-no-capture`}>
             <span className={styles.selectedLockerLabel}>{t.checkout.selectedLockerLabel}</span>
             <span>
               {selectedLocker.address}
@@ -232,7 +245,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
       {error && <div className={styles.error}>{error}</div>}
 
-      <div className={styles.formGroup}>
+      <div className={`${styles.formGroup} ph-no-capture`}>
         <label htmlFor="name">{t.checkout.fullName} *</label>
         <input
           type="text"
@@ -244,7 +257,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         />
       </div>
 
-      <div className={styles.formGroup}>
+      <div className={`${styles.formGroup} ph-no-capture`}>
         <label htmlFor="email">{t.checkout.email} *</label>
         <input
           type="email"
@@ -265,7 +278,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         <span>{t.checkout.newsletterOptOut}</span>
       </label>
 
-      <div className={styles.formGroup}>
+      <div className={`${styles.formGroup} ph-no-capture`}>
         <label htmlFor="phone">
           {t.checkout.phone}{' '}
           {shippingMethod === 'boxnow' ? (
@@ -293,7 +306,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       {/* Address fields — only for GLS */}
       {shippingMethod === 'gls' && (
         <>
-          <div className={styles.formGroup}>
+          <div className={`${styles.formGroup} ph-no-capture`}>
             <label htmlFor="address">{t.checkout.address} *</label>
             <input
               type="text"
@@ -307,7 +320,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
           </div>
 
           <div className={styles.formRow}>
-            <div className={styles.formGroup}>
+            <div className={`${styles.formGroup} ph-no-capture`}>
               <label htmlFor="city">{t.checkout.city} *</label>
               <input
                 type="text"
@@ -318,7 +331,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
                 required
               />
             </div>
-            <div className={styles.formGroup}>
+            <div className={`${styles.formGroup} ph-no-capture`}>
               <label htmlFor="zip">{t.checkout.zipCode} *</label>
               <input
                 type="text"

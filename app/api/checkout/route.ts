@@ -8,7 +8,7 @@ import { CHECKOUT_HOLD_MINUTES } from '@/lib/cartReservation';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, tester, customerInfo, promoCode: promoCodeInput, affiliateCode: affiliateCodeInput, cartSessionId, utm, language } = body;
+    const { items, tester, customerInfo, promoCode: promoCodeInput, affiliateCode: affiliateCodeInput, cartSessionId, utm, language, analytics } = body;
 
     const shippingMethod: ShippingMethod = customerInfo?.shippingMethod || 'gls';
 
@@ -342,6 +342,10 @@ export async function POST(request: Request) {
         orderNumber: order.orderNumber,
         cartSessionId: cartSessionId || '',
         language: language === 'en' ? 'en' : 'hr',
+        // PostHog: the webhook sends `purchase` under this browser's ID, and only creates a
+        // person profile when the buyer accepted analytics cookies.
+        ph_distinct_id: typeof analytics?.distinctId === 'string' ? analytics.distinctId.slice(0, 200) : '',
+        analytics_consent: analytics?.consent === true ? '1' : '0',
       },
     };
 

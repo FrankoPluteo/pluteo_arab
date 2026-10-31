@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/languageContext';
+import { productCaptureAttributes } from '@/lib/analytics';
 import styles from '@/styles/navsearch.module.css';
 
 interface SearchProduct {
@@ -162,6 +163,7 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
                       className={`${styles.result} ${i === activeIndex ? styles.resultActive : ''}`}
                       onClick={() => { clearQuery(); closeDropdown(); }}
                       onMouseEnter={() => setActiveIndex(i)}
+                      {...productCaptureAttributes(p, 'nav-search', i)}
                     >
                       <div className={styles.resultImage}>
                         {p.images[0] && (

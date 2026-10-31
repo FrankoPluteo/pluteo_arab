@@ -3,7 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMethod } from '@/lib/shipping';
 import { AFFILIATE_DISCOUNT_RATE } from '@/lib/affiliateConfig';
-import { CHECKOUT_HOLD_MINUTES } from '@/lib/cartReservation';
+import { CHECKOUT_HOLD_MINUTES, ensureCartReservations, parseCartLines } from '@/lib/cartReservation';
 
 export async function POST(request: Request) {
   try {
@@ -59,8 +59,7 @@ export async function POST(request: Request) {
 
     const productMap = new Map<string, any>(dbProducts.map((p: any) => [p.id, p]));
 
-    // Validate all products exist and check stock / reservation
-    const now = new Date();
+    // Validate all products exist (and, without a cart session, check stock directly)
     for (const item of items) {
       const dbProduct = productMap.get(item.product.id);
       if (!dbProduct) {
@@ -70,54 +69,48 @@ export async function POST(request: Request) {
         );
       }
 
-      if (cartSessionId) {
-        // New flow: validate the reservation is still valid
-        const reservation = await prisma.cartReservation.findUnique({
-          where: {
-            cartSessionId_productId: { cartSessionId, productId: item.product.id },
-          },
-        });
-
-        if (!reservation || reservation.expiresAt < now) {
-          return NextResponse.json(
-            {
-              error: `Your reservation for "${dbProduct.name}" has expired. Please add it to your cart again.`,
-            },
-            { status: 400 }
-          );
-        }
-
-        if (reservation.quantity < item.quantity) {
-          return NextResponse.json(
-            { error: `Cart quantity mismatch for "${dbProduct.name}". Please refresh your cart.` },
-            { status: 400 }
-          );
-        }
-      } else {
-        // Fallback (no session id): check stock directly
-        if (dbProduct.stock < item.quantity) {
-          return NextResponse.json(
-            { error: `"${dbProduct.name}" does not have enough stock.` },
-            { status: 400 }
-          );
-        }
+      if (!cartSessionId && dbProduct.stock < item.quantity) {
+        return NextResponse.json(
+          { error: `"${dbProduct.name}" does not have enough stock.` },
+          { status: 400 }
+        );
       }
     }
 
-    // Extend the stock hold to cover the rest of the payment flow. Reservations are
-    // normally kept alive only by cart activity (15 min from the last add/edit), which
-    // is too short once the customer moves on to filling in shipping info, picking a
-    // BoxNow locker, and paying on Stripe's hosted page — if that took longer than the
-    // hold, the reservation would expire mid-payment, stock would be released back to
-    // other shoppers, and a successful payment afterward would have nothing left to
-    // deduct from. Re-anchoring the hold here, in lockstep with the Stripe session's own
+    // Hold the cart's stock for the rest of the payment flow. Reservations are normally
+    // kept alive only by cart activity (15 min from the last add/edit), which is too
+    // short once the customer moves on to filling in shipping info, picking a BoxNow
+    // locker, and paying on Stripe's hosted page — if that took longer than the hold,
+    // the reservation would expire mid-payment, stock would be released back to other
+    // shoppers, and a successful payment afterward would have nothing left to deduct
+    // from. Re-anchoring the hold here, in lockstep with the Stripe session's own
     // expires_at below, keeps the two bounded together for the whole checkout attempt.
+    // A hold that already lapsed is re-reserved silently while the stock is there; only
+    // stock that is genuinely gone stops the checkout.
     const checkoutHoldExpiresAt = new Date(Date.now() + CHECKOUT_HOLD_MINUTES * 60 * 1000);
     if (cartSessionId) {
-      await prisma.cartReservation.updateMany({
-        where: { cartSessionId, productId: { in: productIds } },
-        data: { expiresAt: checkoutHoldExpiresAt },
-      });
+      const lines = parseCartLines(
+        items.map((item: { product: { id: string }; quantity: number }) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        }))
+      );
+      if (typeof cartSessionId !== 'string' || !lines) {
+        return NextResponse.json({ error: 'Invalid cart' }, { status: 400 });
+      }
+
+      const unavailable = await ensureCartReservations(cartSessionId, lines, checkoutHoldExpiresAt);
+      if (unavailable.length > 0) {
+        const names = unavailable.map((line) => `"${productMap.get(line.productId)?.name}"`);
+        return NextResponse.json(
+          {
+            error: `${names.join(', ')} is no longer available in the quantity in your cart.`,
+            code: 'stock_unavailable',
+            unavailable,
+          },
+          { status: 409 }
+        );
+      }
     }
 
     // Calculate subtotal using DB prices

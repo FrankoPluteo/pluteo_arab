@@ -276,9 +276,12 @@ export async function POST(request: Request) {
           // to expire at the same time as the Stripe session itself, so it's still present
           // right now — release it explicitly rather than waiting on opportunistic TTL
           // cleanup, so the stock becomes available to other shoppers immediately.
+          // Only holds ending by this session's expiry (plus a minute of slack) are
+          // released: if the customer started a newer checkout from the same cart, that
+          // one has re-anchored the holds past this point and they must survive.
           const cartSessionId = session.metadata?.cartSessionId;
           if (cartSessionId) {
-            await releaseCartReservations(cartSessionId);
+            await releaseCartReservations(cartSessionId, new Date((session.expires_at + 60) * 1000));
           }
         } catch (dbError) {
           console.error('Database update error:', dbError);

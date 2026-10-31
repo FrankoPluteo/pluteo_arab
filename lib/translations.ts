@@ -227,6 +227,11 @@ export const translations = {
       phoneRequiredError: 'Phone number is required for BOX NOW delivery.',
       newsletterOptOut: "I don't want to receive offers and news by email.",
       somethingWentWrong: 'Something went wrong. Please try again.',
+      stockGone: (products: { name: string; available: number }[]) =>
+        `Sorry, ${products
+          .map((p) => (p.available > 0 ? `"${p.name}" (only ${p.available} left)` : `"${p.name}"`))
+          .join(', ')} is no longer available in the quantity in your cart. Remove it or lower the quantity in your cart, then try again.`,
+      backToCart: 'Back to cart',
       orderSummary: 'Order Summary',
       subtotal: 'Subtotal',
       discount: 'Discount',
@@ -683,6 +688,11 @@ export const translations = {
       phoneRequiredError: 'Broj telefona je obavezan za BOX NOW dostavu.',
       newsletterOptOut: 'Ne želim primati ponude i novosti na mail.',
       somethingWentWrong: 'Nešto je pošlo po krivu. Molimo pokušajte ponovno.',
+      stockGone: (products: { name: string; available: number }[]) =>
+        `Nažalost, ${products
+          .map((p) => (p.available > 0 ? `„${p.name}” (dostupno još ${p.available})` : `„${p.name}”`))
+          .join(', ')} više nije dostupno u količini koju imate u košarici. Uklonite proizvod ili smanjite količinu u košarici pa pokušajte ponovno.`,
+      backToCart: 'Natrag u košaricu',
       orderSummary: 'Pregled Narudžbe',
       subtotal: 'Međuzbroj',
       discount: 'Popust',

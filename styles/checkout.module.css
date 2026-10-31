@@ -70,6 +70,13 @@
   font-size: 13px;
 }
 
+.error a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
 .formGroup {
   display: flex;
   flex-direction: column;

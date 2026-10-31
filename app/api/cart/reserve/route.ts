@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import {
   RESERVATION_MINUTES,
   cleanupExpiredReservations,
+  ensureCartReservations,
+  parseCartLines,
   releaseCartReservations,
 } from '@/lib/cartReservation';
 
@@ -134,6 +136,34 @@ export async function POST(request: Request) {
       { error: error.message || 'Failed to update reservation' },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * PUT /api/cart/reserve
+ * Body: { cartSessionId, items: [{ productId, quantity }] }
+ * Refreshes the whole cart's holds when the checkout page opens: extends them, and
+ * silently re-reserves any that lapsed while stock allows. Returns the lines whose
+ * stock is genuinely gone.
+ */
+export async function PUT(request: Request) {
+  try {
+    const { cartSessionId, items } = await request.json();
+    const lines = parseCartLines(items);
+
+    if (typeof cartSessionId !== 'string' || !cartSessionId || !lines) {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
+
+    cleanupExpiredReservations().catch(console.error);
+
+    const holdUntil = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000);
+    const unavailable = await ensureCartReservations(cartSessionId, lines, holdUntil);
+
+    return NextResponse.json({ unavailable });
+  } catch (error) {
+    console.error('Cart reservation refresh error:', error);
+    return NextResponse.json({ error: 'Failed to refresh reservations' }, { status: 500 });
   }
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { getAttribution } from '@/lib/attribution';
@@ -13,15 +14,23 @@ interface SelectedLocker {
   postalCode: string;
 }
 
+interface UnavailableLine {
+  productId: string;
+  available: number;
+}
+
 interface CheckoutFormProps {
   onShippingMethodChange: (method: ShippingMethod) => void;
   onRedirecting?: () => void;
 }
 
 export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: CheckoutFormProps) {
-  const { items, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, affiliateCode, affiliateDiscountRate, selectedTester } = useCart();
+  const { items, cartSessionId, getTotalPrice, clearCart, promoCode, promoDiscount, promoFreeShipping, affiliateCode, affiliateDiscountRate, selectedTester } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Cart lines whose stock is genuinely gone; shown with a link back to the cart
+  const [unavailable, setUnavailable] = useState<UnavailableLine[]>([]);
+  const reservationsRefreshed = useRef(false);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [selectedLocker, setSelectedLocker] = useState<SelectedLocker | null>(null);
   const [newsletterOptOut, setNewsletterOptOut] = useState(false);
@@ -73,6 +82,37 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     document.head.appendChild(script);
   }, []); // runs once on mount
 
+  // Refresh the cart's stock holds as the checkout opens: the 15-minute cart hold may
+  // have lapsed on the way here. A lapsed hold is re-reserved silently while the stock
+  // is there; /api/checkout does the same again on submit, so a long stay on this page
+  // is fine too. Only stock that is genuinely gone is shown.
+  useEffect(() => {
+    if (reservationsRefreshed.current || !cartSessionId || items.length === 0) return;
+    reservationsRefreshed.current = true;
+
+    fetch('/api/cart/reserve', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cartSessionId,
+        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.unavailable?.length) setUnavailable(data.unavailable);
+      })
+      .catch(() => {});
+  }, [cartSessionId, items]);
+
+  const unavailableProducts = unavailable.map((line) => {
+    const item = items.find((i) => i.product.id === line.productId);
+    return {
+      name: item ? `${item.product.brand.name} ${item.product.name}` : line.productId,
+      available: line.available,
+    };
+  });
+
   const handleMethodChange = (method: ShippingMethod) => {
     setShippingMethod(method);
     onShippingMethodChange(method);
@@ -98,6 +138,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
     setLoading(true);
     setError('');
+    setUnavailable([]);
 
     try {
       // First-touch campaign params from the landing page, if still within 30 days
@@ -108,6 +149,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items,
+          cartSessionId,
           tester: selectedTester
             ? { product: selectedTester, quantity: 1, isTester: true }
             : null,
@@ -128,6 +170,12 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       });
 
       const data = await response.json();
+
+      if (data.code === 'stock_unavailable' && Array.isArray(data.unavailable)) {
+        setUnavailable(data.unavailable);
+        setLoading(false);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(data.error || t.checkout.somethingWentWrong);
@@ -231,6 +279,12 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       </h2>
 
       {error && <div className={styles.error}>{error}</div>}
+      {unavailableProducts.length > 0 && (
+        <div className={styles.error} role="alert">
+          {t.checkout.stockGone(unavailableProducts)}{' '}
+          <Link href="/cart">{t.checkout.backToCart}</Link>
+        </div>
+      )}
 
       <div className={styles.formGroup}>
         <label htmlFor="name">{t.checkout.fullName} *</label>

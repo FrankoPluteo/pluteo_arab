@@ -20,12 +20,14 @@ import giftIcon from '../public/gift-icon.svg';
 interface HomeContentProps {
   featuredProducts: Product[];
   bestSellers: Product[];
+  /** The product ticked as Spotlight in admin, if any. */
+  spotlight: Product | null;
 }
 
-export default function HomeContent({ featuredProducts, bestSellers }: HomeContentProps) {
+export default function HomeContent({ featuredProducts, bestSellers, spotlight }: HomeContentProps) {
   const { t } = useLanguage();
 
-  const spotlightProduct = bestSellers[0] ?? null;
+  const spotlightProduct = spotlight ?? bestSellers[0] ?? null;
 
   useEffect(() => {
     const els = document.querySelectorAll('[data-fade]');

@@ -33,6 +33,8 @@ model Product {
   discountAmount    Float             @default(0)
   isFeatured        Boolean           @default(false)
   isBestSeller      Boolean           @default(false)
+  // The single product shown large in the homepage spotlight; the admin API keeps it to one
+  isSpotlight       Boolean           @default(false)
   isGiftMen         Boolean           @default(false)
   isGiftWomen       Boolean           @default(false)
   stock             Int               @default(0)

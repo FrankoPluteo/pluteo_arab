@@ -27,7 +27,7 @@ function HomeJsonLd() {
 }
 
 export default async function HomePage() {
-  const [rawFeatured, rawBestSellers] = await Promise.all([
+  const [rawFeatured, rawBestSellers, spotlight] = await Promise.all([
     prisma.product.findMany({
       where: { isFeatured: true },
       include: { brand: true },
@@ -37,6 +37,12 @@ export default async function HomePage() {
       where: { isBestSeller: true },
       include: { brand: true },
       take: 4,
+    }),
+    // Picked in admin (Stock & Price → Spotlight). Without one, HomeContent falls back
+    // to the first best seller.
+    prisma.product.findFirst({
+      where: { isSpotlight: true },
+      include: { brand: true },
     }),
   ]);
 
@@ -48,7 +54,11 @@ export default async function HomePage() {
   return (
     <>
       <HomeJsonLd />
-      <HomeContent featuredProducts={featuredProducts} bestSellers={bestSellers} />
+      <HomeContent
+        featuredProducts={featuredProducts}
+        bestSellers={bestSellers}
+        spotlight={spotlight}
+      />
     </>
   );
 }

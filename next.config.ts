@@ -32,11 +32,12 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        // Old summer campaign links now land on the autumn campaign; query strings
-        // (promo, utm_*) are carried over by Next.js automatically.
-        source: '/ljeto',
-        destination: '/jesen',
-        statusCode: 301,
+        // Finished campaign pages: old ad and social links land on the shop.
+        // Query strings (promo, utm_*) are carried over by Next.js automatically.
+        // Temporary, so the paths can be reused for a future campaign.
+        source: '/:campaign(ljeto|jesen)',
+        destination: '/products',
+        permanent: false,
       },
     ];
   },

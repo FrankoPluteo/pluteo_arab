@@ -62,6 +62,12 @@ export function initAnalytics() {
   posthog.init(KEY, {
     api_host: '/ingest',
     ui_host: 'https://eu.posthog.com',
+    // PostHog loads its add-ons (surveys.js, recorder.js...) before React hydrates. By
+    // default it inserts them before the first <body> script, which is the layout's
+    // JSON-LD, and that breaks hydration. React 19 skips unknown tags at the end of <head>.
+    external_scripts_inject_target: 'head',
+    // Only analytics and session replay are used; this skips downloading surveys.js.
+    disable_surveys: true,
     autocapture: true,
     capture_pageview: 'history_change',
     capture_pageleave: true,

@@ -10,7 +10,8 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
-// PATCH /api/admin/products/:id — update price, stock and/or the gift-page flags only.
+// PATCH /api/admin/products/:id — update price, stock, the gift-page flags and/or the
+// homepage spotlight only.
 // Protected by middleware.ts (admin_token cookie, checked for every /api/admin/* route).
 export async function PATCH(
   request: Request,
@@ -20,9 +21,15 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    // Explicit allowlist: only price/stock/gift flags can ever be changed here, regardless
+    // Explicit allowlist: only these fields can ever be changed here, regardless
     // of what other fields a request body might contain.
-    const data: { price?: number; stock?: number; isGiftMen?: boolean; isGiftWomen?: boolean } = {};
+    const data: {
+      price?: number;
+      stock?: number;
+      isGiftMen?: boolean;
+      isGiftWomen?: boolean;
+      isSpotlight?: boolean;
+    } = {};
 
     if ('price' in body) {
       const price = body.price;
@@ -46,7 +53,7 @@ export async function PATCH(
       data.stock = stock;
     }
 
-    for (const flag of ['isGiftMen', 'isGiftWomen'] as const) {
+    for (const flag of ['isGiftMen', 'isGiftWomen', 'isSpotlight'] as const) {
       if (flag in body) {
         if (typeof body[flag] !== 'boolean') {
           return NextResponse.json({ error: `${flag} must be true or false.` }, { status: 400 });
@@ -64,19 +71,30 @@ export async function PATCH(
       return NextResponse.json({ error: 'Product not found.' }, { status: 404 });
     }
 
-    const product = await prisma.product.update({
-      where: { id },
-      data,
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        stock: true,
-        discountAmount: true,
-        isGiftMen: true,
-        isGiftWomen: true,
-      },
-    });
+    const select = {
+      id: true,
+      name: true,
+      price: true,
+      stock: true,
+      discountAmount: true,
+      isGiftMen: true,
+      isGiftWomen: true,
+      isSpotlight: true,
+    } as const;
+
+    // Only one product can hold the homepage spotlight, so taking it clears every other.
+    const product =
+      data.isSpotlight === true
+        ? (
+            await prisma.$transaction([
+              prisma.product.updateMany({
+                where: { isSpotlight: true, id: { not: id } },
+                data: { isSpotlight: false },
+              }),
+              prisma.product.update({ where: { id }, data, select }),
+            ])
+          )[1]
+        : await prisma.product.update({ where: { id }, data, select });
 
     console.log(`[admin] Product ${product.id} (${product.name}) updated:`, data);
 

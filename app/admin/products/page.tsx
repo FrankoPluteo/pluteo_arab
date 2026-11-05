@@ -17,6 +17,7 @@ interface ProductRow {
   stock: number;
   isGiftMen: boolean;
   isGiftWomen: boolean;
+  isSpotlight: boolean;
 }
 
 type GiftFlag = 'isGiftMen' | 'isGiftWomen';
@@ -107,6 +108,7 @@ export default function AdminStockPricePage() {
           stock: p.stock,
           isGiftMen: Boolean(p.isGiftMen),
           isGiftWomen: Boolean(p.isGiftWomen),
+          isSpotlight: Boolean(p.isSpotlight),
         }));
         rows.sort((a, b) => a.brandName.localeCompare(b.brandName) || a.name.localeCompare(b.name));
         setProducts(rows);
@@ -256,6 +258,37 @@ export default function AdminStockPricePage() {
     }
   }
 
+  // One product at most: ticking a new one clears the old one, on the server and here.
+  async function toggleSpotlight(row: ProductRow) {
+    const next = !row.isSpotlight;
+    const before = products;
+    setSaving(row.id);
+    setRowStatus((r) => omit(r, row.id));
+    setProducts((prev) =>
+      prev.map((p) => ({ ...p, isSpotlight: p.id === row.id ? next : next ? false : p.isSpotlight }))
+    );
+
+    try {
+      const res = await fetch(`/api/admin/products/${row.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isSpotlight: next }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Save failed.');
+
+      setRowStatus((r) => ({ ...r, [row.id]: { type: 'success', msg: 'Saved' } }));
+      setTimeout(() => setRowStatus((r) => omit(r, row.id)), 2500);
+    } catch (e: any) {
+      setProducts(before);
+      setRowStatus((r) => ({ ...r, [row.id]: { type: 'error', msg: e.message || 'Save failed.' } }));
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  const spotlightRow = products.find((p) => p.isSpotlight);
+
   return (
     <>
       <Navbar />
@@ -297,6 +330,14 @@ export default function AdminStockPricePage() {
             Low stock &amp; out of stock only
           </label>
           <span className={s.hint}>{filtered.length} of {products.length} products</span>
+          {!loading && (
+            <span className={s.hint}>
+              Homepage spotlight:{' '}
+              {spotlightRow
+                ? `${spotlightRow.brandName} ${spotlightRow.name}`
+                : 'none picked, so the first best seller is shown'}
+            </span>
+          )}
         </div>
 
         {loading ? (
@@ -315,6 +356,7 @@ export default function AdminStockPricePage() {
                   <th>Stock</th>
                   <th aria-hidden="true"></th>
                   <th>Gift page</th>
+                  <th>Spotlight</th>
                   {MARGIN_COLUMNS.map((c) => (
                     <Fragment key={c.key}>{sortHeader(c.key, c.label)}</Fragment>
                   ))}
@@ -415,6 +457,18 @@ export default function AdminStockPricePage() {
                             Him
                           </label>
                         </div>
+                      </td>
+                      <td>
+                        <label className={s.checkLabel}>
+                          <input
+                            type="checkbox"
+                            checked={row.isSpotlight}
+                            disabled={saving !== null}
+                            onChange={() => toggleSpotlight(row)}
+                            aria-label={`Show ${row.name} in the homepage spotlight`}
+                          />
+                          Home
+                        </label>
                       </td>
                       {MARGIN_COLUMNS.map((c) => {
                         const value = c.value(margins[row.id]);

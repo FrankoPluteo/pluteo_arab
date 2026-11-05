@@ -13,6 +13,7 @@ export interface Product {
   discountAmount: number;
   isFeatured: boolean;
   isBestSeller: boolean;
+  isSpotlight: boolean;
   isGiftMen: boolean;
   isGiftWomen: boolean;
   stock: number;

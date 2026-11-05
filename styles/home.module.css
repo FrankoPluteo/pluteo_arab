@@ -100,7 +100,9 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: #0a0a0a;
+  /* Olive backdrop of the hero wallpaper (homewallpapertest.webp), so the
+     two halves read as one surface */
+  background: #383426;
   display: grid;
   grid-template-rows: 1fr 1fr;
 }
@@ -145,7 +147,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: #161616;
+  background: #2b281d;
   opacity: 0;
   transition: opacity 300ms ease;
 }

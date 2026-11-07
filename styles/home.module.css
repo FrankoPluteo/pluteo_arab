@@ -79,7 +79,9 @@
 .heroCta {
   display: inline-block;
   padding: 13px 40px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  /* Red of the gift ribbon, so the main CTA stands out on the photo */
+  background: #c62828;
+  border: 1px solid #c62828;
   color: #ffffff;
   text-decoration: none;
   font-size: 10px;
@@ -90,9 +92,8 @@
 }
 
 .heroCta:hover {
-  background: #ffffff;
-  color: #111111;
-  border-color: #ffffff;
+  background: #9e1b1b;
+  border-color: #9e1b1b;
 }
 
 /* ── Hero gift panel (right half) ──────────────────────── */
@@ -107,11 +108,13 @@
   grid-template-rows: 1fr 1fr;
 }
 
-/* Ribbon wraps the panel like a present: the SVG's horizontal strip
-   (centred at 38% of its box) lands on the split between the two links,
-   the vertical strip (centred at 62%) at --ribbon-x. The size is the
-   smallest square whose strips still reach every edge of the panel. */
+/* Ribbon wraps the panel like a present: a vertical strip at --ribbon-x and a
+   horizontal one on the split between the two links, with the bow
+   (gift-ribbon-bow.svg, knot at its centre) tied where they cross. */
 .giftRibbon {
+  --ribbon-x: 74cqw;
+  --strip: clamp(36px, 6cqw, 60px);
+  --bow: clamp(220px, 40cqw, 340px);
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -119,14 +122,55 @@
   pointer-events: none;
 }
 
-.giftRibbonImage {
-  --ribbon-x: 74cqw;
-  --ribbon-size: max(134cqh, 122cqw);
+.giftStripV,
+.giftStripH {
   position: absolute;
-  left: calc(var(--ribbon-x) - 0.62 * var(--ribbon-size));
-  top: calc(50cqh - 0.38 * var(--ribbon-size));
-  width: var(--ribbon-size);
-  height: var(--ribbon-size);
+  /* Satin sheen, darker at the edges */
+  --satin: #9e1b1b 0%, #d63a32 35%, #e8564c 50%, #d63a32 65%, #9e1b1b 100%;
+}
+
+.giftStripV {
+  top: 0;
+  bottom: 0;
+  left: calc(var(--ribbon-x) - var(--strip) / 2);
+  width: var(--strip);
+  background: linear-gradient(to right, var(--satin));
+}
+
+.giftStripH {
+  left: 0;
+  right: 0;
+  top: calc(50cqh - var(--strip) / 2);
+  height: var(--strip);
+  background: linear-gradient(to bottom, var(--satin));
+}
+
+/* Fine edge lines for a woven-ribbon look */
+.giftStripV::after,
+.giftStripH::after {
+  content: '';
+  position: absolute;
+  border: 0 solid rgba(122, 16, 16, 0.6);
+}
+
+.giftStripV::after {
+  inset: 0 10%;
+  border-left-width: 1px;
+  border-right-width: 1px;
+}
+
+.giftStripH::after {
+  inset: 10% 0;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.giftRibbonImage {
+  position: absolute;
+  left: calc(var(--ribbon-x) - var(--bow) / 2);
+  top: calc(50cqh - var(--bow) / 2);
+  width: var(--bow);
+  height: var(--bow);
   max-width: none;
 }
 
@@ -546,23 +590,44 @@
 }
 
 @media (max-width: 768px) {
-  /* Split stacks: wallpaper on top, gift panel below */
+  /* Split stacks: wallpaper on top, gift panel below. Kept short enough
+     that the brand logo track peeks above the fold on a phone. */
   .hero {
     display: flex;
     flex-direction: column;
     height: auto;
-    min-height: 100svh;
+    min-height: 0;
   }
 
-  /* Grows to fit logo + CTA; never shorter than ~60% of the screen */
+  /* Grows to fit logo + CTA; on taller phones it takes the spare height,
+     leaving ~380px for the gift panel, category strip and the track's peek */
   .heroMedia {
-    flex: 1 0 auto;
-    min-height: 58svh;
-    padding: 88px 0 48px;
+    flex: none;
+    min-height: clamp(0px, calc(100svh - 380px), 460px);
+    padding: 64px 0 20px;
+  }
+
+  /* Zoom the wallpaper in so the faces fill the shorter frame */
+  .heroImage {
+    transform: scale(1.35);
+    transform-origin: 50% 35%;
   }
 
   .heroLogo {
-    width: 240px;
+    width: 150px;
+    height: auto;
+  }
+
+  .heroRule {
+    margin: 16px auto;
+  }
+
+  .heroTagline2 {
+    margin-bottom: 20px;
+  }
+
+  .heroCta {
+    padding: 11px 32px;
   }
 
   .giftPanel {
@@ -572,25 +637,27 @@
   /* Extra room on the inner edges keeps the labels clear of the ribbon */
   .giftLink,
   .giftLink:first-child {
-    padding: 30px 24px 50px;
+    padding: 16px 24px 22px;
   }
 
   .giftLink + .giftLink {
-    padding: 50px 24px 30px;
+    padding: 22px 24px 16px;
   }
 
-  .giftRibbonImage {
+  .giftRibbon {
     --ribbon-x: 76cqw;
-    --ribbon-size: max(134cqh, 124cqw);
+    --strip: 26px;
+    --bow: 150px;
   }
 
+  /* Stays on two lines: a one-line title runs into the ribbon bow */
   .giftTitle {
-    font-size: 26px;
-    letter-spacing: 4px;
+    font-size: 20px;
+    letter-spacing: 3px;
   }
 
   .giftMore {
-    margin-top: 16px;
+    margin-top: 10px;
   }
 
   .heroTagline,

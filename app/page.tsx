@@ -27,7 +27,7 @@ function HomeJsonLd() {
 }
 
 export default async function HomePage() {
-  const [rawFeatured, rawBestSellers, spotlight] = await Promise.all([
+  const [rawFeatured, rawBestSellers, spotlight, logoBrands] = await Promise.all([
     prisma.product.findMany({
       where: { isFeatured: true },
       include: { brand: true },
@@ -44,6 +44,12 @@ export default async function HomePage() {
       where: { isSpotlight: true },
       include: { brand: true },
     }),
+    // Logo track: brands we actually stock that have a logo, most products first.
+    prisma.brand.findMany({
+      where: { logoUrl: { not: null }, products: { some: {} } },
+      select: { id: true, name: true, logoUrl: true },
+      orderBy: [{ products: { _count: 'desc' } }, { name: 'asc' }],
+    }),
   ]);
 
   const [featuredProducts, bestSellers] = await Promise.all([
@@ -58,6 +64,7 @@ export default async function HomePage() {
         featuredProducts={featuredProducts}
         bestSellers={bestSellers}
         spotlight={spotlight}
+        logoBrands={logoBrands.map((b) => ({ id: b.id, name: b.name, logoUrl: b.logoUrl! }))}
       />
     </>
   );

@@ -1,0 +1,223 @@
+/* ── Brand logo track ──────────────────────────────────────
+   --visible is how many logos fit across: 3 on phones, more as the screen
+   widens. Odd counts keep the centred (Lattafa) logo exactly in the middle. */
+.brandTrack {
+  --visible: 3;
+  --gap: 16px;
+  padding: 28px 24px 40px;
+  border-bottom: 1px solid #E5E5E5;
+  background: #ffffff;
+  /* The arrows sit in the side padding; never let them widen the page */
+  overflow-x: clip;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #111111;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.viewport {
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.track {
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Soft edge fades hint that more logos are off-screen */
+.fadeStart {
+  mask-image: linear-gradient(to right, transparent 0, #000 48px);
+}
+
+.fadeEnd {
+  mask-image: linear-gradient(to left, transparent 0, #000 48px);
+}
+
+.fadeStart.fadeEnd {
+  mask-image: linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%);
+}
+
+.item {
+  flex: 0 0 calc((100% - (var(--visible) - 1) * var(--gap)) / var(--visible));
+  min-width: 0;
+  scroll-snap-align: center;
+}
+
+/* When every logo fits, the auto margins centre the row
+   (justify-content: center would clip the first item once it overflows) */
+.item:first-child {
+  margin-left: auto;
+}
+
+.item:last-child {
+  margin-right: auto;
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  -webkit-user-drag: none;
+}
+
+.logo {
+  width: 100%;
+  max-width: 120px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 1px solid #E5E5E5;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18%;
+  overflow: hidden;
+  transition: border-color 250ms ease, transform 250ms ease;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Logos on white JPGs blend into the white circle */
+  mix-blend-mode: multiply;
+}
+
+.name {
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #777777;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  transition: color 250ms ease;
+}
+
+.link:hover .logo,
+.link:focus-visible .logo {
+  border-color: #111111;
+  transform: translateY(-2px);
+}
+
+.link:hover .name,
+.link:focus-visible .name {
+  color: #111111;
+}
+
+/* ── Arrows: only with a mouse and wide enough side padding to hold them;
+   phones swipe (some report a fine pointer, so width matters too) ── */
+.arrow {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 640px) {
+  .arrow {
+    display: flex;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #111111;
+    transition: opacity 200ms ease;
+  }
+
+  /* Chevron drawn with borders */
+  .arrow::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-top: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+  }
+
+  .arrowPrev {
+    right: 100%;
+  }
+
+  .arrowPrev::before {
+    transform: rotate(-135deg);
+  }
+
+  .arrowNext {
+    left: 100%;
+  }
+
+  .arrowNext::before {
+    transform: rotate(45deg);
+  }
+
+  .arrow:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* ── More logos as the screen widens ── */
+@media (min-width: 640px) {
+  .brandTrack {
+    --visible: 5;
+    --gap: 24px;
+    padding: 56px 64px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .brandTrack {
+    --visible: 7;
+    padding: 64px 80px;
+  }
+
+  .logo {
+    max-width: 132px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .brandTrack {
+    --visible: 9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo,
+  .name,
+  .arrow {
+    transition: none;
+  }
+
+  .link:hover .logo,
+  .link:focus-visible .logo {
+    transform: none;
+  }
+}

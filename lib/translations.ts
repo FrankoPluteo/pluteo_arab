@@ -49,6 +49,9 @@ export const translations = {
       giftForHer: 'for her',
       giftForHim: 'for him',
       giftCta: 'Discover',
+      brandsLabel: 'Our Brands',
+      brandsPrev: 'Previous brands',
+      brandsNext: 'More brands',
     },
 
     gift: {
@@ -515,6 +518,9 @@ export const translations = {
       giftForHer: 'za nju',
       giftForHim: 'za njega',
       giftCta: 'Otkrij',
+      brandsLabel: 'Naši brendovi',
+      brandsPrev: 'Prethodni brendovi',
+      brandsNext: 'Još brendova',
     },
 
     gift: {

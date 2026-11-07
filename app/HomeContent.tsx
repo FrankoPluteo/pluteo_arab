@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import Footer from '@/components/Footer';
+import BrandLogoTrack, { TrackBrand } from '@/components/BrandLogoTrack';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes } from '@/lib/analytics';
 import styles from '@/styles/home.module.css';
@@ -15,16 +16,18 @@ import ahmedimg from '../public/ahmedalmaghribi.webp';
 import frenchavenueimg from '../public/frenchavenue.webp';
 import armafimg from '../public/armaf.webp';
 import wallpaperhome from '../public/homewallpapertest.webp';
-import giftIcon from '../public/gift-icon.svg';
+import giftBow from '../public/gift-ribbon-bow.svg';
 
 interface HomeContentProps {
   featuredProducts: Product[];
   bestSellers: Product[];
   /** The product ticked as Spotlight in admin, if any. */
   spotlight: Product | null;
+  /** Brands with a logo, for the swipeable logo track. */
+  logoBrands: TrackBrand[];
 }
 
-export default function HomeContent({ featuredProducts, bestSellers, spotlight }: HomeContentProps) {
+export default function HomeContent({ featuredProducts, bestSellers, spotlight, logoBrands }: HomeContentProps) {
   const { t } = useLanguage();
 
   const spotlightProduct = spotlight ?? bestSellers[0] ?? null;
@@ -60,7 +63,8 @@ export default function HomeContent({ featuredProducts, bestSellers, spotlight }
               alt="Arapski parfemi i oud mirisi - Pluteo Hrvatska"
               priority
               quality={70}
-              sizes="(max-width: 768px) 100vw, 50vw"
+              // Zoomed 1.35x on phones (see .heroImage), so fetch a wider image to stay sharp
+              sizes="(max-width: 768px) 135vw, 50vw"
               style={{ objectFit: 'cover' }}
             />
           </div>
@@ -101,7 +105,9 @@ export default function HomeContent({ featuredProducts, bestSellers, spotlight }
             </Link>
           ))}
           <div className={styles.giftRibbon} aria-hidden="true">
-            <Image src={giftIcon} alt="" className={styles.giftRibbonImage} priority />
+            <span className={styles.giftStripV} />
+            <span className={styles.giftStripH} />
+            <Image src={giftBow} alt="" className={styles.giftRibbonImage} priority />
           </div>
         </nav>
       </section>
@@ -115,6 +121,9 @@ export default function HomeContent({ featuredProducts, bestSellers, spotlight }
           {t.home.womensPerfumes}
         </Link>
       </nav>
+
+      {/* ── Brand logo track ─────────────────────────────── */}
+      <BrandLogoTrack brands={logoBrands} />
 
       {/* ── Find Your Scent CTA ──────────────────────────── */}
       <section className={styles.scentCta} data-fade>

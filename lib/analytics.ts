@@ -19,6 +19,10 @@ export { brandList, productCaptureAttributes, productProps, type TrackedProduct 
 
 const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
+// Error reports only from the built site: local dev errors (hot reload, half-typed code)
+// would otherwise land in the live PostHog project, since local .env uses the same key.
+const REPORT_ERRORS = process.env.NODE_ENV === 'production';
+
 // Admin pages are our own work, not shopper behaviour.
 const IGNORED_PATH_PREFIXES = ['/admin'];
 
@@ -27,6 +31,8 @@ function isReady(): boolean {
 }
 
 function dropIgnoredPaths(event: CaptureResult | null): CaptureResult | null {
+  // Errors are kept everywhere: a broken admin page still needs fixing.
+  if (event?.event === '$exception') return event;
   const path = window.location.pathname;
   return IGNORED_PATH_PREFIXES.some((prefix) => path.startsWith(prefix)) ? null : event;
 }
@@ -71,6 +77,10 @@ export function initAnalytics() {
     autocapture: true,
     capture_pageview: 'history_change',
     capture_pageleave: true,
+    // Error tracking: uncaught errors and unhandled promise rejections. Errors caught by
+    // the React error boundaries (app/error.tsx, app/global-error.tsx) never reach the
+    // window handlers, so those report themselves through captureError below.
+    capture_exceptions: REPORT_ERRORS,
     person_profiles: 'identified_only',
     persistence: consented ? 'localStorage+cookie' : 'memory',
     disable_session_recording: !consented,
@@ -103,6 +113,15 @@ export type AnalyticsProps = Record<string, string | number | boolean | null | u
 export function track(event: string, properties?: AnalyticsProps) {
   if (!isReady()) return;
   posthog.capture(event, properties);
+}
+
+/**
+ * Reports an error caught by a React error boundary. `digest` (set by Next.js on errors
+ * thrown on the server) matches the server side report from instrumentation.ts.
+ */
+export function captureError(error: unknown, properties?: AnalyticsProps) {
+  if (!isReady() || !REPORT_ERRORS) return;
+  posthog.captureException(error, properties);
 }
 
 /**

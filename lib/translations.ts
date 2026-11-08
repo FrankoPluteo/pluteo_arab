@@ -275,7 +275,7 @@ export const translations = {
 
     privacyPage: {
       title: "Privacy and Cookie Policy",
-      lastUpdated: "Last updated: 31 October 2026",
+      lastUpdated: "Last updated: 8 November 2026",
       controllerTitle: "Who processes your data",
       controllerBody: "The data controller is Vonta Grupa d.o.o., Drežnik 6, OIB (Croatian tax number): 87510848203, trading as Pluteo. For any privacy questions, write to us at pluteoinfo@gmail.com.",
       dataTitle: "What data we collect",
@@ -286,6 +286,7 @@ export const translations = {
         "With your consent to analytics: the tags in the link you arrived from (utm_source, utm_medium, utm_campaign) and any promo code in that link, saved with your order.",
         "With your consent to analytics: how you use the site (pages, products, cart, codes, a recording of the visit with forms masked) through PostHog, linked to the email address on your order after a purchase.",
         "Without consent: anonymous visit statistics (pages opened, clicks) through PostHog, with no cookies and nothing stored in your browser, no session recording and no storage of your IP address.",
+        "Error reports: when something on the site breaks, PostHog receives a technical description of the error (the error message, the page address and your browser type), on the same terms as the visit statistics above: without consent anonymous and without cookies, with consent linked to your visit.",
         "With your consent: data about your use of the site collected by the Meta Pixel (see Cookies and local storage).",
       ],
       basisTitle: "Why and on what legal basis",
@@ -296,6 +297,7 @@ export const translations = {
         "Ad measurement with the Meta Pixel: your consent, given through the cookie notice.",
         "Saving the visit source (UTM tags and the promo code from the link) with your order: your consent to analytics.",
         "Anonymous visit statistics without cookies: our legitimate interest in running and improving the shop.",
+        "Error reports: our legitimate interest in keeping the shop working.",
         "Analytics through PostHog with an identifier in your browser, session recording and linking to your order: your consent.",
       ],
       cookiesTitle: "Cookies and local storage",
@@ -323,6 +325,13 @@ export const translations = {
       ],
       rightsTitle: "Your rights",
       rightsBody: "You have the right to access your data, to rectification, erasure, restriction of processing, data portability and to object, and the right to withdraw consent at any time, without affecting the lawfulness of processing before the withdrawal. To exercise your rights, write to pluteoinfo@gmail.com. You can unsubscribe from the newsletter through the link in the email. You can lodge a complaint with the Croatian Personal Data Protection Agency (azop.hr).",
+    },
+
+    errorPage: {
+      title: 'Something went wrong',
+      body: 'This page could not be loaded. We have been notified of the error. Please try again, and if it keeps happening, write to us at pluteoinfo@gmail.com.',
+      retry: 'Try again',
+      home: 'Back to the home page',
     },
 
     testerModal: {
@@ -744,7 +753,7 @@ export const translations = {
 
     privacyPage: {
       title: "Politika privatnosti i kolačića",
-      lastUpdated: "Zadnje ažuriranje: 31. 10. 2026.",
+      lastUpdated: "Zadnje ažuriranje: 8. 11. 2026.",
       controllerTitle: "Tko obrađuje tvoje podatke",
       controllerBody: "Voditelj obrade je Vonta Grupa d.o.o., Drežnik 6, OIB: 87510848203, koja posluje pod imenom Pluteo. Za sva pitanja o privatnosti piši nam na pluteoinfo@gmail.com.",
       dataTitle: "Koje podatke prikupljamo",
@@ -755,6 +764,7 @@ export const translations = {
         "Uz tvoj pristanak za analitiku: oznake iz poveznice (utm_source, utm_medium, utm_campaign) i promo kod iz poveznice, spremljeni uz narudžbu.",
         "Uz tvoj pristanak za analitiku: način korištenja stranice (stranice, proizvodi, košarica, kodovi, snimka posjeta sa zamaskiranim obrascima) putem PostHoga, nakon kupnje povezan s e-mail adresom narudžbe.",
         "Bez pristanka: anonimna statistika posjeta (otvorene stranice, klikovi) putem PostHoga, bez kolačića i bez ikakvog zapisa u tvom pregledniku, bez snimanja posjeta i bez pohrane IP adrese.",
+        "Prijave grešaka: kad nešto na stranici ne radi, PostHog dobiva tehnički opis greške (poruku greške, adresu stranice i vrstu preglednika), pod istim uvjetima kao statistika posjeta iznad: bez pristanka anonimno i bez kolačića, uz pristanak povezano s tvojim posjetom.",
         "Uz tvoj pristanak: podaci o korištenju stranice koje prikuplja Meta Pixel (vidi Kolačići i lokalna pohrana).",
       ],
       basisTitle: "Zašto i na kojoj osnovi",
@@ -765,6 +775,7 @@ export const translations = {
         "Mjerenje oglasa putem Meta Pixela: tvoja privola putem obavijesti o kolačićima.",
         "Spremanje izvora posjeta (UTM oznake i promo kod iz poveznice) uz narudžbu: tvoja privola za analitiku.",
         "Anonimna statistika posjeta bez kolačića: naš legitimni interes da trgovina radi i da je poboljšavamo.",
+        "Prijave grešaka: naš legitimni interes da trgovina radi.",
         "Analitika putem PostHoga uz identifikator u pregledniku, snimanje posjeta i povezivanje s narudžbom: tvoja privola.",
       ],
       cookiesTitle: "Kolačići i lokalna pohrana",
@@ -792,6 +803,13 @@ export const translations = {
       ],
       rightsTitle: "Tvoja prava",
       rightsBody: "Imaš pravo na pristup svojim podacima, ispravak, brisanje, ograničenje obrade, prenosivost i prigovor, te pravo povući privolu u svakom trenutku, bez utjecaja na zakonitost obrade prije povlačenja. Za ostvarivanje prava piši na pluteoinfo@gmail.com. Od newslettera se možeš odjaviti putem poveznice u e-mailu. Pritužbu možeš podnijeti Agenciji za zaštitu osobnih podataka (azop.hr).",
+    },
+
+    errorPage: {
+      title: 'Nešto je pošlo po krivu',
+      body: 'Ova se stranica nije mogla učitati. Greška nam je prijavljena. Pokušaj ponovno, a ako se ponavlja, piši nam na pluteoinfo@gmail.com.',
+      retry: 'Pokušaj ponovno',
+      home: 'Natrag na početnu',
     },
 
     testerModal: {

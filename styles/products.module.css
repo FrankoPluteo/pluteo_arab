@@ -35,6 +35,35 @@
   letter-spacing: 0.5px;
 }
 
+/* Search without results: what happened, a hint, then bestsellers so the page isn't empty */
+.noResults {
+  padding: 48px 0 24px;
+  text-align: center;
+}
+
+.noResultsHeading {
+  font-size: 20px;
+  font-weight: 300;
+  color: #111111;
+  margin: 0 0 10px;
+  letter-spacing: 0.3px;
+}
+
+.noResultsHint {
+  font-size: 13px;
+  color: #888888;
+  margin: 0 0 48px;
+}
+
+.noResultsSuggestionsLabel {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #111111;
+  margin: 0 0 24px;
+  text-align: left;
+}
+
 .pagination {
   display: flex;
   justify-content: center;

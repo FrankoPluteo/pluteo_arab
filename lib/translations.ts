@@ -12,6 +12,8 @@ export const translations = {
       searchPlaceholder: 'Search perfumes, brands...',
       searchNoResults: 'No results for',
       searchViewAll: 'View all results',
+      searchNotFound: (term: string) => `We couldn't find "${term}"`,
+      searchSuggestions: 'Our bestsellers',
     },
 
     footer: {
@@ -369,7 +371,9 @@ export const translations = {
       showing: (count: number) => `Showing ${count} products`,
       searchInfo: (term: string) => `Showing results for: "${term}"`,
       pageInfo: (from: number, to: number, total: number) => `Showing ${from}–${to} of ${total} products`,
-      noProductsSearch: (term: string) => `No products found for "${term}". Try adjusting your search or filters.`,
+      noProductsSearch: (term: string) => `We couldn't find "${term}"`,
+      noProductsSearchHint: 'Check the spelling or try just the brand or perfume name.',
+      searchSuggestions: 'Our bestsellers',
       noProductsFilter: 'No products found. Try adjusting your filters.',
     },
 
@@ -502,6 +506,8 @@ export const translations = {
       searchPlaceholder: 'Pretraži parfeme, brendove...',
       searchNoResults: 'Nema rezultata za',
       searchViewAll: 'Prikaži sve rezultate',
+      searchNotFound: (term: string) => `Nismo pronašli „${term}“`,
+      searchSuggestions: 'Naši najprodavaniji',
     },
 
     footer: {
@@ -859,7 +865,9 @@ export const translations = {
       showing: (count: number) => `Prikazuje se ${count} proizvoda`,
       searchInfo: (term: string) => `Rezultati za: "${term}"`,
       pageInfo: (from: number, to: number, total: number) => `Prikazuje se ${from}–${to} od ${total} proizvoda`,
-      noProductsSearch: (term: string) => `Nema rezultata za "${term}". Pokušajte prilagoditi pretragu ili filtere.`,
+      noProductsSearch: (term: string) => `Nismo pronašli „${term}“`,
+      noProductsSearchHint: 'Provjerite pravopis ili upišite samo naziv brenda ili parfema.',
+      searchSuggestions: 'Naši najprodavaniji',
       noProductsFilter: 'Nema pronađenih proizvoda. Pokušajte prilagoditi filtere.',
     },
 

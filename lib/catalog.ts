@@ -41,3 +41,17 @@ export async function getCatalog() {
     })),
   };
 }
+
+/** Bestsellers in stock, then featured, then anything in stock: offered when a search finds nothing. */
+export function searchSuggestions<T extends { stock: number; isBestSeller: boolean; isFeatured: boolean }>(
+  products: T[],
+  count: number
+): T[] {
+  const inStock = products.filter((product) => product.stock > 0);
+  const ranked = [
+    ...inStock.filter((product) => product.isBestSeller),
+    ...inStock.filter((product) => product.isFeatured && !product.isBestSeller),
+    ...inStock,
+  ];
+  return [...new Set(ranked)].slice(0, count);
+}

@@ -129,6 +129,16 @@
   letter-spacing: 0.3px;
 }
 
+.suggestionsLabel {
+  padding: 4px 18px 8px;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #111111;
+  border-top: 1px solid #F0F0F0;
+  padding-top: 14px;
+}
+
 .result {
   display: flex;
   align-items: center;

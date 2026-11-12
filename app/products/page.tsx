@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { getCatalog } from '@/lib/catalog';
+import { getCatalog, searchSuggestions } from '@/lib/catalog';
+import { searchProducts } from '@/lib/search';
 import ProductsContent from './ProductsContent';
 
 const BASE_URL = 'https://www.pluteo.shop';
@@ -118,15 +119,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       fragranceProfiles: Array.from(allProfiles).sort(),
     };
 
-    const search = params.search?.trim().toLowerCase();
-    const filtered = catalog.filter((p) => {
-      if (search) {
-        const matches =
-          p.name.toLowerCase().includes(search) ||
-          (p.description ?? '').toLowerCase().includes(search) ||
-          p.brand.name.toLowerCase().includes(search);
-        if (!matches) return false;
-      }
+    // A search forgives typos, accents and brand misspellings (lib/search.ts) and comes
+    // back best match first.
+    const search = params.search?.trim();
+    const pool = search ? searchProducts(catalog, search) : catalog;
+    const filtered = pool.filter((p) => {
       if (params.gender && p.gender !== params.gender && p.gender !== 'unisex') return false;
       if (params.brand && p.brand.name !== params.brand) return false;
       if (params.concentration && p.concentration !== params.concentration) return false;
@@ -140,10 +137,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       return true;
     });
 
-    sortProducts(filtered, params.sortBy);
+    // Search results keep their relevance order unless a sort was picked
+    if (!search || (params.sortBy && params.sortBy !== 'brand-order')) {
+      sortProducts(filtered, params.sortBy);
+    }
 
     const totalProducts = filtered.length;
     const products = filtered.slice(skip, skip + ITEMS_PER_PAGE);
+    // Nothing found: show bestsellers rather than an empty page
+    const suggestions = search && totalProducts === 0 ? searchSuggestions(catalog, 4) : [];
 
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
@@ -186,6 +188,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           filterOptions={filterOptions}
           searchParams={params}
           search={params.search}
+          suggestions={suggestions}
         />
         <Footer />
       </div>

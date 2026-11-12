@@ -24,6 +24,8 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchProduct[]>([]);
+  // Bestsellers the API offers when nothing matched, so the dropdown is never a dead end
+  const [suggestions, setSuggestions] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,6 +49,7 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
   useEffect(() => {
     if (query.trim().length < 2) {
       setResults([]);
+      setSuggestions([]);
       setLoading(false);
       return;
     }
@@ -58,6 +61,7 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
         const data = await res.json();
         setResults(data.products || []);
+        setSuggestions(data.suggestions || []);
         const total = typeof data.total === 'number' ? data.total : (data.products || []).length;
         // Report the search once the customer stops typing, with how many products match.
         idleTimer = setTimeout(
@@ -66,6 +70,7 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
         );
       } catch {
         setResults([]);
+        setSuggestions([]);
       } finally {
         setLoading(false);
       }
@@ -163,9 +168,32 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
             {loading ? (
               <div className={styles.status}>…</div>
             ) : results.length === 0 ? (
-              <div className={styles.status}>
-                {t.nav.searchNoResults} &ldquo;{query}&rdquo;
-              </div>
+              <>
+                <div className={styles.status}>{t.nav.searchNotFound(query.trim())}</div>
+                {suggestions.length > 0 && (
+                  <>
+                    <div className={styles.suggestionsLabel}>{t.nav.searchSuggestions}</div>
+                    {suggestions.map((p, i) => (
+                      <Link
+                        key={p.id}
+                        href={`/products/${p.id}`}
+                        className={styles.result}
+                        onClick={() => { clearQuery(); closeDropdown(); }}
+                        {...productCaptureAttributes(p, 'nav-search-suggestions', i)}
+                      >
+                        <div className={styles.resultImage}>
+                          {p.images[0] && <Image src={p.images[0]} alt={p.name} width={44} height={44} />}
+                        </div>
+                        <div className={styles.resultInfo}>
+                          <span className={styles.resultBrand}>{p.brand.name}</span>
+                          <span className={styles.resultName}>{p.name}</span>
+                        </div>
+                        <span className={styles.resultPrice}>€{(p.price - p.discountAmount).toFixed(2)}</span>
+                      </Link>
+                    ))}
+                  </>
+                )}
+              </>
             ) : (
               <>
                 {results.map((p, i) => {

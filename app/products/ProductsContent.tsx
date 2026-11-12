@@ -28,6 +28,8 @@ interface ProductsContentProps {
   filterOptions: FilterOptions;
   searchParams: Record<string, string | undefined>;
   search?: string;
+  /** Bestsellers to show when a search found nothing. */
+  suggestions?: Product[];
 }
 
 export default function ProductsContent({
@@ -39,6 +41,7 @@ export default function ProductsContent({
   filterOptions,
   searchParams,
   search,
+  suggestions = [],
 }: ProductsContentProps) {
   const { t } = useLanguage();
   const ITEMS_PER_PAGE = 12;
@@ -110,12 +113,23 @@ export default function ProductsContent({
             )}
           </p>
         </>
-      ) : (
-        <div className={styles.noProducts}>
-          {search
-            ? t.products.noProductsSearch(search)
-            : t.products.noProductsFilter}
+      ) : search ? (
+        <div className={styles.noResults}>
+          <p className={styles.noResultsHeading}>{t.products.noProductsSearch(search)}</p>
+          <p className={styles.noResultsHint}>{t.products.noProductsSearchHint}</p>
+          {suggestions.length > 0 && (
+            <>
+              <p className={styles.noResultsSuggestionsLabel}>{t.products.searchSuggestions}</p>
+              <div className={styles.productsGrid}>
+                {suggestions.map((product, index) => (
+                  <ProductCard key={product.id} product={product} list="search-no-results" position={index} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
+      ) : (
+        <div className={styles.noProducts}>{t.products.noProductsFilter}</div>
       )}
     </div>
   );

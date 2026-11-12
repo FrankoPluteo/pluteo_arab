@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useCart } from '@/lib/store';
+import { useCart, useCartHydrated } from '@/lib/store';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import styles from '@/styles/cart.module.css';
@@ -55,10 +55,29 @@ export default function CartPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasFetched = useRef(false);
+  // Server clock minus this device's clock. Hold expiries are server timestamps; a phone
+  // whose clock runs a few minutes fast would otherwise see a fresh hold as expired.
+  const clockOffsetRef = useRef(0);
+  const confirmingExpiry = useRef(false);
+
+  // False on the server and while React hydrates: the saved cart is only in this browser.
+  const hydrated = useCartHydrated();
 
   // Applies /cart?add=<productId>&promo=<code> share links before the reservation
   // sync below runs, so a link's items are reserved exactly once.
   const prefill = useCartPrefill(setCartExpiresAt);
+
+  /**
+   * When this cart's stock holds end, by the server. null = no live holds left.
+   * Throws when the server can't tell (offline, database hiccup), which is never expiry.
+   */
+  async function fetchHoldExpiry(): Promise<number | null> {
+    const res = await fetch(`/api/cart/reserve?cartSessionId=${encodeURIComponent(cartSessionId)}`);
+    if (!res.ok) throw new Error(`reserve GET ${res.status}`);
+    const data = await res.json();
+    if (typeof data.now === 'number') clockOffsetRef.current = data.now - Date.now();
+    return typeof data.expiresAt === 'number' ? data.expiresAt : null;
+  }
 
   // On mount: fetch existing reservation expiry, or create reservations if none exist.
   // Depends on cartSessionId + items.length so it re-runs after Zustand hydrates
@@ -72,13 +91,9 @@ export default function CartPage() {
 
     async function syncReservations() {
       // 1. Check if active reservations already exist
-      const checkRes = await fetch(
-        `/api/cart/reserve?cartSessionId=${encodeURIComponent(cartSessionId)}`
-      );
-      const checkData = await checkRes.json();
-
-      if (checkData.expiresAt) {
-        setCartExpiresAt(checkData.expiresAt);
+      const existingExpiry = await fetchHoldExpiry();
+      if (existingExpiry) {
+        setCartExpiresAt(existingExpiry);
         return;
       }
 
@@ -101,8 +116,9 @@ export default function CartPage() {
 
         if (res.ok && data.expiresAt) {
           latestExpiresAt = data.expiresAt;
-        } else {
-          // No longer in stock — remove from cart
+        } else if (data.error === 'Not enough stock available' || data.error === 'Product not found') {
+          // No longer in stock — remove from cart. Any other failure (a server hiccup)
+          // keeps the item: checkout re-reserves and checks stock again anyway.
           toRemove.push(item.product.id);
         }
       }
@@ -117,7 +133,8 @@ export default function CartPage() {
     syncReservations().catch(() => {});
   }, [cartSessionId, items.length, prefill.pending]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Countdown ticker
+  // Countdown ticker. Background tabs throttle timers, so the time left is always worked
+  // out from the expiry time, never by counting ticks.
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
 
@@ -127,21 +144,11 @@ export default function CartPage() {
     }
 
     function tick() {
-      const remaining = cartExpiresAt! - Date.now();
+      const remaining = cartExpiresAt! - (Date.now() + clockOffsetRef.current);
       if (remaining <= 0) {
         setTimeLeft(0);
         if (intervalRef.current) clearInterval(intervalRef.current);
-        fetch('/api/cart/reserve', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cartSessionId }),
-        })
-          // The holds have expired anyway; a failed release only matters to the server.
-          .catch(() => {})
-          .finally(() => {
-            clearCart();
-            setCartExpiresAt(null);
-          });
+        confirmExpiry();
         return;
       }
       setTimeLeft(remaining);
@@ -154,6 +161,58 @@ export default function CartPage() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [cartExpiresAt, items.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /**
+   * The countdown reached zero on this device. Empty the cart only when the server agrees
+   * the holds are gone: a hold extended from another tab, or a device clock that is off,
+   * must not wipe a cart that is still reserved.
+   */
+  async function confirmExpiry() {
+    if (confirmingExpiry.current) return;
+    confirmingExpiry.current = true;
+    try {
+      const expiry = await fetchHoldExpiry();
+      if (expiry && expiry > Date.now() + clockOffsetRef.current) {
+        setCartExpiresAt(expiry);
+        return;
+      }
+    } catch {
+      // Can't reach the server: keep the cart. Checkout re-reserves and checks stock.
+      return;
+    } finally {
+      confirmingExpiry.current = false;
+    }
+
+    fetch('/api/cart/reserve', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cartSessionId }),
+    })
+      // The holds have expired anyway; a failed release only matters to the server.
+      .catch(() => {})
+      .finally(() => {
+        clearCart();
+        setCartExpiresAt(null);
+      });
+  }
+
+  // Back on the tab: re-read the expiry (it may have been extended in another tab) instead
+  // of trusting a countdown the browser paused or slowed in the background. This only
+  // updates the timer; it never empties or re-renders the cart as empty.
+  useEffect(() => {
+    if (!cartExpiresAt) return;
+    function handleVisibility() {
+      if (document.visibilityState !== 'visible') return;
+      fetchHoldExpiry()
+        .then((expiry) => {
+          if (expiry && expiry !== cartExpiresAt) setCartExpiresAt(expiry);
+        })
+        // Offline or a hiccup: the countdown carries on as it was.
+        .catch(() => {});
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [cartExpiresAt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleRemoveItem(productId: string, quantity: number) {
     setStockError('');
@@ -344,6 +403,26 @@ export default function CartPage() {
       setCodeStatus('error');
       setCodeError(t.cart.somethingWentWrong);
     }
+  }
+
+  // Same placeholder on the server and in the browser until the saved cart can be shown:
+  // never "your cart is empty" for a cart that isn't.
+  if (!hydrated) {
+    return (
+      <div>
+        <Navbar />
+        <div className={styles.cartContainer} aria-busy="true">
+          <h1 className={styles.pageTitle}>{t.cart.title}</h1>
+          <div className={styles.cartLayout}>
+            <div className={styles.cartItems}>
+              <div className={styles.skeletonItem} />
+              <div className={styles.skeletonItem} />
+            </div>
+            <div className={`${styles.orderSummary} ${styles.skeletonSummary}`} />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (items.length === 0 && prefill.pending) {

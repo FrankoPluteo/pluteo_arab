@@ -70,6 +70,30 @@
   border-top: 1px solid #E5E5E5;
 }
 
+/* Placeholder while the saved cart loads (server render and hydration) */
+.skeletonItem {
+  height: 149px;
+  border-bottom: 1px solid #E5E5E5;
+  background: linear-gradient(90deg, #F7F7F7 0%, #EFEFEF 50%, #F7F7F7 100%) 0 0 / 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+
+.skeletonSummary {
+  min-height: 360px;
+  background: #FAFAFA;
+}
+
+@keyframes skeletonPulse {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonItem {
+    animation: none;
+  }
+}
+
 .cartItem {
   display: grid;
   grid-template-columns: 100px 1fr auto;

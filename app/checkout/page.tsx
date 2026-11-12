@@ -1,6 +1,6 @@
 'use client';
 
-import { useCart } from '@/lib/store';
+import { useCart, useCartHydrated } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
@@ -15,12 +15,19 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('boxnow');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  // The cart lives in localStorage: render nothing from it until React has hydrated, or
+  // the browser's first render (with items) differs from the server's (without).
+  const hydrated = useCartHydrated();
 
   useEffect(() => {
-    if (items.length === 0 && !isRedirecting) {
+    if (hydrated && items.length === 0 && !isRedirecting) {
       router.push('/cart');
     }
-  }, [items, router, isRedirecting]);
+  }, [hydrated, items, router, isRedirecting]);
+
+  if (!hydrated) {
+    return <Navbar />;
+  }
 
   if (isRedirecting) {
     return (

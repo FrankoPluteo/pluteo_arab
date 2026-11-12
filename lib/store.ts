@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product, CartItem } from '@/types';
@@ -106,3 +107,23 @@ export const useCart = create<CartStore>()(
     }
   )
 );
+
+const subscribeToHydration = (onChange: () => void) => useCart.persist.onFinishHydration(onChange);
+
+/**
+ * Whether the cart may be rendered from its saved contents yet.
+ *
+ * The server has no localStorage, so it renders every cart as empty, while the browser
+ * restores the saved cart before React hydrates. Rendering items (or "your cart is empty")
+ * straight away makes the first browser render differ from the server HTML: React error
+ * #418, and on a reload the server's "empty cart" flashes before the items appear.
+ * This is false on the server and during hydration, and true from the first render after,
+ * so pages render a neutral placeholder until then.
+ */
+export function useCartHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeToHydration,
+    () => useCart.persist.hasHydrated(),
+    () => false
+  );
+}

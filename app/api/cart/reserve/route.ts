@@ -17,24 +17,30 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const cartSessionId = url.searchParams.get('cartSessionId');
 
+    // `now` is the server clock: the cart counts down against it, not the device clock.
     if (!cartSessionId) {
-      return NextResponse.json({ expiresAt: null });
+      return NextResponse.json({ expiresAt: null, now: Date.now() });
     }
 
     // Fire-and-forget so this response is not blocked by cleanup.
     cleanupExpiredReservations().catch(console.error);
 
+    // Only live holds: an expired row the cleanup hasn't removed yet would otherwise
+    // make the cart count down from the past and empty itself.
+    const now = new Date();
     const earliest = await prisma.cartReservation.findFirst({
-      where: { cartSessionId },
+      where: { cartSessionId, expiresAt: { gt: now } },
       orderBy: { expiresAt: 'asc' },
     });
 
     return NextResponse.json({
       expiresAt: earliest ? earliest.expiresAt.getTime() : null,
+      now: now.getTime(),
     });
   } catch (error: any) {
     console.error('GET reservation error:', error);
-    return NextResponse.json({ expiresAt: null });
+    // Not "no holds": the cart must not treat a database hiccup as expiry and empty itself.
+    return NextResponse.json({ expiresAt: null, error: 'unavailable' }, { status: 503 });
   }
 }
 

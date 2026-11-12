@@ -6,28 +6,34 @@ export async function GET(request: Request) {
   const q = searchParams.get('q')?.trim() || '';
 
   if (q.length < 2) {
-    return NextResponse.json({ products: [] });
+    return NextResponse.json({ products: [], total: 0 });
   }
 
-  const products = await prisma.product.findMany({
-    where: {
-      OR: [
-        { name: { contains: q, mode: 'insensitive' } },
-        { brand: { name: { contains: q, mode: 'insensitive' } } },
-        { fragranceProfiles: { has: q.toLowerCase() } },
-      ],
-    },
-    select: {
-      id: true,
-      name: true,
-      price: true,
-      discountAmount: true,
-      images: true,
-      brand: { select: { name: true } },
-    },
-    orderBy: [{ isBestSeller: 'desc' }, { isFeatured: 'desc' }],
-    take: 6,
-  });
+  const where = {
+    OR: [
+      { name: { contains: q, mode: 'insensitive' as const } },
+      { brand: { name: { contains: q, mode: 'insensitive' as const } } },
+      { fragranceProfiles: { has: q.toLowerCase() } },
+    ],
+  };
 
-  return NextResponse.json({ products });
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        discountAmount: true,
+        images: true,
+        brand: { select: { name: true } },
+      },
+      orderBy: [{ isBestSeller: 'desc' }, { isFeatured: 'desc' }],
+      take: 6,
+    }),
+    // All matches, not just the 6 shown: search_performed reports it as results_count.
+    prisma.product.count({ where }),
+  ]);
+
+  return NextResponse.json({ products, total });
 }

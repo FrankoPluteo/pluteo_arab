@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { markInternalDevice } from '@/lib/analytics';
 
 function AdminLoginForm() {
   const [password, setPassword] = useState('');
@@ -29,6 +30,9 @@ function AdminLoginForm() {
         setLoading(false);
         return;
       }
+
+      // Our own device: keep its shop visits out of the analytics from now on.
+      markInternalDevice();
 
       // Only redirect to relative /admin/* paths — reject anything else to prevent open redirect
       const raw = searchParams.get('redirect') || '';

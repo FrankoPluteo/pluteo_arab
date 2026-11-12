@@ -341,6 +341,9 @@ export async function POST(request: Request) {
         // PostHog: the webhook sends `purchase` under this browser's ID, and only creates a
         // person profile when the buyer accepted analytics cookies.
         ph_distinct_id: typeof analytics?.distinctId === 'string' ? analytics.distinctId.slice(0, 200) : '',
+        // The browser's PostHog session, so the purchase lands in the same session as the
+        // visit that led to it (web analytics channels, session funnels, replay).
+        ph_session_id: typeof analytics?.sessionId === 'string' ? analytics.sessionId.slice(0, 200) : '',
         analytics_consent: analytics?.consent === true ? '1' : '0',
       },
     };

@@ -123,9 +123,19 @@ export async function POST(request: Request) {
                 price: toCents(item.unitPrice),
                 quantity: item.quantity,
               })),
+              products: purchased.map((item) => ({
+                id: item.product.id,
+                name: item.product.name,
+                brand: item.product.brand?.name ?? null,
+                price: toCents(item.unitPrice),
+                quantity: item.quantity,
+              })),
               item_count: purchased.reduce((sum, item) => sum + item.quantity, 0),
               promo_code: order.promoCode ?? null,
               influencer_code: order.affiliateCode ?? null,
+              // Same session as the browser visit; only with consent, as before nothing
+              // else about a visitor without consent is joined up.
+              ...(consented && session.metadata?.ph_session_id ? { $session_id: session.metadata.ph_session_id } : {}),
               ...(consented ? {} : { $process_person_profile: false }),
             });
           });

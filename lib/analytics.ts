@@ -26,6 +26,52 @@ const REPORT_ERRORS = process.env.NODE_ENV === 'production';
 // Admin pages are our own work, not shopper behaviour.
 const IGNORED_PATH_PREFIXES = ['/admin'];
 
+// Our own devices: set by ?internal=1 (cleared by ?internal=0) or by using /admin, and sent
+// as the internal_user super property, which the PostHog project filters out.
+const INTERNAL_FLAG_KEY = 'pluteo-internal';
+
+function readInternalFlag(): boolean {
+  try {
+    return localStorage.getItem(INTERNAL_FLAG_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeInternalFlag(on: boolean) {
+  try {
+    if (on) localStorage.setItem(INTERNAL_FLAG_KEY, '1');
+    else localStorage.removeItem(INTERNAL_FLAG_KEY);
+  } catch {
+    // storage unavailable: the flag can't be remembered on this device
+  }
+}
+
+/** Reads ?internal=1 / ?internal=0, and marks devices that use the admin pages. */
+function syncInternalFlagFromPage() {
+  const value = new URLSearchParams(window.location.search).get('internal');
+  if (value === '1') writeInternalFlag(true);
+  else if (value === '0') writeInternalFlag(false);
+  // The middleware sends anyone who isn't logged in to /admin/login, so any other admin
+  // page means a logged-in admin.
+  else if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+    writeInternalFlag(true);
+  }
+}
+
+/** Puts the stored flag on (or takes it off) every event this page sends. */
+function applyInternalFlag() {
+  if (!isReady()) return;
+  if (readInternalFlag()) posthog.register({ internal_user: true });
+  else posthog.unregister('internal_user');
+}
+
+/** Marks this device as ours, e.g. right after an admin login. */
+export function markInternalDevice() {
+  writeInternalFlag(true);
+  applyInternalFlag();
+}
+
 function isReady(): boolean {
   return typeof window !== 'undefined' && posthog.__loaded;
 }
@@ -89,6 +135,12 @@ export function initAnalytics() {
       // Elements with the ph-mask class have their text masked as well (rrweb's maskTextClass).
     },
     before_send: dropIgnoredPaths,
+    // Super properties are registered only once PostHog is up, under whichever
+    // persistence the consent choice above picked.
+    loaded: () => {
+      syncInternalFlagFromPage();
+      applyInternalFlag();
+    },
   });
 
   onStoredConsentChange((state) => onConsentChange(state.analytics));
@@ -105,6 +157,8 @@ export function onConsentChange(granted: boolean) {
     posthog.reset();
     posthog.set_config({ persistence: 'memory' });
     clearStoredIds();
+    // reset() drops super properties; an internal device stays internal.
+    applyInternalFlag();
   }
 }
 
@@ -165,9 +219,28 @@ export function identifyBuyer(email: string, properties: { first_order_at: strin
 }
 
 /** Sent with the checkout request, so the server side purchase joins this browser session. */
-export function getAnalyticsContext(): { distinctId: string | null; consent: boolean } {
+export function getAnalyticsContext(): { distinctId: string | null; sessionId: string | null; consent: boolean } {
   return {
     distinctId: isReady() ? posthog.get_distinct_id() : null,
+    sessionId: isReady() ? posthog.get_session_id() || null : null,
     consent: hasConsent('analytics'),
   };
+}
+
+// The same search is often reported twice in a row: once while typing in the navbar,
+// then again by the results page when Enter is pressed.
+const SEARCH_REPEAT_MS = 10_000;
+let lastSearch: { query: string; at: number } | null = null;
+
+/**
+ * search_performed { query, results_count, source }. Called once typing has paused (800 ms)
+ * or when a search is submitted; the same query within 10 s is only sent once.
+ */
+export function trackSearch(query: string, resultsCount: number, source: 'instant' | 'results_page') {
+  const normalized = query.trim().toLowerCase().replace(/\s+/g, ' ');
+  if (normalized.length < 2) return;
+  const now = Date.now();
+  if (lastSearch && lastSearch.query === normalized && now - lastSearch.at < SEARCH_REPEAT_MS) return;
+  lastSearch = { query: normalized, at: now };
+  track('search_performed', { query: normalized, results_count: resultsCount, source });
 }

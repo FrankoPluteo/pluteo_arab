@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/languageContext';
 import { captureEmail } from '@/lib/emailCapture';
 import { track } from '@/lib/analytics';
@@ -10,6 +10,10 @@ export default function EmailModal() {
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  // A cold database can make the signup take a few seconds; people clicked NASTAVI again
+  // and every click sent (and counted) another signup. One request at a time.
+  const inFlight = useRef(false);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -22,15 +26,20 @@ export default function EmailModal() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) return;
+    if (!email || inFlight.current) return;
+    inFlight.current = true;
+    setSending(true);
 
     let accepted: boolean;
     try {
       accepted = await captureEmail(email);
     } catch {
       // Network dropped: keep the form open so the address can be sent again.
+      inFlight.current = false;
+      setSending(false);
       return;
     }
+    // Counted once, and only when the server has saved the address.
     if (accepted) track('newsletter_signup', { source: 'popup' });
     setSubmitted(true);
   }
@@ -67,8 +76,8 @@ export default function EmailModal() {
                 onChange={(e) => setEmail(e.target.value)}
                 className={styles.input}
               />
-              <button type="submit" className={styles.submitBtn}>
-                {t.emailModal.submit}
+              <button type="submit" className={styles.submitBtn} disabled={sending} aria-busy={sending}>
+                {sending ? '…' : t.emailModal.submit}
               </button>
             </form>
             <button className={styles.skipBtn} onClick={handleDismiss}>

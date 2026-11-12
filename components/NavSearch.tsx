@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/languageContext';
-import { productCaptureAttributes } from '@/lib/analytics';
+import { productCaptureAttributes, trackSearch } from '@/lib/analytics';
+
+// search_performed is sent once typing has paused this long (or on Enter / "view all").
+const SEARCH_IDLE_MS = 800;
 import styles from '@/styles/navsearch.module.css';
 
 interface SearchProduct {
@@ -48,18 +51,29 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
       return;
     }
     setLoading(true);
+    let idleTimer: ReturnType<typeof setTimeout> | undefined;
+    const startedAt = Date.now();
     const handle = setTimeout(async () => {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
         const data = await res.json();
         setResults(data.products || []);
+        const total = typeof data.total === 'number' ? data.total : (data.products || []).length;
+        // Report the search once the customer stops typing, with how many products match.
+        idleTimer = setTimeout(
+          () => trackSearch(query, total, 'instant'),
+          Math.max(0, SEARCH_IDLE_MS - (Date.now() - startedAt))
+        );
       } catch {
         setResults([]);
       } finally {
         setLoading(false);
       }
     }, 250);
-    return () => clearTimeout(handle);
+    return () => {
+      clearTimeout(handle);
+      clearTimeout(idleTimer);
+    };
   }, [query]);
 
   // Close dropdown on outside click / Escape

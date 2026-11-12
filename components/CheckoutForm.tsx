@@ -69,6 +69,8 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       type: 'popup',
       buttonSelector: '.boxnow-map-widget-button',
       afterSelect: function (selected: any) {
+        // No locker details: which locker someone uses stays out of analytics.
+        track('locker_selected', { shipping_method: 'boxnow' });
         setSelectedLockerRef.current({
           id: selected.boxnowLockerId,
           address: selected.boxnowLockerAddressLine1 || '',
@@ -128,10 +130,12 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
 
     if (shippingMethod === 'boxnow') {
       if (!selectedLocker) {
+        track('checkout_error', { step: 'validation', message: 'locker_missing' });
         setError(t.checkout.selectLockerError);
         return;
       }
       if (!formData.phone) {
+        track('checkout_error', { step: 'validation', message: 'phone_missing' });
         setError(t.checkout.phoneRequiredError);
         return;
       }
@@ -183,6 +187,7 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
       const data = await response.json();
 
       if (data.code === 'stock_unavailable' && Array.isArray(data.unavailable)) {
+        track('checkout_error', { step: 'stock', message: 'stock_unavailable' });
         setUnavailable(data.unavailable);
         setLoading(false);
         return;
@@ -202,6 +207,8 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     } catch (err: any) {
       console.error('Checkout error:', err);
       track('checkout_failed', { ...funnelProps, error: err.message || 'unknown' });
+      // The server's message (or the network error); it never contains the customer's details.
+      track('checkout_error', { step: 'payment', message: String(err.message || 'unknown').slice(0, 200) });
       setError(err.message || t.checkout.somethingWentWrong);
       setLoading(false);
     }

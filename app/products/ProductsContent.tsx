@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Image from 'next/image';
 import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
@@ -8,7 +9,7 @@ import ProductFilters from '@/components/ProductFilters';
 import SearchBar from '@/components/SearchBar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
-import { brandList } from '@/lib/analytics';
+import { brandList, trackSearch } from '@/lib/analytics';
 import styles from '@/styles/products.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
@@ -40,7 +41,12 @@ export default function ProductsContent({
   search,
 }: ProductsContentProps) {
   const { t } = useLanguage();
-  const ITEMS_PER_PAGE = 9;
+  const ITEMS_PER_PAGE = 12;
+
+  // A submitted search (navbar Enter, "view all", the search bar here) lands on this page.
+  useEffect(() => {
+    if (search) trackSearch(search, totalProducts, 'results_page');
+  }, [search, totalProducts]);
 
   const brandFilter = searchParams.brand;
   const genderFilter = searchParams.gender;

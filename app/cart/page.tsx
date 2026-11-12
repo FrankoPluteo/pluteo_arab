@@ -11,6 +11,7 @@ import TesterModal from '@/components/TesterModal';
 import { useLanguage } from '@/lib/languageContext';
 import { useCartPrefill, codeProblemKey, CodeProblemKey } from '@/lib/cartPrefill';
 import { productProps, track, trackPromo } from '@/lib/analytics';
+import { normalizeCode } from '@/lib/promoCode';
 
 function formatTime(ms: number): string {
   if (ms <= 0) return '00:00';
@@ -281,7 +282,7 @@ export default function CartPage() {
   async function handleApplyCode(e: React.FormEvent) {
     e.preventDefault();
     setCodeNotice(null);
-    const code = codeInput.trim().toUpperCase();
+    const code = normalizeCode(codeInput);
     if (!code) return;
     setCodeStatus('loading');
     setCodeError('');
@@ -519,8 +520,15 @@ export default function CartPage() {
                 type="text"
                 placeholder={t.cart.codePlaceholder ?? 'Promo or affiliate code'}
                 value={codeInput}
-                onChange={(e) => { setCodeInput(e.target.value.toUpperCase()); setCodeStatus('idle'); }}
+                // Codes never contain spaces: "petra 15" is entered as PETRA15.
+                onChange={(e) => { setCodeInput(normalizeCode(e.target.value)); setCodeStatus('idle'); }}
                 className={styles.promoInput}
+                aria-label={t.cart.codePlaceholder}
+                autoCapitalize="characters"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
+                enterKeyHint="done"
               />
               <button
                 type="submit"

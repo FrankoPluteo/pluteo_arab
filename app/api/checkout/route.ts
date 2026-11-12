@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { calculateShipping, isFreeShippingEligible, isCountryAllowed, ShippingMethod } from '@/lib/shipping';
 import { AFFILIATE_DISCOUNT_RATE } from '@/lib/affiliateConfig';
 import { CHECKOUT_HOLD_MINUTES, ensureCartReservations, parseCartLines } from '@/lib/cartReservation';
+import { codeLookupCandidates, normalizeCode } from '@/lib/promoCode';
 
 export async function POST(request: Request) {
   try {
@@ -166,9 +167,10 @@ export async function POST(request: Request) {
     let validatedPromoCode: string | null = null;
     let promoFreeShipping = false;
 
-    if (promoCodeInput) {
-      const promo = await prisma.promoCode.findUnique({
-        where: { code: promoCodeInput.toUpperCase() },
+    const promoCandidates = codeLookupCandidates(promoCodeInput);
+    if (promoCandidates.length > 0) {
+      const promo = await prisma.promoCode.findFirst({
+        where: { code: { in: promoCandidates } },
       });
 
       const nowCheck = new Date();
@@ -225,9 +227,10 @@ export async function POST(request: Request) {
     // Validate affiliate code if provided — also grants a 10% customer discount
     let validatedAffiliateCode: string | null = null;
     let affiliateDiscount = 0;
-    if (affiliateCodeInput) {
+    const normalizedAffiliateCode = normalizeCode(affiliateCodeInput);
+    if (normalizedAffiliateCode) {
       const affiliate = await prisma.affiliate.findUnique({
-        where: { affiliateCode: affiliateCodeInput.toUpperCase().trim() },
+        where: { affiliateCode: normalizedAffiliateCode },
         select: { affiliateCode: true, status: true },
       });
       if (affiliate && affiliate.status === 'active') {

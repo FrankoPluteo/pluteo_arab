@@ -1,6 +1,7 @@
 'use client';
 
 import { hasConsent } from '@/lib/consent';
+import { normalizeCode } from '@/lib/promoCode';
 
 /**
  * First-touch campaign attribution, only with analytics consent. On any landing page, the
@@ -24,7 +25,7 @@ const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 /** The code a landing URL brings, in the precedence the /jesen page applies it. */
 export function getUrlCode(params: URLSearchParams): string {
-  return (params.get('promo') || params.get('code') || params.get('ref') || '').trim().toUpperCase();
+  return normalizeCode(params.get('promo') || params.get('code') || params.get('ref') || '');
 }
 
 function readStored(): Attribution | null {

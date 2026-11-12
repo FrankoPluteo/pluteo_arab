@@ -310,11 +310,21 @@
   border: 1px solid #E5E5E5;
   border-right: none;
   font-family: inherit;
-  font-size: 12px;
+  /* 16px or more, or iOS Safari zooms the page in when the field is focused */
+  font-size: 16px;
   letter-spacing: 1px;
   outline: none;
   transition: border-color 200ms ease;
   color: #111111;
+  border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.promoInput::placeholder {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: #AAAAAA;
 }
 
 .promoInput:focus {

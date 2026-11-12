@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { codeLookupCandidates } from '@/lib/promoCode';
 
 export async function POST(request: Request) {
   const { code, subtotal, customerEmail, cartItems } = await request.json();
 
-  if (!code) {
+  // "petra 15", " Petra15" and "PETRA15" are the same code.
+  const candidates = codeLookupCandidates(code);
+  if (candidates.length === 0) {
     return NextResponse.json({ valid: false, reason: 'not_found', message: 'Enter a promo code.' });
   }
 
-  const promo = await prisma.promoCode.findUnique({
-    where: { code: code.toUpperCase() },
+  const promo = await prisma.promoCode.findFirst({
+    where: { code: { in: candidates } },
   });
 
   if (!promo || !promo.isActive) {

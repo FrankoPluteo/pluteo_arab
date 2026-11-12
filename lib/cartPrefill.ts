@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { productProps, track, trackPromo, type PromoSource } from '@/lib/analytics';
+import { getUrlCode } from '@/lib/attribution';
 
 /**
  * Share-link cart prefill.
@@ -116,14 +117,7 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
     async function applyLink() {
       const params = new URLSearchParams(window.location.search);
       const specs = parseAddSpecs(params);
-      const code = (
-        params.get('promo') ||
-        params.get('code') ||
-        params.get('ref') ||
-        ''
-      )
-        .trim()
-        .toUpperCase();
+      const code = getUrlCode(params);
 
       await whenHydrated();
 

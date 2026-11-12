@@ -413,6 +413,90 @@
   margin-bottom: 16px;
 }
 
+/* Empty cart with a saved code: one centered card telling the customer what to do next */
+.codeSavedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+}
+
+.codeSavedContainer .stockError {
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+}
+
+.codeSavedCard {
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 48px 40px;
+  border: 1px solid #E5E5E5;
+  background: #ffffff;
+}
+
+.codeSavedEyebrow {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #2E7D32;
+  margin: 0 0 20px;
+}
+
+.codeSavedTicket {
+  display: inline-block;
+  padding: 14px 28px;
+  border: 2px dashed #111111;
+  background: #F7F7F7;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  color: #111111;
+  margin-bottom: 32px;
+  word-break: break-all;
+}
+
+.codeSavedHeading {
+  font-size: 24px;
+  font-weight: 400;
+  color: #111111;
+  margin: 0 0 14px;
+  letter-spacing: 0.3px;
+}
+
+.codeSavedBody {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555555;
+  margin: 0 auto 32px;
+  max-width: 400px;
+}
+
+.codeSavedCta {
+  margin-top: 0;
+  padding: 18px;
+  font-size: 12px;
+}
+
+.codeSavedRemove {
+  margin-top: 18px;
+  background: none;
+  border: none;
+  padding: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #888888;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.codeSavedRemove:hover {
+  color: #111111;
+}
+
 .stockError {
   background: #FEF2F2;
   border: 1px solid #FECACA;
@@ -438,6 +522,23 @@
   .cartContainer {
     padding: 32px 20px;
     margin-top: 64px;
+  }
+
+  .codeSavedContainer {
+    min-height: calc(100vh - 64px);
+  }
+
+  .codeSavedCard {
+    padding: 36px 20px;
+  }
+
+  .codeSavedTicket {
+    font-size: 18px;
+    padding: 12px 20px;
+  }
+
+  .codeSavedHeading {
+    font-size: 20px;
   }
 
   .pageTitle {

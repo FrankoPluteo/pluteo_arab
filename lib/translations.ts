@@ -138,8 +138,13 @@ export const translations = {
         notStarted: "This code isn't active yet.",
         notApplicable: "This code can't be applied to the current cart.",
       },
-      codeReady: (code: string) =>
-        `Code ${code} is saved. Add items to your cart and the discount is applied automatically.`,
+      codeSaved: {
+        eyebrow: 'Your code is saved',
+        heading: 'Now add something to your cart',
+        body: 'Your cart is empty, so there is nothing to apply the discount to yet. Add at least one product and the code will be applied automatically.',
+        cta: 'Continue Shopping',
+        removeCode: 'Remove code',
+      },
       apply: 'APPLY',
       discount: 'Discount',
       total: 'Total',
@@ -616,8 +621,13 @@ export const translations = {
         notStarted: 'Ovaj kod još nije aktivan.',
         notApplicable: 'Ovaj kod se ne može primijeniti na trenutnu košaricu.',
       },
-      codeReady: (code: string) =>
-        `Kod ${code} je spremljen. Dodajte proizvode u košaricu i popust će se primijeniti automatski.`,
+      codeSaved: {
+        eyebrow: 'Vaš kod je spremljen',
+        heading: 'Sada dodajte proizvod u košaricu',
+        body: 'Vaša košarica je prazna pa popust još nema na što primijeniti. Dodajte barem jedan proizvod i kod će se primijeniti automatski.',
+        cta: 'Nastavi Kupovinu',
+        removeCode: 'Ukloni kod',
+      },
       apply: 'PRIMIJENI',
       discount: 'Popust',
       total: 'Ukupno',

@@ -344,15 +344,42 @@ export default function CartPage() {
   }
 
   if (items.length === 0) {
+    // A code is saved but there is nothing to apply it to: make that the whole page,
+    // so the customer sees the code is kept and that the next step is adding a product.
+    const savedCode = !problemKey ? promoCode || affiliateCode : null;
+    if (savedCode) {
+      return (
+        <div>
+          <Navbar />
+          <div className={`${styles.cartContainer} ${styles.codeSavedContainer}`}>
+            {prefill.error && <div className={styles.stockError}>{prefill.error}</div>}
+            <div className={styles.codeSavedCard} role="status">
+              <p className={styles.codeSavedEyebrow}>✓ {t.cart.codeSaved.eyebrow}</p>
+              <div className={styles.codeSavedTicket}>{savedCode}</div>
+              <h2 className={styles.codeSavedHeading}>{t.cart.codeSaved.heading}</h2>
+              <p className={styles.codeSavedBody}>{t.cart.codeSaved.body}</p>
+              <Link href="/products" className={`${styles.checkoutButton} ${styles.codeSavedCta}`}>
+                {t.cart.codeSaved.cta} →
+              </Link>
+              <button
+                type="button"
+                className={styles.codeSavedRemove}
+                onClick={promoCode ? removePromo : removeAffiliate}
+              >
+                {t.cart.codeSaved.removeCode}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div>
         <Navbar />
         <div className={styles.cartContainer}>
           {prefill.error && <div className={styles.stockError}>{prefill.error}</div>}
           {codeProblemNotice}
-          {promoCode && !problemKey && (
-            <div className={styles.codeNotice}>{t.cart.codeReady(promoCode)}</div>
-          )}
           <div className={styles.emptyCart}>
             <h2>{t.cart.empty.heading}</h2>
             <p>{t.cart.empty.subheading}</p>

@@ -8,11 +8,15 @@ import styles from '@/styles/reviewsummary.module.css';
 
 interface ReviewSummaryProps {
   productId: string;
+  /** Rendered by the server with the page; without them the stats are fetched here. */
+  initialAverage?: number;
+  initialCount?: number;
 }
 
-export default function ReviewSummary({ productId }: ReviewSummaryProps) {
-  const [averageRating, setAverageRating] = useState(0);
-  const [reviewCount, setReviewCount] = useState(0);
+export default function ReviewSummary({ productId, initialAverage, initialCount }: ReviewSummaryProps) {
+  const hasInitial = initialAverage !== undefined && initialCount !== undefined;
+  const [averageRating, setAverageRating] = useState(initialAverage ?? 0);
+  const [reviewCount, setReviewCount] = useState(initialCount ?? 0);
   const { t } = useLanguage();
 
   const fetchAggregates = useCallback(async () => {
@@ -28,9 +32,11 @@ export default function ReviewSummary({ productId }: ReviewSummaryProps) {
     }
   }, [productId]);
 
+  // Only when the page didn't bring the numbers: a fetch after load changed the text
+  // (0 → 4.8, 0 reviews → 12 reviews) and cost a request on every product view.
   useEffect(() => {
-    fetchAggregates();
-  }, [fetchAggregates]);
+    if (!hasInitial) fetchAggregates();
+  }, [fetchAggregates, hasInitial]);
 
   return (
     <div className={styles.reviewSummary}>

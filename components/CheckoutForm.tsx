@@ -58,11 +58,20 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     country: 'HR',
   });
 
-  // Load the BoxNow widget script once on mount.
-  // The #boxnowmap div and .boxnow-widget-button element must already be in the
-  // DOM when the script runs — that's why we keep them always rendered (hidden
-  // via CSS when GLS is selected).
-  useEffect(() => {
+  // The BoxNow map widget is a large third-party script. It used to load with the page and
+  // slowed down every tap and keystroke on /checkout (INP ~440 ms), so it now loads only
+  // when the customer goes for the locker button. The #boxnowmap div and the button must
+  // be in the DOM when the script runs (it binds to them then), which is why they are
+  // always rendered (hidden via CSS when GLS is selected).
+  const boxnowState = useRef<'idle' | 'loading' | 'ready'>('idle');
+  const boxnowOnReady = useRef<(() => void) | null>(null);
+  const lockerButtonRef = useRef<HTMLButtonElement>(null);
+  const [lockerWidgetLoading, setLockerWidgetLoading] = useState(false);
+
+  function loadBoxnowWidget() {
+    if (boxnowState.current !== 'idle') return;
+    boxnowState.current = 'loading';
+
     (window as any)._bn_map_widget_config = {
       partnerId: 13783,
       parentElement: '#boxnowmap',
@@ -82,8 +91,33 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
     const script = document.createElement('script');
     script.src = 'https://widget-cdn.boxnow.hr/map-widget/client/v5.js';
     script.async = true;
+    script.onload = () => {
+      boxnowState.current = 'ready';
+      const onReady = boxnowOnReady.current;
+      boxnowOnReady.current = null;
+      onReady?.();
+    };
+    script.onerror = () => {
+      // Let the next press try again
+      boxnowState.current = 'idle';
+      setLockerWidgetLoading(false);
+      track('checkout_error', { step: 'locker', message: 'boxnow_widget_failed' });
+    };
     document.head.appendChild(script);
-  }, []); // runs once on mount
+  }
+
+  function handleLockerButtonClick(e: React.MouseEvent<HTMLButtonElement>) {
+    if (boxnowState.current === 'ready') return; // the widget's own handler opens the map
+    // First press: load the widget, then press the button again for the customer so the
+    // map opens without a second tap.
+    e.preventDefault();
+    setLockerWidgetLoading(true);
+    boxnowOnReady.current = () => {
+      setLockerWidgetLoading(false);
+      requestAnimationFrame(() => lockerButtonRef.current?.click());
+    };
+    loadBoxnowWidget();
+  }
 
   // Refresh the cart's stock holds as the checkout opens: the 15-minute cart hold may
   // have lapsed on the way here. A lapsed hold is re-reserved silently while the stock
@@ -276,8 +310,20 @@ export default function CheckoutForm({ onShippingMethodChange, onRedirecting }: 
             (and the map around it) never reaches PostHog autocapture or session replay. */}
         <div id="boxnowmap" className="ph-no-capture" />
 
-        <button type="button" className={`boxnow-map-widget-button ${styles.boxnowSelectBtn}`}>
-          {selectedLocker ? t.checkout.changeLocker : t.checkout.selectLocker}
+        <button
+          ref={lockerButtonRef}
+          type="button"
+          className={`boxnow-map-widget-button ${styles.boxnowSelectBtn}`}
+          // Start downloading as the finger/mouse goes down, a little before the click
+          onPointerDown={loadBoxnowWidget}
+          onClick={handleLockerButtonClick}
+          aria-busy={lockerWidgetLoading}
+        >
+          {lockerWidgetLoading
+            ? t.checkout.loadingLockers
+            : selectedLocker
+              ? t.checkout.changeLocker
+              : t.checkout.selectLocker}
         </button>
 
         {selectedLocker ? (

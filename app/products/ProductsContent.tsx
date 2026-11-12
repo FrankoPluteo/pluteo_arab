@@ -13,6 +13,9 @@ import { brandList, trackSearch } from '@/lib/analytics';
 import styles from '@/styles/products.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
+// 3 columns above 1024px, 2 below; the image is 80% of the card.
+const PRODUCTS_GRID_SIZES = '(max-width: 1024px) 42vw, 26vw';
+
 interface FilterOptions {
   brands: string[];
   concentrations: string[];
@@ -93,7 +96,15 @@ export default function ProductsContent({
         <>
           <div className={styles.productsGrid}>
             {products.map((product, index) => (
-              <ProductCard key={product.id} product={product} list={list} position={skip + index} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                list={list}
+                position={skip + index}
+                // First row (3 across on desktop, 2 on phones) holds the largest paint
+                eager={index < 3}
+                sizes={PRODUCTS_GRID_SIZES}
+              />
             ))}
           </div>
 

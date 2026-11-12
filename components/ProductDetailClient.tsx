@@ -13,6 +13,10 @@ interface ProductDetailClientProps {
   product: Product;
 }
 
+// The phone slider (image inset 15%) and the desktop main image (inset 20%) use the same
+// sizes, so the browser picks the same file for both and downloads the photo only once.
+const PRODUCT_IMAGE_SIZES = '(max-width: 768px) 70vw, (max-width: 1024px) 60vw, 30vw';
+
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
@@ -111,8 +115,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                       alt={`${product.brand?.name || ''} ${product.name} – arapski parfem, fotografija ${index + 1}`}
                       fill
                       style={{ objectFit: 'contain' }}
-                      loading="lazy"
-                      sizes="100vw"
+                      // The first photo is the largest paint on phones: fetch it right away.
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      sizes={PRODUCT_IMAGE_SIZES}
                     />
                   </div>
                 </div>
@@ -128,7 +134,9 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   alt={`${product.brand?.name || ''} ${product.name} – ${product.concentration} ${product.size}ml arapski parfem`}
                   fill
                   style={{ objectFit: 'contain' }}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading={selectedImage === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={selectedImage === 0 ? 'high' : 'auto'}
+                  sizes={PRODUCT_IMAGE_SIZES}
                 />
               </div>
             ) : (
@@ -268,7 +276,11 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             </div>
           </div>
 
-          <ReviewSummary productId={product.id} />
+          <ReviewSummary
+            productId={product.id}
+            initialAverage={product.averageRating}
+            initialCount={product.reviewCount}
+          />
         </div>
       </div>
     </div>

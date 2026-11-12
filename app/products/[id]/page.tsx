@@ -220,7 +220,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   };
 
   // Serialize the product data for the client component
-  const serializedProduct = JSON.parse(JSON.stringify(product));
+  // Review stats go with the product so the reviews block renders complete, no client fetch.
+  const serializedProduct = JSON.parse(
+    JSON.stringify({
+      ...product,
+      averageRating: reviewStats._avg.rating ?? 0,
+      reviewCount: reviewStats._count.rating,
+    })
+  );
 
   return (
     <div>

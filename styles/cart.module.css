@@ -415,6 +415,30 @@
   color: #111111;
 }
 
+/* "Imaš kod za popust?": a quiet link, so the code field doesn't pull focus from checkout */
+.promoToggle {
+  display: inline-block;
+  margin: 14px 0 6px;
+  padding: 6px 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: #666666;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.promoToggle:hover {
+  color: #111111;
+}
+
+/* Fixed checkout bar, phones only (see the 768px media query) */
+.mobileCheckoutBar {
+  display: none;
+}
+
 .discountValue {
   color: #2E7D32;
 }
@@ -605,5 +629,67 @@
 
   .orderSummary {
     padding: 24px;
+  }
+
+  /* Room under the summary so the fixed bar never covers it */
+  .cartLayout {
+    padding-bottom: 96px;
+  }
+
+  /* The fixed bar below is the checkout button on phones */
+  .summaryCheckoutButton {
+    display: none;
+  }
+
+  .mobileCheckoutBar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+    background: #ffffff;
+    border-top: 1px solid #E5E5E5;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  .mobileCheckoutTotal {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .mobileCheckoutTotal span {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #888888;
+  }
+
+  .mobileCheckoutTotal strong {
+    font-size: 17px;
+    font-weight: 500;
+    color: #111111;
+  }
+
+  .mobileCheckoutButton {
+    flex: 1;
+    min-height: 48px;
+    padding: 14px 12px;
+    background: #111111;
+    color: #ffffff;
+    border: 1px solid #111111;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
   }
 }

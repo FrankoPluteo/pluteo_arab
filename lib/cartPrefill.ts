@@ -214,6 +214,7 @@ interface FallbackPromo {
   code: string;
   discountAmount: number;
   freeShipping: boolean;
+  percent: number | null;
   deferred?: boolean;
 }
 
@@ -241,7 +242,7 @@ async function applyCodeFromLink(
   });
   const promoData = await promoRes.json();
   if (promoData.valid) {
-    state.applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping);
+    state.applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping, promoData.percent);
     trackPromo({ code: promoData.code, code_type: 'promo', source, success: true, discount: promoData.discountAmount });
     return { applied: true };
   }
@@ -277,7 +278,7 @@ async function applyCodeFromLink(
   const fallback: FallbackPromo | undefined = promoData.fallback;
   const current = useCart.getState();
   if (fallback?.code && problem !== 'notApplicable' && !current.promoCode && !current.affiliateCode) {
-    current.applyPromo(fallback.code, fallback.discountAmount, fallback.freeShipping);
+    current.applyPromo(fallback.code, fallback.discountAmount, fallback.freeShipping, fallback.percent);
     trackPromo({ code, code_type: 'promo', source, success: false, reason, handled: 'fallback' });
     trackPromo({
       code: fallback.code,

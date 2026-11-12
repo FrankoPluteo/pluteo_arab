@@ -14,6 +14,8 @@ interface CartStore {
   promoCode: string | null;
   promoDiscount: number;
   promoFreeShipping: boolean;
+  /** The code's percentage for "PETRA15 −15%", or null for a fixed amount / not known yet. */
+  promoPercent: number | null;
   affiliateCode: string | null;
   affiliateName: string | null;
   affiliateDiscountRate: number;
@@ -22,7 +24,7 @@ interface CartStore {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
-  applyPromo: (code: string, discount: number, freeShipping: boolean) => void;
+  applyPromo: (code: string, discount: number, freeShipping: boolean, percent?: number | null) => void;
   removePromo: () => void;
   applyAffiliate: (code: string, name: string) => void;
   removeAffiliate: () => void;
@@ -39,6 +41,7 @@ export const useCart = create<CartStore>()(
       promoCode: null,
       promoDiscount: 0,
       promoFreeShipping: false,
+      promoPercent: null,
       affiliateCode: null,
       affiliateName: null,
       affiliateDiscountRate: 0,
@@ -77,15 +80,15 @@ export const useCart = create<CartStore>()(
       },
 
       clearCart: () =>
-        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false, affiliateCode: null, affiliateName: null, affiliateDiscountRate: 0, selectedTester: null }),
+        set({ items: [], promoCode: null, promoDiscount: 0, promoFreeShipping: false, promoPercent: null, affiliateCode: null, affiliateName: null, affiliateDiscountRate: 0, selectedTester: null }),
 
       setTester: (product) => set({ selectedTester: product }),
 
-      applyPromo: (code, discount, freeShipping) =>
-        set({ promoCode: code, promoDiscount: discount, promoFreeShipping: freeShipping }),
+      applyPromo: (code, discount, freeShipping, percent = null) =>
+        set({ promoCode: code, promoDiscount: discount, promoFreeShipping: freeShipping, promoPercent: percent }),
 
       removePromo: () =>
-        set({ promoCode: null, promoDiscount: 0, promoFreeShipping: false }),
+        set({ promoCode: null, promoDiscount: 0, promoFreeShipping: false, promoPercent: null }),
 
       applyAffiliate: (code, name) => set({ affiliateCode: code, affiliateName: name, affiliateDiscountRate: AFFILIATE_DISCOUNT_RATE }),
 

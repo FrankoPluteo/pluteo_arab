@@ -11,7 +11,15 @@ export type PromoRejection =
   | 'product_restriction';
 
 export type PromoEvaluation =
-  | { valid: true; code: string; discountAmount: number; freeShipping: boolean; message: string }
+  | {
+      valid: true;
+      code: string;
+      discountAmount: number;
+      freeShipping: boolean;
+      /** The percentage of a percent code, null for a fixed amount. */
+      percent: number | null;
+      message: string;
+    }
   | { valid: false; reason: PromoRejection; message: string };
 
 interface PromoContext {
@@ -109,6 +117,7 @@ export async function evaluatePromo(rawCode: unknown, { subtotal, customerEmail,
     code: promo.code,
     discountAmount,
     freeShipping: promo.freeShipping,
+    percent: promo.discountType === 'percent' ? promo.discountValue : null,
     message: `${label} applied`,
   };
 }

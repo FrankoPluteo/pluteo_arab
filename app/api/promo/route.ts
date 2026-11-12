@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   if (waitsForCart && (!Array.isArray(cartItems) || cartItems.length === 0)) {
     return NextResponse.json({
       ...result,
-      fallback: { valid: true, code: fallbackCode, discountAmount: 0, freeShipping: false, deferred: true },
+      fallback: { valid: true, code: fallbackCode, discountAmount: 0, freeShipping: false, percent: null, deferred: true },
     });
   }
 

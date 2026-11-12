@@ -13,6 +13,14 @@ import { useCartPrefill, codeProblemKey, noticeForProblem, type CodeNotice } fro
 import { productProps, track, trackPromo } from '@/lib/analytics';
 import { normalizeCode } from '@/lib/promoCode';
 
+/** 6,00 € in Croatian, €6.00 in English. */
+function formatEuro(amount: number, language: string): string {
+  return new Intl.NumberFormat(language === 'hr' ? 'hr-HR' : 'en-IE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(amount);
+}
+
 function formatTime(ms: number): string {
   if (ms <= 0) return '00:00';
   const totalSeconds = Math.floor(ms / 1000);
@@ -32,16 +40,16 @@ export default function CartPage() {
     promoCode,
     promoDiscount,
     promoFreeShipping,
+    promoPercent,
     applyPromo,
     removePromo,
     affiliateCode,
-    affiliateName,
     affiliateDiscountRate,
     applyAffiliate,
     removeAffiliate,
   } = useCart();
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [codeInput, setCodeInput] = useState('');
   const [codeStatus, setCodeStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [codeError, setCodeError] = useState('');
@@ -50,6 +58,8 @@ export default function CartPage() {
   const [linkNoticeHidden, setLinkNoticeHidden] = useState(false);
   const [stockError, setStockError] = useState('');
   const [showTesterModal, setShowTesterModal] = useState(false);
+  const [codeFormOpen, setCodeFormOpen] = useState(false);
+  const codeInputRef = useRef<HTMLInputElement>(null);
 
   const [cartExpiresAt, setCartExpiresAt] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -308,8 +318,12 @@ export default function CartPage() {
         const data = await res.json();
         if (cancelled) return;
         if (data.valid) {
-          if (data.discountAmount !== promoDiscount || data.freeShipping !== promoFreeShipping) {
-            applyPromo(data.code, data.discountAmount, data.freeShipping);
+          if (
+            data.discountAmount !== promoDiscount ||
+            data.freeShipping !== promoFreeShipping ||
+            (data.percent ?? null) !== (promoPercent ?? null)
+          ) {
+            applyPromo(data.code, data.discountAmount, data.freeShipping, data.percent);
           }
           return;
         }
@@ -350,6 +364,28 @@ export default function CartPage() {
     <div className={styles.codeNotice} role="status">{codeNoticeText}</div>
   ) : null;
 
+  // Open by request, or by itself when a code just failed and none is applied, so another
+  // can be tried. With a code already applied the field stays tucked away.
+  const linkCodeFailed = notice?.kind === 'gone' || notice?.kind === 'notApplicable';
+  const showCodeForm =
+    codeFormOpen || codeStatus === 'error' || (linkCodeFailed && !promoCode && !affiliateCode);
+
+  function openCodeForm() {
+    setCodeFormOpen(true);
+    // Focus only when the customer asked for the field, after it has rendered.
+    requestAnimationFrame(() => codeInputRef.current?.focus());
+  }
+
+  function handleRemovePromo() {
+    if (promoCode) track('promo_removed', { code: promoCode, code_type: 'promo' });
+    removePromo();
+  }
+
+  function handleRemoveAffiliate() {
+    if (affiliateCode) track('promo_removed', { code: affiliateCode, code_type: 'affiliate' });
+    removeAffiliate();
+  }
+
   async function handleApplyCode(e: React.FormEvent) {
     e.preventDefault();
     setCodeNotice(null);
@@ -371,10 +407,12 @@ export default function CartPage() {
       });
       const promoData = await promoRes.json();
       if (promoData.valid) {
-        applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping);
+        applyPromo(promoData.code, promoData.discountAmount, promoData.freeShipping, promoData.percent);
         trackPromo({ code: promoData.code, code_type: 'promo', source: 'manual', success: true, discount: promoData.discountAmount });
         setCodeStatus('idle');
         setCodeInput('');
+        // Close the field (and with it the keyboard): the green line takes its place.
+        setCodeFormOpen(false);
         return;
       }
 
@@ -390,6 +428,7 @@ export default function CartPage() {
         trackPromo({ code, code_type: 'affiliate', source: 'manual', success: true });
         setCodeStatus('idle');
         setCodeInput('');
+        setCodeFormOpen(false);
         return;
       }
 
@@ -460,7 +499,7 @@ export default function CartPage() {
               <button
                 type="button"
                 className={styles.codeSavedRemove}
-                onClick={promoCode ? removePromo : removeAffiliate}
+                onClick={promoCode ? handleRemovePromo : handleRemoveAffiliate}
               >
                 {t.cart.codeSaved.removeCode}
               </button>
@@ -585,57 +624,76 @@ export default function CartPage() {
               <span className={styles.summaryValue}>€{subtotal.toFixed(2)}</span>
             </div>
 
-            {/* Applied promo pill */}
+            {/* Applied codes: one green line each with what it saves, and a small "ukloni" */}
             {promoCode && (
-              <div className={styles.promoApplied}>
+              <div className={styles.promoApplied} role="status">
                 <span className={styles.promoAppliedText}>
-                  🏷 <strong>{promoCode}</strong> — {t.cart.discountApplied ?? 'Discount applied'}
+                  <strong>{promoCode}</strong>
+                  {promoPercent ? ` −${promoPercent}%` : ''}
+                  {' · '}
+                  {promoDiscount > 0
+                    ? t.cart.youSaved(formatEuro(promoDiscount, language))
+                    : promoFreeShipping
+                      ? t.cart.freeShippingCode
+                      : t.cart.discountApplied}
                 </span>
-                <button onClick={removePromo} className={styles.promoRemove}>
-                  {t.cart.remove}
+                <button type="button" onClick={handleRemovePromo} className={styles.promoRemove}>
+                  {t.cart.removeCode}
                 </button>
               </div>
             )}
 
-            {/* Applied affiliate pill */}
             {affiliateCode && (
-              <div className={styles.promoApplied} style={{ background: '#f0f4ff', borderColor: '#c3cfe6' }}>
-                <span className={styles.promoAppliedText} style={{ color: '#1a3a6b' }}>
-                  🤝 <strong>{affiliateCode}</strong> — referred by {affiliateName}
+              <div className={styles.promoApplied} role="status">
+                <span className={styles.promoAppliedText}>
+                  <strong>{affiliateCode}</strong>
+                  {affiliateDiscountRate > 0 ? ` −${Math.round(affiliateDiscountRate * 100)}%` : ''}
+                  {' · '}
+                  {affiliateDiscount > 0
+                    ? t.cart.youSaved(formatEuro(affiliateDiscount, language))
+                    : t.cart.discountApplied}
                 </span>
-                <button onClick={removeAffiliate} className={styles.promoRemove}>
-                  {t.cart.remove}
+                <button type="button" onClick={handleRemoveAffiliate} className={styles.promoRemove}>
+                  {t.cart.removeCode}
                 </button>
               </div>
             )}
 
-            {/* Code input — always visible so both types can be entered */}
-            <form onSubmit={handleApplyCode} className={styles.promoForm}>
-              <input
-                type="text"
-                placeholder={t.cart.codePlaceholder ?? 'Promo or affiliate code'}
-                value={codeInput}
-                // Codes never contain spaces: "petra 15" is entered as PETRA15.
-                onChange={(e) => { setCodeInput(normalizeCode(e.target.value)); setCodeStatus('idle'); }}
-                className={styles.promoInput}
-                aria-label={t.cart.codePlaceholder}
-                autoCapitalize="characters"
-                autoCorrect="off"
-                autoComplete="off"
-                spellCheck={false}
-                enterKeyHint="done"
-              />
-              <button
-                type="submit"
-                className={styles.promoBtn}
-                disabled={codeStatus === 'loading'}
-              >
-                {codeStatus === 'loading' ? '...' : t.cart.apply}
+            {/* The code field stays behind a small link so it doesn't compete with checkout.
+                It opens by itself when a typed code failed or a link's code was dropped. */}
+            {showCodeForm ? (
+              <form onSubmit={handleApplyCode} className={styles.promoForm}>
+                <input
+                  ref={codeInputRef}
+                  type="text"
+                  placeholder={t.cart.codePlaceholder ?? 'Promo or affiliate code'}
+                  value={codeInput}
+                  // Codes never contain spaces: "petra 15" is entered as PETRA15.
+                  onChange={(e) => { setCodeInput(normalizeCode(e.target.value)); setCodeStatus('idle'); }}
+                  className={styles.promoInput}
+                  aria-label={t.cart.codePlaceholder}
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  autoComplete="off"
+                  spellCheck={false}
+                  enterKeyHint="done"
+                />
+                <button
+                  type="submit"
+                  className={styles.promoBtn}
+                  disabled={codeStatus === 'loading'}
+                >
+                  {codeStatus === 'loading' ? '...' : t.cart.apply}
+                </button>
+                {codeStatus === 'error' && (
+                  <p className={styles.promoError} role="alert">{codeError}</p>
+                )}
+              </form>
+            ) : (
+              <button type="button" className={styles.promoToggle} onClick={openCodeForm} aria-expanded={false}>
+                {t.cart.haveCode}
               </button>
-              {codeStatus === 'error' && (
-                <p className={styles.promoError}>{codeError}</p>
-              )}
-            </form>
+            )}
 
             {promoDiscount > 0 && (
               <div className={styles.summaryRow}>
@@ -676,7 +734,7 @@ export default function CartPage() {
             </div>
 
             <button
-              className={styles.checkoutButton}
+              className={`${styles.checkoutButton} ${styles.summaryCheckoutButton}`}
               onClick={() => setShowTesterModal(true)}
               type="button"
             >
@@ -690,7 +748,20 @@ export default function CartPage() {
         </div>
       </div>
 
-      <Navbar />
+      {/* Phones: total and checkout always in reach at the bottom of the screen */}
+      <div className={styles.mobileCheckoutBar}>
+        <div className={styles.mobileCheckoutTotal}>
+          <span>{t.cart.total}</span>
+          <strong>€{total.toFixed(2)}</strong>
+        </div>
+        <button
+          type="button"
+          className={styles.mobileCheckoutButton}
+          onClick={() => setShowTesterModal(true)}
+        >
+          {t.cart.proceedToCheckout}
+        </button>
+      </div>
 
       {showTesterModal && (
         <TesterModal onClose={() => setShowTesterModal(false)} />

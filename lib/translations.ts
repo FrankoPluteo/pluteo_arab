@@ -141,6 +141,10 @@ export const translations = {
       // Codes from links or dropped on re-check: neutral, never shown as an error.
       codeGone: "That code is no longer valid – but have a look at what's on offer now.",
       fallbackApplied: (code: string) => `We've applied the current discount: ${code}`,
+      haveCode: 'Have a discount code?',
+      youSaved: (amount: string) => `you save ${amount}`,
+      freeShippingCode: 'free shipping',
+      removeCode: 'remove',
       codeSaved: {
         eyebrow: 'Your code is saved',
         heading: 'Now add something to your cart',
@@ -627,6 +631,10 @@ export const translations = {
       // Kodovi iz linkova ili odbačeni pri ponovnoj provjeri: neutralno, nikad kao greška.
       codeGone: 'Taj kod više ne vrijedi – ali pogledaj aktualnu ponudu.',
       fallbackApplied: (code: string) => `Primijenili smo aktualni popust: ${code}`,
+      haveCode: 'Imaš kod za popust?',
+      youSaved: (amount: string) => `uštedio/la si ${amount}`,
+      freeShippingCode: 'besplatna dostava',
+      removeCode: 'ukloni',
       codeSaved: {
         eyebrow: 'Vaš kod je spremljen',
         heading: 'Sada dodajte proizvod u košaricu',

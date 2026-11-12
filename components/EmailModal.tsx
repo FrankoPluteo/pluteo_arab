@@ -24,7 +24,14 @@ export default function EmailModal() {
     e.preventDefault();
     if (!email) return;
 
-    if (await captureEmail(email)) track('newsletter_signup', { source: 'popup' });
+    let accepted: boolean;
+    try {
+      accepted = await captureEmail(email);
+    } catch {
+      // Network dropped: keep the form open so the address can be sent again.
+      return;
+    }
+    if (accepted) track('newsletter_signup', { source: 'popup' });
     setSubmitted(true);
   }
 

@@ -37,11 +37,17 @@ export default function ProductCard({ product, giftBow: showGiftBow = false, lis
     e.preventDefault();
     if (outOfStock || added) return;
 
-    const res = await fetch('/api/cart/reserve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cartSessionId, productId: product.id, delta: 1 }),
-    });
+    let res: Response;
+    try {
+      res = await fetch('/api/cart/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartSessionId, productId: product.id, delta: 1 }),
+      });
+    } catch {
+      // Network dropped: nothing was reserved, so leave the button as it was for another try.
+      return;
+    }
 
     if (!res.ok) {
       setOutOfStock(true);

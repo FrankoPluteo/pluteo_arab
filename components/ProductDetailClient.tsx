@@ -88,6 +88,9 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
       addItem(product);
       track('add_to_cart', { ...productProps(product), quantity: 1, source: 'product_page' });
+    } catch {
+      // Network dropped or the reply wasn't JSON
+      setAddError(t.product.couldNotAddToCart);
     } finally {
       setIsAdding(false);
     }

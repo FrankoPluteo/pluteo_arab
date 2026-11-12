@@ -61,9 +61,13 @@ export default function AdminAffiliatesPage() {
   useEffect(() => { load(); }, []);
 
   const loadDetail = async (id: string) => {
-    const res = await fetch(`/api/admin/affiliates/${id}`);
-    const data = await res.json();
-    setDetail(data);
+    try {
+      const res = await fetch(`/api/admin/affiliates/${id}`);
+      setDetail(await res.json());
+    } catch {
+      setMessage('Could not load the affiliate. Check the connection and try again.');
+      setTimeout(() => setMessage(''), 3000);
+    }
   };
 
   const updateStatus = async (id: string, status: string) => {
@@ -77,6 +81,8 @@ export default function AdminAffiliatesPage() {
       setMessage(`Status updated to ${status}.`);
       await load();
       if (detail?.id === id) await loadDetail(id);
+    } catch {
+      setMessage('Request failed. Check the connection and try again.');
     } finally {
       setActionLoading(null);
       setTimeout(() => setMessage(''), 3000);
@@ -95,6 +101,8 @@ export default function AdminAffiliatesPage() {
       setMessage(`Marked ${data.updated} conversion(s) as paid.`);
       await load();
       if (detail?.id === id) await loadDetail(id);
+    } catch {
+      setMessage('Request failed. Check the connection and try again.');
     } finally {
       setActionLoading(null);
       setTimeout(() => setMessage(''), 3000);

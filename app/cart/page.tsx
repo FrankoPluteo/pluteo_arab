@@ -132,10 +132,13 @@ export default function CartPage() {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ cartSessionId }),
-        }).finally(() => {
-          clearCart();
-          setCartExpiresAt(null);
-        });
+        })
+          // The holds have expired anyway; a failed release only matters to the server.
+          .catch(() => {})
+          .finally(() => {
+            clearCart();
+            setCartExpiresAt(null);
+          });
         return;
       }
       setTimeLeft(remaining);
@@ -151,11 +154,15 @@ export default function CartPage() {
 
   async function handleRemoveItem(productId: string, quantity: number) {
     setStockError('');
-    await fetch('/api/cart/reserve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cartSessionId, productId, delta: -quantity }),
-    });
+    try {
+      await fetch('/api/cart/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartSessionId, productId, delta: -quantity }),
+      });
+    } catch {
+      // Remove it from the cart anyway: an unreleased hold expires on its own.
+    }
     const removed = items.find((i) => i.product.id === productId);
     if (removed) track('remove_from_cart', { ...productProps(removed.product), quantity, source: 'cart' });
     removeItem(productId);
@@ -177,12 +184,19 @@ export default function CartPage() {
     const delta = newQty - currentItem.quantity;
     if (delta === 0) return;
 
-    const res = await fetch('/api/cart/reserve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cartSessionId, productId, delta }),
-    });
-    const data = await res.json();
+    let res: Response;
+    let data;
+    try {
+      res = await fetch('/api/cart/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartSessionId, productId, delta }),
+      });
+      data = await res.json();
+    } catch {
+      setStockError(t.cart.somethingWentWrong);
+      return;
+    }
 
     if (!res.ok) {
       setStockError(data.error || t.cart.notEnoughStock);

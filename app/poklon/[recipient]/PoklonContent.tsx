@@ -7,6 +7,9 @@ import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
 import styles from '@/styles/poklon.module.css';
 
+// 4 columns on desktop, 3 up to 1200px, 2 up to 900px; the image is 80% of the card.
+const GIFT_GRID_SIZES = '(max-width: 900px) 42vw, (max-width: 1200px) 28vw, 21vw';
+
 interface PoklonContentProps {
   recipient: 'her' | 'him';
   products: Product[];
@@ -48,6 +51,9 @@ export default function PoklonContent({ recipient, products }: PoklonContentProp
                   giftBow
                   list={forHer ? 'gift-her' : 'gift-him'}
                   position={index}
+                  // The first row (4 across on desktop) holds the largest paint.
+                  eager={index < 4}
+                  sizes={GIFT_GRID_SIZES}
                 />
               ))}
             </div>

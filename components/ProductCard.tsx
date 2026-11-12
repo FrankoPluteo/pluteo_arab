@@ -19,9 +19,26 @@ interface ProductCardProps {
   list: string;
   /** 0-based index in that list. */
   position: number;
+  /**
+   * Cards in the first visible row: load the image right away at high priority instead of
+   * lazily, since one of them is usually the page's largest paint (LCP).
+   */
+  eager?: boolean;
+  /** The image's rendered width per breakpoint, matching the grid the card sits in. */
+  sizes?: string;
 }
 
-export default function ProductCard({ product, giftBow: showGiftBow = false, list, position }: ProductCardProps) {
+// Phones show two cards per row and the image is inset 10% inside its card.
+const DEFAULT_SIZES = '(max-width: 768px) 45vw, (max-width: 1200px) 30vw, 25vw';
+
+export default function ProductCard({
+  product,
+  giftBow: showGiftBow = false,
+  list,
+  position,
+  eager = false,
+  sizes = DEFAULT_SIZES,
+}: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
   const cartSessionId = useCart((state) => state.cartSessionId);
   const { t } = useLanguage();
@@ -78,8 +95,9 @@ export default function ProductCard({ product, giftBow: showGiftBow = false, lis
                 alt={`${product.brand.name} ${product.name} – arapski parfem`}
                 fill
                 style={{ objectFit: 'contain' }}
-                loading="lazy"
-                sizes="(max-width: 768px) 80vw, (max-width: 1200px) 33vw, 25vw"
+                loading={eager ? 'eager' : 'lazy'}
+                fetchPriority={eager ? 'high' : 'auto'}
+                sizes={sizes}
               />
             </div>
           ) : (

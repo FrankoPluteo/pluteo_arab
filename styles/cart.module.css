@@ -432,7 +432,8 @@
   min-height: calc(100vh - 80px);
 }
 
-.codeSavedContainer .stockError {
+.codeSavedContainer .stockError,
+.codeSavedContainer .codeNotice {
   width: 100%;
   max-width: 520px;
   box-sizing: border-box;

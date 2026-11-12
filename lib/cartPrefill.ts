@@ -50,13 +50,29 @@ export function codeProblemKey(reason: string | undefined): CodeProblemKey {
   }
 }
 
+/**
+ * A neutral (never red) note about a code the customer did not type: one from a link or
+ * one the cart's re-check dropped. Red errors are only for codes typed into the field.
+ *   gone           the code is dead (unknown, expired, used up, not started yet)
+ *   notApplicable  the code exists but doesn't fit this cart (minimum order, products)
+ *   fallback       a dead link code was replaced by the current campaign code
+ */
+export type CodeNotice =
+  | { kind: 'gone' }
+  | { kind: 'notApplicable' }
+  | { kind: 'fallback'; code: string };
+
+export function noticeForProblem(problem: CodeProblemKey): CodeNotice {
+  return problem === 'notApplicable' ? { kind: 'notApplicable' } : { kind: 'gone' };
+}
+
 export interface CartPrefillState {
   /** True while the link is still being applied — the cart is not really empty yet. */
   pending: boolean;
   /** Set when part of the link could not be applied (sold out). */
   error: string;
-  /** Set when the link's code was rejected; render it with t.cart.codeProblems[codeProblem]. */
-  codeProblem: CodeProblemKey | null;
+  /** Set when the link's code could not be applied as it was. */
+  codeNotice: CodeNotice | null;
 }
 
 function parseAddSpecs(params: URLSearchParams): AddSpec[] {
@@ -107,7 +123,7 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
     return params.getAll('add').length > 0 || hasCodeParam(params);
   });
   const [error, setError] = useState('');
-  const [codeProblem, setCodeProblem] = useState<CodeProblemKey | null>(null);
+  const [codeNotice, setCodeNotice] = useState<CodeNotice | null>(null);
   const hasRun = useRef(false);
 
   useEffect(() => {
@@ -160,7 +176,7 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
 
       if (code) {
         const result = await applyCodeFromLink(code, 'url');
-        if (!result.applied) setCodeProblem(result.problem);
+        if (!result.applied) setCodeNotice(result.notice);
       }
 
       if (latestExpiresAt) onReservation?.(latestExpiresAt);
@@ -175,7 +191,7 @@ export function useCartPrefill(onReservation?: (expiresAt: number) => void): Car
       .finally(() => setPending(false));
   }, [pending, onReservation]);
 
-  return { pending, error, codeProblem };
+  return { pending, error, codeNotice };
 }
 
 /**
@@ -194,11 +210,22 @@ function hasCodeParam(params: URLSearchParams): boolean {
   return Boolean(params.get('promo') || params.get('code') || params.get('ref'));
 }
 
-/** Same promo-then-affiliate resolution the manual code form uses. */
+interface FallbackPromo {
+  code: string;
+  discountAmount: number;
+  freeShipping: boolean;
+  deferred?: boolean;
+}
+
+/**
+ * Same promo-then-affiliate resolution the manual code form uses, but a code that fails
+ * is never shown as an error: the visitor didn't type it. It is dropped quietly, or, when
+ * FALLBACK_PROMO_CODE is set on the server, replaced by the current campaign code.
+ */
 async function applyCodeFromLink(
   code: string,
   source: PromoSource
-): Promise<{ applied: true } | { applied: false; problem: CodeProblemKey }> {
+): Promise<{ applied: true } | { applied: false; notice: CodeNotice }> {
   const state = useCart.getState();
 
   const promoRes = await fetch('/api/promo', {
@@ -208,6 +235,8 @@ async function applyCodeFromLink(
       code,
       subtotal: state.getTotalPrice(),
       cartItems: state.items.map((item) => ({ product: { name: item.product.name } })),
+      // Ask for the current campaign code in case this one is dead.
+      fallback: true,
     }),
   });
   const promoData = await promoRes.json();
@@ -240,6 +269,28 @@ async function applyCodeFromLink(
     return { applied: true };
   }
 
-  trackPromo({ code, code_type: 'promo', source, success: false, reason: promoData.reason || 'not_found' });
-  return { applied: false, problem: codeProblemKey(promoData.reason) };
+  const reason: string = promoData.reason || 'not_found';
+  const problem = codeProblemKey(reason);
+
+  // A dead code (not one that merely doesn't fit this cart) is swapped for the current
+  // campaign code, unless the customer already has a code of their own applied.
+  const fallback: FallbackPromo | undefined = promoData.fallback;
+  const current = useCart.getState();
+  if (fallback?.code && problem !== 'notApplicable' && !current.promoCode && !current.affiliateCode) {
+    current.applyPromo(fallback.code, fallback.discountAmount, fallback.freeShipping);
+    trackPromo({ code, code_type: 'promo', source, success: false, reason, handled: 'fallback' });
+    trackPromo({
+      code: fallback.code,
+      code_type: 'promo',
+      source,
+      success: true,
+      discount: fallback.discountAmount,
+      deferred: fallback.deferred || undefined,
+      fallback_for: code,
+    });
+    return { applied: false, notice: { kind: 'fallback', code: fallback.code } };
+  }
+
+  trackPromo({ code, code_type: 'promo', source, success: false, reason, handled: 'silent' });
+  return { applied: false, notice: noticeForProblem(problem) };
 }

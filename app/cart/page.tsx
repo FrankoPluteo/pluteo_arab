@@ -9,7 +9,7 @@ import { calculateShipping, FREE_SHIPPING_THRESHOLD, isFreeShippingEligible } fr
 import Footer from '@/components/Footer';
 import TesterModal from '@/components/TesterModal';
 import { useLanguage } from '@/lib/languageContext';
-import { useCartPrefill, codeProblemKey, CodeProblemKey } from '@/lib/cartPrefill';
+import { useCartPrefill, codeProblemKey, noticeForProblem, type CodeNotice } from '@/lib/cartPrefill';
 import { productProps, track, trackPromo } from '@/lib/analytics';
 import { normalizeCode } from '@/lib/promoCode';
 
@@ -45,7 +45,9 @@ export default function CartPage() {
   const [codeInput, setCodeInput] = useState('');
   const [codeStatus, setCodeStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [codeError, setCodeError] = useState('');
-  const [codeNotice, setCodeNotice] = useState<CodeProblemKey | null>(null);
+  // Neutral note about a code the customer didn't type (see CodeNotice); wins over the link's.
+  const [codeNotice, setCodeNotice] = useState<CodeNotice | null>(null);
+  const [linkNoticeHidden, setLinkNoticeHidden] = useState(false);
   const [stockError, setStockError] = useState('');
   const [showTesterModal, setShowTesterModal] = useState(false);
 
@@ -262,9 +264,10 @@ export default function CartPage() {
           success: false,
           reason: 'revalidation_dropped',
           server_reason: data.reason || 'not_found',
+          handled: 'silent',
         });
         removePromo();
-        setCodeNotice(problem);
+        setCodeNotice(noticeForProblem(problem));
       } catch {
         // Offline or a server hiccup: keep what we have; checkout re-validates server side.
       }
@@ -274,14 +277,24 @@ export default function CartPage() {
     };
   }, [promoCode, subtotal, itemsSignature, prefill.pending]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const problemKey = prefill.codeProblem ?? codeNotice;
-  const codeProblemNotice = problemKey ? (
-    <div className={styles.codeNotice}>{t.cart.codeProblems[problemKey]}</div>
+  const notice = codeNotice ?? (linkNoticeHidden ? null : prefill.codeNotice);
+  const codeNoticeText =
+    notice?.kind === 'fallback'
+      ? t.cart.fallbackApplied(notice.code)
+      : notice?.kind === 'notApplicable'
+        ? t.cart.codeProblems.notApplicable
+        : notice?.kind === 'gone'
+          ? t.cart.codeGone
+          : null;
+  // Neutral grey, never red: the customer didn't type this code.
+  const codeNoticeLine = codeNoticeText ? (
+    <div className={styles.codeNotice} role="status">{codeNoticeText}</div>
   ) : null;
 
   async function handleApplyCode(e: React.FormEvent) {
     e.preventDefault();
     setCodeNotice(null);
+    setLinkNoticeHidden(true);
     const code = normalizeCode(codeInput);
     if (!code) return;
     setCodeStatus('loading');
@@ -322,9 +335,11 @@ export default function CartPage() {
       }
 
       // 3. Neither matched
-      trackPromo({ code, code_type: 'promo', source: 'manual', success: false, reason: promoData.reason || 'not_found' });
+      // Typed by hand: say exactly what is wrong, in red.
+      const reason: string = promoData.reason || 'not_found';
+      trackPromo({ code, code_type: 'promo', source: 'manual', success: false, reason, handled: 'shown' });
       setCodeStatus('error');
-      setCodeError(t.cart.invalidCode ?? 'Invalid promo or affiliate code.');
+      setCodeError(reason === 'not_found' ? t.cart.invalidCode : t.cart.codeProblems[codeProblemKey(reason)]);
     } catch {
       setCodeStatus('error');
       setCodeError(t.cart.somethingWentWrong);
@@ -347,13 +362,14 @@ export default function CartPage() {
   if (items.length === 0) {
     // A code is saved but there is nothing to apply it to: make that the whole page,
     // so the customer sees the code is kept and that the next step is adding a product.
-    const savedCode = !problemKey ? promoCode || affiliateCode : null;
+    const savedCode = promoCode || affiliateCode;
     if (savedCode) {
       return (
         <div>
           <Navbar />
           <div className={`${styles.cartContainer} ${styles.codeSavedContainer}`}>
             {prefill.error && <div className={styles.stockError}>{prefill.error}</div>}
+            {codeNoticeLine}
             <div className={styles.codeSavedCard} role="status">
               <p className={styles.codeSavedEyebrow}>✓ {t.cart.codeSaved.eyebrow}</p>
               <div className={styles.codeSavedTicket}>{savedCode}</div>
@@ -380,7 +396,7 @@ export default function CartPage() {
         <Navbar />
         <div className={styles.cartContainer}>
           {prefill.error && <div className={styles.stockError}>{prefill.error}</div>}
-          {codeProblemNotice}
+          {codeNoticeLine}
           <div className={styles.emptyCart}>
             <h2>{t.cart.empty.heading}</h2>
             <p>{t.cart.empty.subheading}</p>
@@ -410,7 +426,7 @@ export default function CartPage() {
           <div className={styles.stockError}>{stockError || prefill.error}</div>
         )}
 
-        {codeProblemNotice}
+        {codeNoticeLine}
 
         <div className={styles.cartLayout}>
           <div className={styles.cartItems}>

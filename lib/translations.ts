@@ -138,6 +138,9 @@ export const translations = {
         notStarted: "This code isn't active yet.",
         notApplicable: "This code can't be applied to the current cart.",
       },
+      // Codes from links or dropped on re-check: neutral, never shown as an error.
+      codeGone: "That code is no longer valid – but have a look at what's on offer now.",
+      fallbackApplied: (code: string) => `We've applied the current discount: ${code}`,
       codeSaved: {
         eyebrow: 'Your code is saved',
         heading: 'Now add something to your cart',
@@ -621,6 +624,9 @@ export const translations = {
         notStarted: 'Ovaj kod još nije aktivan.',
         notApplicable: 'Ovaj kod se ne može primijeniti na trenutnu košaricu.',
       },
+      // Kodovi iz linkova ili odbačeni pri ponovnoj provjeri: neutralno, nikad kao greška.
+      codeGone: 'Taj kod više ne vrijedi – ali pogledaj aktualnu ponudu.',
+      fallbackApplied: (code: string) => `Primijenili smo aktualni popust: ${code}`,
       codeSaved: {
         eyebrow: 'Vaš kod je spremljen',
         heading: 'Sada dodajte proizvod u košaricu',

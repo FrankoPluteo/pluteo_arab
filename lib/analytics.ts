@@ -131,9 +131,17 @@ export function captureError(error: unknown, properties?: AnalyticsProps) {
 export type PromoSource = 'manual' | 'url' | 'landing' | 'recheck';
 
 /**
+ * How a failed code was shown: 'shown' a red error under the field (typed by hand),
+ * 'silent' dropped with at most a neutral note (link or re-check), 'fallback' replaced by
+ * the current campaign code (FALLBACK_PROMO_CODE).
+ */
+export type PromoFailureHandling = 'silent' | 'fallback' | 'shown';
+
+/**
  * promo_applied or promo_failed, with the same properties in every flow so breakdowns by
  * source and reason line up. `reason` is the /api/promo rejection reason (min_order,
  * expired, per_user, ...); `deferred` marks a code kept on an empty cart to be checked later.
+ * `fallback_for` is set on the promo_applied of a fallback code: the dead code it replaced.
  */
 export function trackPromo(result: {
   code: string;
@@ -144,6 +152,8 @@ export function trackPromo(result: {
   server_reason?: string;
   discount?: number;
   deferred?: boolean;
+  handled?: PromoFailureHandling;
+  fallback_for?: string;
 }) {
   track(result.success ? 'promo_applied' : 'promo_failed', result);
 }

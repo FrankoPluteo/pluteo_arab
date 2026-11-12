@@ -1,97 +1,44 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { codeLookupCandidates } from '@/lib/promoCode';
+import { evaluatePromo } from '@/lib/promoValidation';
+import { normalizeCode } from '@/lib/promoCode';
+
+/**
+ * The current campaign code, applied in place of a dead code that arrived in a link
+ * (?promo=OLDCODE from an old email or partner post). Leave FALLBACK_PROMO_CODE unset
+ * to drop dead link codes without a replacement.
+ */
+function fallbackPromoCode(): string {
+  return normalizeCode(process.env.FALLBACK_PROMO_CODE);
+}
 
 export async function POST(request: Request) {
-  const { code, subtotal, customerEmail, cartItems } = await request.json();
+  const { code, subtotal, customerEmail, cartItems, fallback } = await request.json();
+  const context = { subtotal: Number(subtotal) || 0, customerEmail, cartItems };
 
-  // "petra 15", " Petra15" and "PETRA15" are the same code.
-  const candidates = codeLookupCandidates(code);
-  if (candidates.length === 0) {
-    return NextResponse.json({ valid: false, reason: 'not_found', message: 'Enter a promo code.' });
+  const result = await evaluatePromo(code, context);
+  if (result.valid) return NextResponse.json(result);
+
+  // Only link codes (fallback: true) get a replacement; a code typed by hand that is
+  // wrong should say so.
+  const fallbackCode = fallback === true ? fallbackPromoCode() : '';
+  if (!fallbackCode || fallbackCode === normalizeCode(code)) {
+    return NextResponse.json(result);
   }
 
-  const promo = await prisma.promoCode.findFirst({
-    where: { code: { in: candidates } },
-  });
-
-  if (!promo || !promo.isActive) {
-    return NextResponse.json({ valid: false, reason: 'not_found', message: 'Invalid promo code.' });
+  const replacement = await evaluatePromo(fallbackCode, context);
+  if (replacement.valid) {
+    return NextResponse.json({ ...result, fallback: replacement });
   }
 
-  const now = new Date();
-
-  if (promo.startsAt && now < promo.startsAt) {
-    return NextResponse.json({ valid: false, reason: 'not_started', message: 'This promo code is not yet active.' });
-  }
-
-  if (promo.endsAt && now > promo.endsAt) {
-    return NextResponse.json({ valid: false, reason: 'expired', message: 'This promo code has expired.' });
-  }
-
-  if (promo.usageLimitTotal !== null && promo.timesUsed >= promo.usageLimitTotal) {
-    return NextResponse.json({ valid: false, reason: 'usage_limit', message: 'This promo code has reached its usage limit.' });
-  }
-
-  if (subtotal < promo.minOrderValue) {
+  // An emailed link is often opened with an empty cart: like the link's own code, a
+  // fallback that only waits on a minimum order or a product is kept and re-checked.
+  const waitsForCart = replacement.reason === 'min_order' || replacement.reason === 'product_restriction';
+  if (waitsForCart && (!Array.isArray(cartItems) || cartItems.length === 0)) {
     return NextResponse.json({
-      valid: false,
-      reason: 'min_order',
-      message: `Minimum order of €${promo.minOrderValue.toFixed(2)} required for this code.`,
+      ...result,
+      fallback: { valid: true, code: fallbackCode, discountAmount: 0, freeShipping: false, deferred: true },
     });
   }
 
-  if (promo.usageLimitPerUser !== null && customerEmail) {
-    const userUsageCount = await prisma.order.count({
-      where: { customerEmail, promoCode: promo.code },
-    });
-    if (userUsageCount >= promo.usageLimitPerUser) {
-      return NextResponse.json({
-        valid: false,
-        reason: 'per_user',
-        message: 'You have already used this promo code the maximum number of times.',
-      });
-    }
-  }
-
-  // Check product restriction
-  if (promo.requiredProductNames.length > 0) {
-    const cartProductNames: string[] = (cartItems || []).map(
-      (item: any) => item.product?.name ?? item.name ?? ''
-    );
-    const hasRequired = promo.requiredProductNames.some((required) =>
-      cartProductNames.some((name) => name.toLowerCase() === required.toLowerCase())
-    );
-    if (!hasRequired) {
-      return NextResponse.json({
-        valid: false,
-        reason: 'product_restriction',
-        message: 'This promo code only applies to selected products. Make sure one of the eligible perfumes is in your cart.',
-      });
-    }
-  }
-
-  let discountAmount = 0;
-  if (promo.discountType === 'percent') {
-    discountAmount = (subtotal * promo.discountValue) / 100;
-    if (promo.maxDiscountAmount !== null) {
-      discountAmount = Math.min(discountAmount, promo.maxDiscountAmount);
-    }
-  } else {
-    discountAmount = promo.discountValue;
-  }
-  discountAmount = parseFloat(Math.min(discountAmount, subtotal).toFixed(2));
-
-  const label =
-    promo.discountType === 'percent'
-      ? `${promo.discountValue}% off`
-      : `€${promo.discountValue.toFixed(2)} off`;
-
-  return NextResponse.json({
-    valid: true,
-    code: promo.code,
-    discountAmount,
-    freeShipping: promo.freeShipping,
-    message: `${label} applied`,
-  });
+  return NextResponse.json(result);
 }

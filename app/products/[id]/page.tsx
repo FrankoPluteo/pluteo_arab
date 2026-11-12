@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
@@ -9,13 +10,23 @@ interface ProductPageProps {
   params: Promise<{ id: string }>;
 }
 
-async function getProduct(id: string) {
-  const product = await prisma.product.findUnique({
+// Product pages are rendered on the first visit and then served from cache, refreshed at
+// most once a minute (like the home and gift pages), instead of querying the database on
+// every view. Stock and price are checked again at add to cart and at checkout.
+export const revalidate = 60;
+
+// No pages are built ahead; each product page is cached after its first visit.
+export async function generateStaticParams() {
+  return [];
+}
+
+// Shared by generateMetadata and the page, so one render reads the product once.
+const getProduct = cache(async (id: string) => {
+  return prisma.product.findUnique({
     where: { id },
     include: { brand: true },
   });
-  return product;
-}
+});
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;

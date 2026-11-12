@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { prisma, withReviewAggregates } from '@/lib/prisma';
+import { getCatalog } from '@/lib/catalog';
 import ProductsContent from './ProductsContent';
 
 const BASE_URL = 'https://www.pluteo.shop';
@@ -54,6 +54,28 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
 const ITEMS_PER_PAGE = 12;
 const BRAND_ORDER = ['Lattafa', 'French Avenue', 'Armaf'];
 
+/** Sorts in place. Default: brands in BRAND_ORDER, oldest products first within a brand. */
+function sortProducts<T extends { name: string; price: number; createdAt: Date; brand: { name: string } }>(
+  products: T[],
+  sortBy: string | undefined
+) {
+  const [field, direction] = (sortBy && sortBy !== 'brand-order' ? sortBy : '').split('-');
+  const sign = direction === 'desc' ? -1 : 1;
+  if (field === 'price') {
+    products.sort((a, b) => sign * (a.price - b.price));
+  } else if (field === 'name') {
+    products.sort((a, b) => sign * a.name.localeCompare(b.name, 'hr'));
+  } else if (field === 'createdAt') {
+    products.sort((a, b) => sign * (a.createdAt.getTime() - b.createdAt.getTime()));
+  } else {
+    const rank = (brand: string) => {
+      const index = BRAND_ORDER.indexOf(brand);
+      return index === -1 ? BRAND_ORDER.length : index;
+    };
+    products.sort((a, b) => rank(a.brand.name) - rank(b.brand.name));
+  }
+}
+
 interface ProductsPageProps {
   searchParams: Promise<{
     page?: string;
@@ -73,91 +95,55 @@ interface ProductsPageProps {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
 
-  const currentPage = parseInt(params.page || '1');
+  const currentPage = Math.max(1, parseInt(params.page || '1') || 1);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
-
-  const where: any = {};
-
-  if (params.search) {
-    where.OR = [
-      { name: { contains: params.search, mode: 'insensitive' } },
-      { description: { contains: params.search, mode: 'insensitive' } },
-      { brand: { name: { contains: params.search, mode: 'insensitive' } } },
-    ];
-  }
-
-  if (params.gender) where.gender = { in: [params.gender, 'unisex'] };
-  if (params.brand) where.brand = { name: params.brand };
-  if (params.concentration) where.concentration = params.concentration;
-  if (params.fragranceProfile) where.fragranceProfiles = { has: params.fragranceProfile };
 
   const minPrice = params.minPrice ? parseFloat(params.minPrice) : null;
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : null;
 
-  if (params.inStock === 'true') where.stock = { gt: 0 };
-  if (params.onSale === 'true') where.discountAmount = { gt: 0 };
+  try {
+    // One cached read of the whole catalog (lib/catalog.ts); filters run in memory.
+    const { products: catalog, brandNames } = await getCatalog();
 
-  let orderBy: any = null;
-  if (params.sortBy && params.sortBy !== 'brand-order') {
-    const [field, direction] = params.sortBy.split('-');
-    orderBy = { [field]: direction };
-  }
+    const allProfiles = new Set<string>();
+    const allConcentrations = new Set<string>();
+    catalog.forEach((p) => {
+      allConcentrations.add(p.concentration);
+      p.fragranceProfiles?.forEach((profile) => allProfiles.add(profile));
+    });
 
-  const filterByDiscountedPrice = <T extends { price: number; discountAmount: number }>(items: T[]): T[] => {
-    if (minPrice === null && maxPrice === null) return items;
-    return items.filter((p) => {
+    const filterOptions = {
+      brands: brandNames,
+      concentrations: Array.from(allConcentrations).sort(),
+      fragranceProfiles: Array.from(allProfiles).sort(),
+    };
+
+    const search = params.search?.trim().toLowerCase();
+    const filtered = catalog.filter((p) => {
+      if (search) {
+        const matches =
+          p.name.toLowerCase().includes(search) ||
+          (p.description ?? '').toLowerCase().includes(search) ||
+          p.brand.name.toLowerCase().includes(search);
+        if (!matches) return false;
+      }
+      if (params.gender && p.gender !== params.gender && p.gender !== 'unisex') return false;
+      if (params.brand && p.brand.name !== params.brand) return false;
+      if (params.concentration && p.concentration !== params.concentration) return false;
+      if (params.fragranceProfile && !p.fragranceProfiles.includes(params.fragranceProfile)) return false;
+      if (params.inStock === 'true' && p.stock <= 0) return false;
+      if (params.onSale === 'true' && p.discountAmount <= 0) return false;
+      // Price filters use the price after the product's own discount
       const discounted = p.price - p.discountAmount;
       if (minPrice !== null && discounted < minPrice) return false;
       if (maxPrice !== null && discounted > maxPrice) return false;
       return true;
     });
-  };
 
-  try {
-    const [brandsData, concentrationsData, allProducts] = await Promise.all([
-      prisma.brand.findMany({ select: { name: true }, orderBy: { name: 'asc' } }),
-      prisma.product.findMany({
-        select: { concentration: true },
-        distinct: ['concentration'],
-        orderBy: { concentration: 'asc' },
-      }),
-      prisma.product.findMany({ select: { fragranceProfiles: true } }),
-    ]);
+    sortProducts(filtered, params.sortBy);
 
-    const allProfiles = new Set<string>();
-    allProducts.forEach((p) => {
-      if (p.fragranceProfiles && Array.isArray(p.fragranceProfiles)) {
-        p.fragranceProfiles.forEach((profile) => allProfiles.add(profile));
-      }
-    });
-
-    const filterOptions = {
-      brands: brandsData.map((b) => b.name),
-      concentrations: concentrationsData.map((c) => c.concentration),
-      fragranceProfiles: Array.from(allProfiles).sort(),
-    };
-
-    let products;
-    let totalProducts: number;
-
-    if (!orderBy) {
-      const allFiltered = filterByDiscountedPrice(
-        await prisma.product.findMany({ where, include: { brand: true } })
-      );
-      allFiltered.sort((a, b) => {
-        const aIdx = BRAND_ORDER.indexOf(a.brand.name);
-        const bIdx = BRAND_ORDER.indexOf(b.brand.name);
-        return (aIdx === -1 ? BRAND_ORDER.length : aIdx) - (bIdx === -1 ? BRAND_ORDER.length : bIdx);
-      });
-      totalProducts = allFiltered.length;
-      products = await withReviewAggregates(allFiltered.slice(skip, skip + ITEMS_PER_PAGE));
-    } else {
-      const allFiltered = filterByDiscountedPrice(
-        await prisma.product.findMany({ where, include: { brand: true }, orderBy })
-      );
-      totalProducts = allFiltered.length;
-      products = await withReviewAggregates(allFiltered.slice(skip, skip + ITEMS_PER_PAGE));
-    }
+    const totalProducts = filtered.length;
+    const products = filtered.slice(skip, skip + ITEMS_PER_PAGE);
 
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 

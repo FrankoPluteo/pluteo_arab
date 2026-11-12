@@ -709,7 +709,7 @@ export const translations = {
     },
 
     checkout: {
-      title: 'NAPLATE',
+      title: 'NAPLATA',
       deliveryMethod: 'Način Dostave',
       boxnowTitle: 'BOX NOW Ormarić',
       boxnowDesc: 'Preuzimanje na praktičnom ormariću u blizini',

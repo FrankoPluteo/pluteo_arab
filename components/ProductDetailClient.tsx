@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
@@ -17,9 +17,15 @@ interface ProductDetailClientProps {
 // sizes, so the browser picks the same file for both and downloads the photo only once.
 const PRODUCT_IMAGE_SIZES = '(max-width: 768px) 70vw, (max-width: 1024px) 60vw, 30vw';
 
+// After an add the button reads "✓ Added" and stays locked this long. A customer unsure
+// whether the first tap worked added the same perfume 5 times, then tapped − 9 times.
+const ADDED_LOCK_MS = 2000;
+
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
+  const addedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [addError, setAddError] = useState('');
   const [codeCopied, setCodeCopied] = useState(false);
 
@@ -74,7 +80,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       ? product.fragranceProfilesHr
       : product.fragranceProfiles;
 
+  useEffect(() => () => clearTimeout(addedTimer.current), []);
+
   async function handleAddToCart() {
+    if (isAdding || justAdded) return;
     setAddError('');
     setIsAdding(true);
     try {
@@ -92,6 +101,9 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
       addItem(product);
       track('add_to_cart', { ...productProps(product), quantity: 1, source: 'product_page' });
+      setJustAdded(true);
+      clearTimeout(addedTimer.current);
+      addedTimer.current = setTimeout(() => setJustAdded(false), ADDED_LOCK_MS);
     } catch {
       // Network dropped or the reply wasn't JSON
       setAddError(t.product.couldNotAddToCart);
@@ -182,7 +194,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               )}
               <p className={styles.brandName}>{product.brand?.name || 'Unknown Brand'}</p>
             </div>
-            <h1 className={styles.productName}>{product.name}</h1>
+            <div className={styles.productTitleRow}>
+              <h1 className={styles.productName}>{product.name}</h1>
+              {product.inspiration && (
+                <span className={styles.inspiration}>
+                  {t.product.inspiration}: {product.inspiration}
+                </span>
+              )}
+            </div>
             <p className={styles.productMeta}>
               {product.concentration} • {product.size}ml • {product.gender}
             </p>
@@ -228,10 +247,17 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
           <button
             onClick={handleAddToCart}
-            className={styles.addToCartButton}
-            disabled={isOutOfStock || isAdding}
+            className={`${styles.addToCartButton} ${justAdded ? styles.addToCartAdded : ''}`}
+            disabled={isOutOfStock || isAdding || justAdded}
+            aria-live="polite"
           >
-            {isOutOfStock ? t.product.outOfStock : isAdding ? t.product.adding : t.product.addToCart}
+            {isOutOfStock
+              ? t.product.outOfStock
+              : isAdding
+                ? t.product.adding
+                : justAdded
+                  ? t.product.addedToCart
+                  : t.product.addToCart}
           </button>
 
           {(displayTopNotes?.length || displayHeartNotes?.length || displayBaseNotes?.length) && (

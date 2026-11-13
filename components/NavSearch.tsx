@@ -6,10 +6,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes, trackSearch } from '@/lib/analytics';
-
-// search_performed is sent once typing has paused this long (or on Enter / "view all").
-const SEARCH_IDLE_MS = 800;
 import styles from '@/styles/navsearch.module.css';
+
+// search_performed fires once per search, with the final query: when the customer opens a
+// result, closes the dropdown or leaves the page, or after this long without typing.
+// It used to fire on every short pause, so "narci" and "narciso ro" were counted as
+// searches of their own. Enter / "view all" are reported by the results page instead.
+const SEARCH_SETTLED_MS = 3000;
 
 interface SearchProduct {
   id: string;
@@ -30,44 +33,75 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  // The latest query with its result count, waiting to be reported as search_performed.
+  const pendingSearch = useRef<{ query: string; total: number } | null>(null);
+  const settledTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const flushSearch = useCallback(() => {
+    clearTimeout(settledTimer.current);
+    const pending = pendingSearch.current;
+    pendingSearch.current = null;
+    if (pending) trackSearch(pending.query, pending.total, 'instant');
+  }, []);
+
+  const dropPendingSearch = useCallback(() => {
+    clearTimeout(settledTimer.current);
+    pendingSearch.current = null;
+  }, []);
   const router = useRouter();
   const { t } = useLanguage();
 
   const closeDropdown = useCallback(() => {
+    flushSearch();
     setOpen(false);
     setActiveIndex(-1);
-  }, []);
+  }, [flushSearch]);
 
   const clearQuery = useCallback(() => {
+    flushSearch();
     setQuery('');
     setResults([]);
     setActiveIndex(-1);
     inputRef.current?.focus();
-  }, []);
+  }, [flushSearch]);
+
+  // Leaving the page (tab closed or hidden) still reports a search in progress.
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') flushSearch();
+    };
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      flushSearch();
+    };
+  }, [flushSearch]);
 
   // Debounced fetch
   useEffect(() => {
+    // Still typing: the earlier partial query is not a search of its own.
+    clearTimeout(settledTimer.current);
     if (query.trim().length < 2) {
+      // Deleted back to nothing: whatever was typed before was abandoned, not searched.
+      pendingSearch.current = null;
       setResults([]);
       setSuggestions([]);
       setLoading(false);
       return;
     }
     setLoading(true);
-    let idleTimer: ReturnType<typeof setTimeout> | undefined;
-    const startedAt = Date.now();
+    let cancelled = false;
     const handle = setTimeout(async () => {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
         const data = await res.json();
+        if (cancelled) return;
         setResults(data.products || []);
         setSuggestions(data.suggestions || []);
         const total = typeof data.total === 'number' ? data.total : (data.products || []).length;
-        // Report the search once the customer stops typing, with how many products match.
-        idleTimer = setTimeout(
-          () => trackSearch(query, total, 'instant'),
-          Math.max(0, SEARCH_IDLE_MS - (Date.now() - startedAt))
-        );
+        // Replaces any earlier partial query; reported once the search ends (see flushSearch).
+        pendingSearch.current = { query, total };
+        settledTimer.current = setTimeout(flushSearch, SEARCH_SETTLED_MS);
       } catch {
         setResults([]);
         setSuggestions([]);
@@ -76,10 +110,10 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
       }
     }, 250);
     return () => {
+      cancelled = true;
       clearTimeout(handle);
-      clearTimeout(idleTimer);
     };
-  }, [query]);
+  }, [query, flushSearch]);
 
   // Close dropdown on outside click / Escape
   useEffect(() => {
@@ -111,6 +145,8 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
 
   function goToAllResults() {
     if (!query.trim()) return;
+    // The results page reports this search itself (source: results_page).
+    dropPendingSearch();
     router.push(`/products?search=${encodeURIComponent(query.trim())}`);
     closeDropdown();
   }

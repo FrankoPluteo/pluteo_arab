@@ -233,8 +233,10 @@ const SEARCH_REPEAT_MS = 10_000;
 let lastSearch: { query: string; at: number } | null = null;
 
 /**
- * search_performed { query, results_count, source }. Called once typing has paused (800 ms)
- * or when a search is submitted; the same query within 10 s is only sent once.
+ * search_performed { query, results_count, source }. Called once per search, never for the
+ * partial queries typed on the way: by the navbar dropdown when that search ends (result
+ * opened, dropdown closed, page left, or 3 s without typing), or by the results page when a
+ * search is submitted. The same query within 10 s is only sent once.
  */
 export function trackSearch(query: string, resultsCount: number, source: 'instant' | 'results_page') {
   const normalized = query.trim().toLowerCase().replace(/\s+/g, ' ');

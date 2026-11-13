@@ -76,21 +76,26 @@ export interface Searchable {
   description?: string | null;
   brand: { name: string };
   fragranceProfiles?: string[];
+  /** The original this perfume is inspired by, e.g. "Narciso Rodriguez For Her". */
+  inspiration?: string | null;
 }
 
 /**
  * How well a product matches, 0 = not at all. Every word of the query must match a word of
- * the brand, name or scent profile (with typos allowed); with three or more words one may
- * miss. A query found word for word in the description still matches, ranked low.
+ * the brand, name, inspiration or scent profile (with typos allowed); with three or more
+ * words one may miss. So "narc" finds perfumes inspired by Narciso Rodriguez, ranked below
+ * a perfume whose own name matches. A query found word for word in the description still
+ * matches, ranked low.
  */
 export function scoreProduct(product: Searchable, normalizedQuery: string): number {
   if (!normalizedQuery) return 0;
   const brand = normalizeSearchText(product.brand.name);
   const name = normalizeSearchText(product.name);
   const profiles = normalizeSearchText((product.fragranceProfiles ?? []).join(' '));
+  const inspiration = normalizeSearchText(product.inspiration ?? '');
   const title = `${brand} ${name}`;
 
-  const words = [...new Set(`${title} ${profiles}`.split(' ').filter(Boolean))];
+  const words = [...new Set(`${title} ${inspiration} ${profiles}`.split(' ').filter(Boolean))];
   const tokens = normalizedQuery.split(' ').filter((token) => token.length >= 2);
 
   let matched = 0;
@@ -109,6 +114,7 @@ export function scoreProduct(product: Searchable, normalizedQuery: string): numb
     let score = total * 10;
     if (title.includes(normalizedQuery)) score += 20;
     if (name.startsWith(normalizedQuery)) score += 10;
+    if (inspiration.includes(normalizedQuery)) score += 10;
     return score;
   }
 

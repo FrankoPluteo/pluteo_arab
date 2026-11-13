@@ -119,6 +119,23 @@
   letter-spacing: -0.3px;
 }
 
+.productTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 14px;
+  row-gap: 4px;
+}
+
+/* "Inspiration: …" beside the name: small and quiet, the name stays the headline */
+.inspiration {
+  font-size: 12px;
+  font-weight: 300;
+  color: #111111;
+  opacity: 0.5;
+  letter-spacing: 0.2px;
+}
+
 .productMeta {
   font-size: 13px;
   color: #AAAAAA;
@@ -257,6 +274,15 @@
   color: #AAAAAA;
   border-color: #E5E5E5;
   cursor: not-allowed;
+}
+
+/* Confirmation after an add: green, locked briefly (see ADDED_LOCK_MS) */
+.addToCartButton.addToCartAdded,
+.addToCartButton.addToCartAdded:disabled {
+  background: #2A7A50;
+  border-color: #2A7A50;
+  color: #ffffff;
+  cursor: default;
 }
 
 .description {

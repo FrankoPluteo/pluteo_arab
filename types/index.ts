@@ -25,6 +25,8 @@ export interface Product {
   heartNotesHr?: string[];
   baseNotes: string[];
   baseNotesHr?: string[];
+  /** The original perfume this one is inspired by; null for an original scent. */
+  inspiration?: string | null;
   reviewCount?: number;
   averageRating?: number;
   createdAt: Date;

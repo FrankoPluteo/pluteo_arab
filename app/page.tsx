@@ -27,22 +27,17 @@ function HomeJsonLd() {
 }
 
 export default async function HomePage() {
-  const [rawFeatured, rawBestSellers, spotlight, logoBrands] = await Promise.all([
+  const [rawFeatured, rawBestSellers, logoBrands] = await Promise.all([
+    // Every product ticked in admin, oldest first so the order stays put.
     prisma.product.findMany({
       where: { isFeatured: true },
       include: { brand: true },
-      take: 4,
+      orderBy: { createdAt: 'asc' },
     }),
     prisma.product.findMany({
       where: { isBestSeller: true },
       include: { brand: true },
-      take: 4,
-    }),
-    // Picked in admin (Stock & Price → Spotlight). Without one, HomeContent falls back
-    // to the first best seller.
-    prisma.product.findFirst({
-      where: { isSpotlight: true },
-      include: { brand: true },
+      orderBy: { createdAt: 'asc' },
     }),
     // Logo track: brands we actually stock that have a logo, most products first.
     prisma.brand.findMany({
@@ -52,9 +47,13 @@ export default async function HomePage() {
     }),
   ]);
 
+  // In stock first: a sold-out perfume shouldn't lead the row.
+  const inStockFirst = <T extends { stock: number }>(products: T[]) =>
+    [...products].sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0));
+
   const [featuredProducts, bestSellers] = await Promise.all([
-    withReviewAggregates(rawFeatured),
-    withReviewAggregates(rawBestSellers),
+    withReviewAggregates(inStockFirst(rawFeatured)),
+    withReviewAggregates(inStockFirst(rawBestSellers)),
   ]);
 
   return (
@@ -63,7 +62,6 @@ export default async function HomePage() {
       <HomeContent
         featuredProducts={featuredProducts}
         bestSellers={bestSellers}
-        spotlight={spotlight}
         logoBrands={logoBrands.map((b) => ({ id: b.id, name: b.name, logoUrl: b.logoUrl! }))}
       />
     </>

@@ -8,29 +8,21 @@ import ProductCard from '@/components/ProductCard';
 import Footer from '@/components/Footer';
 import BrandLogoTrack, { TrackBrand } from '@/components/BrandLogoTrack';
 import { useLanguage } from '@/lib/languageContext';
-import { productCaptureAttributes } from '@/lib/analytics';
 import styles from '@/styles/home.module.css';
 import logolong from '../public/Pluteo Logo Long.svg';
-import lattafaimg from '../public/lattafa.webp';
-import ahmedimg from '../public/ahmedalmaghribi.webp';
-import frenchavenueimg from '../public/frenchavenue.webp';
-import armafimg from '../public/armaf.webp';
 import wallpaperhome from '../public/homewallpapertest.webp';
 import giftBow from '../public/gift-ribbon-bow.svg';
+import signatureBg from '../public/signaturebg.png';
 
 interface HomeContentProps {
   featuredProducts: Product[];
   bestSellers: Product[];
-  /** The product ticked as Spotlight in admin, if any. */
-  spotlight: Product | null;
   /** Brands with a logo, for the swipeable logo track. */
   logoBrands: TrackBrand[];
 }
 
-export default function HomeContent({ featuredProducts, bestSellers, spotlight, logoBrands }: HomeContentProps) {
+export default function HomeContent({ featuredProducts, bestSellers, logoBrands }: HomeContentProps) {
   const { t } = useLanguage();
-
-  const spotlightProduct = spotlight ?? bestSellers[0] ?? null;
 
   useEffect(() => {
     const els = document.querySelectorAll('[data-fade]');
@@ -125,51 +117,17 @@ export default function HomeContent({ featuredProducts, bestSellers, spotlight, 
       {/* ── Brand logo track ─────────────────────────────── */}
       <BrandLogoTrack brands={logoBrands} />
 
-      {/* ── Find Your Scent CTA ──────────────────────────── */}
-      <section className={styles.scentCta} data-fade>
-        <p className={styles.scentCtaLabel}>{t.home.scentCtaLabel}</p>
-        <h2 className={styles.scentCtaTitle}>{t.home.scentCtaTitle}</h2>
-        <p className={styles.scentCtaText}>{t.home.scentCtaText}</p>
-        <Link href="/find-your-scent" className={styles.scentCtaBtn}>
-          {t.home.scentCtaBtn}
-        </Link>
-      </section>
-
-      {/* ── Bestseller spotlight ─────────────────────────── */}
-      {spotlightProduct && spotlightProduct.images[0] && (
-        <section
-          className={styles.spotlight}
-          data-fade
-          {...productCaptureAttributes(spotlightProduct, 'homepage-spotlight', 0)}
-        >
-          <Link
-            href={`/products/${spotlightProduct.id}`}
-            className={styles.spotlightImageCol}
-            aria-label={spotlightProduct.name}
-          >
-            <div className={styles.spotlightImageWrap}>
-              <Image
-                src={spotlightProduct.images[0]}
-                alt={`${spotlightProduct.brand.name} ${spotlightProduct.name} – arapski parfem`}
-                fill
-                style={{ objectFit: 'contain' }}
-                sizes="(max-width: 900px) 100vw, 50vw"
-              />
-            </div>
-          </Link>
-          <div className={styles.spotlightContent}>
-            <p className={styles.spotlightLabel}>{t.home.spotlightLabel}</p>
-            <h2 className={styles.spotlightName}>{spotlightProduct.name}</h2>
-            <p className={styles.spotlightBrand}>{spotlightProduct.brand.name}</p>
-            <p className={styles.spotlightDetails}>
-              {spotlightProduct.concentration} · {spotlightProduct.size}ml
-            </p>
-            <p className={styles.spotlightPrice}>
-              €{(spotlightProduct.price - spotlightProduct.discountAmount).toFixed(2)}
-            </p>
-            <Link href={`/products/${spotlightProduct.id}`} className={styles.spotlightCta}>
-              {t.home.spotlightCta}
-            </Link>
+      {/* ── Best sellers ─────────────────────────────────── */}
+      {bestSellers.length > 0 && (
+        <section className={styles.section} data-fade>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionLabel}>{t.home.bestSellers}</span>
+            <Link href="/products" className={styles.sectionViewAll}>{t.home.viewAll}</Link>
+          </div>
+          <div className={styles.productsGrid}>
+            {bestSellers.map((product, index) => (
+              <ProductCard key={product.id} product={product} list="homepage-bestsellers" position={index} />
+            ))}
           </div>
         </section>
       )}
@@ -189,46 +147,30 @@ export default function HomeContent({ featuredProducts, bestSellers, spotlight, 
         </section>
       )}
 
-      {/* ── Brand panels ─────────────────────────────────── */}
-      <div className={styles.brandSection} data-fade>
-        {[
-          { src: lattafaimg, alt: 'Lattafa parfemi – luksuzni arapski mirisi', name: 'Lattafa', href: '/products?brand=Lattafa' },
-          { src: armafimg, alt: 'Armaf parfemi – luksuzni orijentalni mirisi', name: 'Armaf', href: '/products?brand=Armaf' },
-          { src: frenchavenueimg, alt: 'French Avenue parfemi – moderni luksuzni mirisi', name: 'French Avenue', href: '/products?brand=French+Avenue' },
-          { src: ahmedimg, alt: 'Ahmed Al Maghribi parfemi – luksuzni orijentalni mirisi', name: 'Ahmed Al Maghribi', href: '/products?brand=Ahmed+Al+Maghribi' },
-        ].map((brand) => (
-          <div key={brand.name} className={styles.brandBox}>
-            <div className={styles.brandBoxImage}>
-              <Image
-                fill
-                src={brand.src}
-                alt={brand.alt}
-                style={{ objectFit: 'cover' }}
-                sizes="(max-width: 768px) 50vw, 50vw"
-              />
-            </div>
-            <Link href={brand.href} className={styles.brandLink}>
-              <span className={styles.brandLinkName}>{brand.name}</span>
-              <span className={styles.brandLinkLine} />
-            </Link>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Best sellers ─────────────────────────────────── */}
-      {bestSellers.length > 0 && (
-        <section className={styles.section} data-fade>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionLabel}>{t.home.bestSellers}</span>
-            <Link href="/products" className={styles.sectionViewAll}>{t.home.viewAll}</Link>
-          </div>
-          <div className={styles.productsGrid}>
-            {bestSellers.map((product, index) => (
-              <ProductCard key={product.id} product={product} list="homepage-bestsellers" position={index} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* ── Find your signature scent (AI recommendation) ── */}
+      <section className={styles.scentCta} data-fade>
+        <div className={styles.scentCtaMedia} aria-hidden="true">
+          <Image
+            fill
+            src={signatureBg}
+            alt=""
+            // Full width on phones, an 880px box on desktop (see .scentCtaMedia)
+            sizes="(min-width: 900px) 880px, 100vw"
+            quality={70}
+            placeholder="blur"
+            className={styles.scentCtaImage}
+          />
+        </div>
+        <div className={styles.scentCtaOverlay} aria-hidden="true" />
+        <div className={styles.scentCtaInner}>
+          <p className={styles.scentCtaLabel}>{t.home.scentCtaLabel}</p>
+          <h2 className={styles.scentCtaTitle}>{t.home.scentCtaTitle}</h2>
+          <p className={styles.scentCtaText}>{t.home.scentCtaText}</p>
+          <Link href="/find-your-scent" className={styles.scentCtaBtn}>
+            {t.home.scentCtaBtn}
+          </Link>
+        </div>
+      </section>
 
       <Footer />
     </div>

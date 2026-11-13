@@ -333,6 +333,25 @@
   background: #333333;
 }
 
+/* Map still loading: clearly busy, so a tap doesn't look ignored. Taps meanwhile are
+   absorbed and the map opens on its own once loaded (handleLockerButtonClick). */
+.boxnowSelectBtn[aria-busy='true'] {
+  background: #555555;
+  border-color: #555555;
+  cursor: progress;
+  animation: lockerBusy 1.2s ease-in-out infinite;
+}
+
+@keyframes lockerBusy {
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boxnowSelectBtn[aria-busy='true'] {
+    animation: none;
+  }
+}
+
 .selectedLockerInfo {
   display: flex;
   flex-direction: column;

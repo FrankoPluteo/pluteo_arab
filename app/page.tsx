@@ -1,4 +1,5 @@
 import { prisma, withReviewAggregates } from '@/lib/prisma';
+import { SHOP_ORDER } from '@/lib/productOrder';
 import HomeContent from './HomeContent';
 
 export const revalidate = 60;
@@ -28,16 +29,16 @@ function HomeJsonLd() {
 
 export default async function HomePage() {
   const [rawFeatured, rawBestSellers, logoBrands] = await Promise.all([
-    // Every product ticked in admin, oldest first so the order stays put.
+    // Every product ticked in admin, in the shop order set in /admin/products/order.
     prisma.product.findMany({
       where: { isFeatured: true },
       include: { brand: true },
-      orderBy: { createdAt: 'asc' },
+      orderBy: SHOP_ORDER,
     }),
     prisma.product.findMany({
       where: { isBestSeller: true },
       include: { brand: true },
-      orderBy: { createdAt: 'asc' },
+      orderBy: SHOP_ORDER,
     }),
     // Logo track: brands we actually stock that have a logo, most products first.
     prisma.brand.findMany({

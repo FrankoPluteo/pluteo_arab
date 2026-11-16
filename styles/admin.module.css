@@ -715,3 +715,145 @@
   color: #c62828;
   font-weight: 600;
 }
+
+/* ── Product order (drag to reorder) ── */
+.orderList {
+  list-style: none;
+  margin: 0 0 90px;
+  padding: 0;
+  background: #fff;
+  border: 1px solid #ebe5e3;
+  border-radius: 10px;
+}
+
+.orderRow {
+  position: relative;
+  background: #fff;
+  border-bottom: 1px solid #f5f1ef;
+}
+
+.orderRow:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.orderRow:last-child {
+  border-bottom: none;
+  border-radius: 0 0 10px 10px;
+}
+
+.orderRowDragging {
+  z-index: 2;
+  box-shadow: 0 8px 24px rgba(108, 83, 78, 0.18);
+  border-radius: 8px;
+}
+
+.orderPageLabel {
+  padding: 8px 14px 6px;
+  background: #f7f4f3;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.orderRow:first-child .orderPageLabel {
+  border-radius: 10px 10px 0 0;
+}
+
+.orderRowBody {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.dragHandle {
+  flex-shrink: 0;
+  width: 32px;
+  height: 40px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #aaa;
+  font-size: 20px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle:hover:not(:disabled) {
+  background: #f7f4f3;
+  color: var(--color-dark);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragHandle:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.orderPosition {
+  flex-shrink: 0;
+  width: 24px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: #aaa;
+  font-variant-numeric: tabular-nums;
+}
+
+.orderName {
+  flex: 1;
+  min-width: 0;
+}
+
+.orderMoveBtns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.orderMoveBtns .undoBtn {
+  padding: 7px 10px;
+}
+
+.orderMoveBtns .undoBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.orderSaveBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px max(16px, calc((100vw - 900px) / 2 + 32px));
+  background: #fff;
+  border-top: 1px solid #ebe5e3;
+  box-shadow: 0 -4px 16px rgba(108, 83, 78, 0.08);
+}
+
+@media (max-width: 768px) {
+  .orderRowBody {
+    gap: 8px;
+    padding: 10px 8px;
+    flex-wrap: wrap;
+  }
+
+  .orderName {
+    flex-basis: calc(100% - 140px);
+  }
+
+  .orderMoveBtns {
+    margin-left: auto;
+  }
+}

@@ -44,9 +44,13 @@ export async function POST(request: Request) {
       });
     }
 
+    // New products go to the top of the shop order (lib/productOrder.ts).
+    const { _min } = await prisma.product.aggregate({ _min: { sortOrder: true } });
+
     // Create product
     const product = await prisma.product.create({
       data: {
+        sortOrder: (_min.sortOrder ?? 1) - 1,
         name,
         brandId: brand.id,
         size,

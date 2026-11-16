@@ -53,10 +53,12 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
 }
 
 const ITEMS_PER_PAGE = 12;
-const BRAND_ORDER = ['Lattafa', 'French Avenue', 'Armaf'];
 
-/** Sorts in place. Default: brands in BRAND_ORDER, oldest products first within a brand. */
-function sortProducts<T extends { name: string; price: number; createdAt: Date; brand: { name: string } }>(
+/**
+ * Sorts in place. The default ('brand-order', shown as "Recommended") keeps the catalog's
+ * own order, which is the one set in /admin/products/order (lib/productOrder.ts).
+ */
+function sortProducts<T extends { name: string; price: number; createdAt: Date }>(
   products: T[],
   sortBy: string | undefined
 ) {
@@ -68,12 +70,6 @@ function sortProducts<T extends { name: string; price: number; createdAt: Date; 
     products.sort((a, b) => sign * a.name.localeCompare(b.name, 'hr'));
   } else if (field === 'createdAt') {
     products.sort((a, b) => sign * (a.createdAt.getTime() - b.createdAt.getTime()));
-  } else {
-    const rank = (brand: string) => {
-      const index = BRAND_ORDER.indexOf(brand);
-      return index === -1 ? BRAND_ORDER.length : index;
-    };
-    products.sort((a, b) => rank(a.brand.name) - rank(b.brand.name));
   }
 }
 

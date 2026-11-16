@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { prisma, withReviewAggregates } from '@/lib/prisma';
+import { SHOP_ORDER } from '@/lib/productOrder';
 
 /**
  * The whole product catalog (a few dozen perfumes), read from the database at most once
@@ -15,7 +16,8 @@ export const CATALOG_REVALIDATE_SECONDS = 60;
 const readCatalog = unstable_cache(
   async () => {
     const [products, brands] = await Promise.all([
-      prisma.product.findMany({ include: { brand: true }, orderBy: { createdAt: 'asc' } }),
+      // Already in shop order, so /products shows it as is when no other sort is picked.
+      prisma.product.findMany({ include: { brand: true }, orderBy: SHOP_ORDER }),
       prisma.brand.findMany({ select: { name: true }, orderBy: { name: 'asc' } }),
     ]);
     return {
@@ -23,7 +25,7 @@ const readCatalog = unstable_cache(
       brandNames: brands.map((brand) => brand.name),
     };
   },
-  ['catalog-v2'],
+  ['catalog-v3'],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ['catalog'] }
 );
 

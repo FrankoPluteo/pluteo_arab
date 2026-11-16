@@ -9,6 +9,11 @@ const SECTIONS = [
     description: 'Update how much a product costs and how many units are available to sell.',
   },
   {
+    href: '/admin/products/order',
+    title: 'Product Order',
+    description: 'Choose the order perfumes appear in on the shop, home page and gift pages.',
+  },
+  {
     href: '/admin/products/add',
     title: 'Add Product',
     description: 'Create a new product listing with images, notes, and pricing.',

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { prisma, withReviewAggregates } from '@/lib/prisma';
+import { SHOP_ORDER } from '@/lib/productOrder';
 import PoklonContent from './PoklonContent';
 
 export const revalidate = 60;
@@ -59,7 +60,7 @@ export default async function PoklonPage({
   const raw = await prisma.product.findMany({
     where: page.flag === 'isGiftWomen' ? { isGiftWomen: true } : { isGiftMen: true },
     include: { brand: true },
-    orderBy: [{ isBestSeller: 'desc' }, { name: 'asc' }],
+    orderBy: SHOP_ORDER,
   });
 
   // Sold-out gifts stay listed, but after everything that can be bought today.

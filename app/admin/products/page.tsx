@@ -304,6 +304,7 @@ export default function AdminStockPricePage() {
         <div className={s.adminNav}>
           <Link href="/admin" className={s.adminNavLink}>Dashboard</Link>
           <Link href="/admin/products" className={`${s.adminNavLink} ${s.adminNavLinkActive}`}>Stock &amp; Price</Link>
+          <Link href="/admin/products/order" className={s.adminNavLink}>Order</Link>
           <Link href="/admin/products/add" className={s.adminNavLink}>Add Product</Link>
           <Link href="/admin/brands" className={s.adminNavLink}>Brands</Link>
           <Link href="/admin/affiliates" className={s.adminNavLink}>Affiliates</Link>

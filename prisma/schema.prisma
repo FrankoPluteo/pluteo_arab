@@ -50,6 +50,8 @@ model Product {
   reservations      CartReservation[]
   minimaxSku        String?           @unique
   inspiration       String?           // original perfume this one is inspired by; null = original scent
+  // Position in every shop list (/products, home rows, gift pages), lowest first. Set in /admin/products/order.
+  sortOrder         Int               @default(0)
   cost              ProductCost?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

@@ -8,6 +8,7 @@ import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes, productProps, track } from '@/lib/analytics';
 import StarRating from './StarRating';
+import BlackFridayTape from './BlackFridayTape'; // BLACK FRIDAY — remove after campaign
 import styles from '@/styles/productcard.module.css';
 import giftBow from '../public/gift-bow.svg';
 
@@ -103,6 +104,8 @@ export default function ProductCard({
           ) : (
             <div className={styles.noImage}>{t.product.noImage}</div>
           )}
+
+          <BlackFridayTape placement="card" /> {/* BLACK FRIDAY — remove after campaign */}
 
           {product.brand.logoUrl && (
             <div className={`${styles.brandLogo} ${showGiftBow ? styles.brandLogoBelowBow : ''}`}>

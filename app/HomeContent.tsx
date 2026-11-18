@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import Footer from '@/components/Footer';
 import BrandLogoTrack, { TrackBrand } from '@/components/BrandLogoTrack';
+import BlackFridayTape from '@/components/BlackFridayTape'; // BLACK FRIDAY — remove after campaign
 import { useLanguage } from '@/lib/languageContext';
 import styles from '@/styles/home.module.css';
 import logolong from '../public/Pluteo Logo Long.svg';
@@ -61,6 +62,7 @@ export default function HomeContent({ featuredProducts, bestSellers, logoBrands 
             />
           </div>
           <div className={styles.heroOverlay} />
+          <BlackFridayTape placement="hero" /> {/* BLACK FRIDAY — remove after campaign */}
 
           <div className={styles.heroContent}>
             <Image
@@ -96,6 +98,7 @@ export default function HomeContent({ featuredProducts, bestSellers, logoBrands 
               </span>
             </Link>
           ))}
+          <BlackFridayTape placement="gift" /> {/* BLACK FRIDAY — remove after campaign */}
           <div className={styles.giftRibbon} aria-hidden="true">
             <span className={styles.giftStripV} />
             <span className={styles.giftStripH} />

@@ -31,7 +31,7 @@ export const translations = {
     },
 
     home: {
-      shop: 'Explore Collection',
+      shop: 'Shop',
       tagline1: 'Scent that endures.',
       tagline2: 'Luxury you feel.',
       tagline3: 'RICH',
@@ -525,7 +525,7 @@ export const translations = {
     },
 
     home: {
-      shop: 'Otkrijte kolekciju',
+      shop: 'Pogledaj parfeme',
       tagline1: 'Miris koji traje.',
       tagline2: 'Luksuz koji se osjeća.',
       tagline3: 'BOGATI',

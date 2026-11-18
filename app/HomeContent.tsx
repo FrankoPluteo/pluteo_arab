@@ -74,8 +74,6 @@ export default function HomeContent({ featuredProducts, bestSellers, logoBrands 
               priority
             />
             <div className={styles.heroRule} />
-            <p className={styles.heroTagline}>{t.home.tagline1}</p>
-            <p className={styles.heroTagline2}>{t.home.tagline2}</p>
             <Link href="/products" className={styles.heroCta}>{t.home.shop}</Link>
           </div>
         </div>

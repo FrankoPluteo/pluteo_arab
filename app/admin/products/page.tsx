@@ -24,7 +24,47 @@ type GiftFlag = 'isGiftMen' | 'isGiftWomen';
 
 interface Draft {
   price: string;
+  /** Euros off the price; this is what gets saved. */
+  discount: string;
+  /** The same discount as a % of the price; kept in step with `discount` both ways. */
+  percent: string;
   stock: string;
+}
+
+/** Discount as a % of the price, to one decimal, e.g. "30" or "12.5". */
+function percentOf(discount: number, price: number): string {
+  if (!Number.isFinite(discount) || !Number.isFinite(price) || price <= 0) return '0';
+  return String(Math.round((discount / price) * 1000) / 10);
+}
+
+function draftFrom(row: { price: number; discountAmount: number; stock: number }): Draft {
+  return {
+    price: String(row.price),
+    discount: String(row.discountAmount),
+    percent: percentOf(row.discountAmount, row.price),
+    stock: String(row.stock),
+  };
+}
+
+/**
+ * Applies one edit. Typing a % sets the euro amount from the price; typing an amount (or a
+ * new price) updates the % so the two columns always agree. The euro amount is what's stored.
+ */
+function editDraft(draft: Draft, field: keyof Draft, value: string): Draft {
+  const next = { ...draft, [field]: value };
+  const price = parseFloat(next.price);
+  if (field === 'percent') {
+    const pct = parseFloat(value);
+    if (Number.isFinite(pct) && Number.isFinite(price)) {
+      next.discount = String(Math.round(price * pct) / 100);
+    }
+  } else if (field === 'discount' || field === 'price') {
+    const discount = parseFloat(next.discount);
+    if (Number.isFinite(discount) && Number.isFinite(price) && price > 0) {
+      next.percent = percentOf(discount, price);
+    }
+  }
+  return next;
 }
 
 type RowFeedback = { type: 'success' | 'error'; msg: string };
@@ -115,7 +155,7 @@ export default function AdminStockPricePage() {
 
         const init: Record<string, Draft> = {};
         for (const row of rows) {
-          init[row.id] = { price: String(row.price), stock: String(row.stock) };
+          init[row.id] = draftFrom(row);
         }
         setDrafts(init);
       })
@@ -172,7 +212,7 @@ export default function AdminStockPricePage() {
   }
 
   function setDraft(id: string, field: keyof Draft, value: string) {
-    setDrafts((d) => ({ ...d, [id]: { ...d[id], [field]: value } }));
+    setDrafts((d) => ({ ...d, [id]: editDraft(d[id], field, value) }));
     setRowStatus((r) => omit(r, id));
   }
 
@@ -180,11 +220,19 @@ export default function AdminStockPricePage() {
     const draft = drafts[id];
     if (!draft) return null;
     const price = parseFloat(draft.price);
+    const discount = parseFloat(draft.discount);
+    const percent = parseFloat(draft.percent);
     const stock = Number(draft.stock);
+    const priceValid = Number.isFinite(price) && price >= 0 && draft.price.trim() !== '';
     return {
       price,
+      discount,
       stock,
-      priceValid: Number.isFinite(price) && price >= 0 && draft.price.trim() !== '',
+      priceValid,
+      // Euros off the price; can't exceed it, so the final price never goes below zero.
+      discountValid:
+        Number.isFinite(discount) && discount >= 0 && draft.discount.trim() !== '' && (!priceValid || discount <= price),
+      percentValid: Number.isFinite(percent) && percent >= 0 && percent <= 100 && draft.percent.trim() !== '',
       stockValid: Number.isInteger(stock) && stock >= 0 && draft.stock.trim() !== '',
     };
   }
@@ -192,18 +240,22 @@ export default function AdminStockPricePage() {
   function hasChanges(row: ProductRow) {
     const draft = drafts[row.id];
     if (!draft) return false;
-    return draft.price !== String(row.price) || draft.stock !== String(row.stock);
+    return (
+      draft.price !== String(row.price) ||
+      draft.discount !== String(row.discountAmount) ||
+      draft.stock !== String(row.stock)
+    );
   }
 
   function resetDraft(row: ProductRow) {
-    setDrafts((d) => ({ ...d, [row.id]: { price: String(row.price), stock: String(row.stock) } }));
+    setDrafts((d) => ({ ...d, [row.id]: draftFrom(row) }));
     setRowStatus((r) => omit(r, row.id));
   }
 
   async function save(row: ProductRow) {
     const parsed = parsedDraft(row.id);
-    if (!parsed || !parsed.priceValid || !parsed.stockValid) {
-      setRowStatus((r) => ({ ...r, [row.id]: { type: 'error', msg: 'Enter a valid price and stock first.' } }));
+    if (!parsed || !parsed.priceValid || !parsed.discountValid || !parsed.percentValid || !parsed.stockValid) {
+      setRowStatus((r) => ({ ...r, [row.id]: { type: 'error', msg: 'Enter a valid price, discount and stock first.' } }));
       return;
     }
 
@@ -214,15 +266,17 @@ export default function AdminStockPricePage() {
       const res = await fetch(`/api/admin/products/${row.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ price: parsed.price, stock: parsed.stock }),
+        body: JSON.stringify({ price: parsed.price, discountAmount: parsed.discount, stock: parsed.stock }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Save failed.');
 
       setProducts((prev) =>
-        prev.map((p) => (p.id === row.id ? { ...p, price: data.price, stock: data.stock } : p))
+        prev.map((p) =>
+          p.id === row.id ? { ...p, price: data.price, discountAmount: data.discountAmount, stock: data.stock } : p
+        )
       );
-      setDrafts((d) => ({ ...d, [row.id]: { price: String(data.price), stock: String(data.stock) } }));
+      setDrafts((d) => ({ ...d, [row.id]: draftFrom(data) }));
       setRowStatus((r) => ({ ...r, [row.id]: { type: 'success', msg: 'Saved' } }));
       setTimeout(() => setRowStatus((r) => omit(r, row.id)), 2500);
     } catch (e: any) {
@@ -354,6 +408,8 @@ export default function AdminStockPricePage() {
                   {sortHeader('product', 'Product')}
                   <th>Status</th>
                   {sortHeader('price', 'Price (€)')}
+                  <th>Discount (€)</th>
+                  <th>Discount (%)</th>
                   <th>Stock</th>
                   <th aria-hidden="true"></th>
                   <th>Gift page</th>
@@ -365,13 +421,19 @@ export default function AdminStockPricePage() {
               </thead>
               <tbody>
                 {filtered.map((row) => {
-                  const draft = drafts[row.id] ?? { price: String(row.price), stock: String(row.stock) };
+                  const draft = drafts[row.id] ?? draftFrom(row);
                   const parsed = parsedDraft(row.id);
                   const changed = hasChanges(row);
                   const status = stockStatus(row.stock);
                   const isSaving = saving === row.id;
                   const feedback = rowStatus[row.id];
-                  const canSave = changed && !isSaving && !!parsed?.priceValid && !!parsed?.stockValid;
+                  const canSave =
+                    changed &&
+                    !isSaving &&
+                    !!parsed?.priceValid &&
+                    !!parsed?.discountValid &&
+                    !!parsed?.percentValid &&
+                    !!parsed?.stockValid;
 
                   return (
                     <tr key={row.id}>
@@ -403,6 +465,43 @@ export default function AdminStockPricePage() {
                             aria-label={`Price for ${row.name}`}
                           />
                           {parsed && !parsed.priceValid && <span className={s.fieldError}>Invalid</span>}
+                        </div>
+                      </td>
+                      <td>
+                        <div className={s.editCell}>
+                          <input
+                            className={`${s.input} ${parsed && !parsed.discountValid ? s.inputInvalid : ''}`}
+                            type="number"
+                            step="0.01"
+                            min={0}
+                            value={draft.discount}
+                            onChange={(e) => setDraft(row.id, 'discount', e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && canSave && save(row)}
+                            aria-label={`Discount in euros for ${row.name}`}
+                          />
+                          {parsed && !parsed.discountValid ? (
+                            <span className={s.fieldError}>Invalid</span>
+                          ) : (
+                            parsed && parsed.priceValid && parsed.discount > 0 && (
+                              <span className={s.hint} style={{ whiteSpace: 'nowrap' }}>Sells at €{(parsed.price - parsed.discount).toFixed(2)}</span>
+                            )
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className={s.editCell}>
+                          <input
+                            className={`${s.input} ${parsed && !parsed.percentValid ? s.inputInvalid : ''}`}
+                            type="number"
+                            step="1"
+                            min={0}
+                            max={100}
+                            value={draft.percent}
+                            onChange={(e) => setDraft(row.id, 'percent', e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && canSave && save(row)}
+                            aria-label={`Discount in percent for ${row.name}`}
+                          />
+                          {parsed && !parsed.percentValid && <span className={s.fieldError}>0–100</span>}
                         </div>
                       </td>
                       <td>

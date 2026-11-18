@@ -10,8 +10,8 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
-// PATCH /api/admin/products/:id — update price, stock, the gift-page flags and/or the
-// homepage spotlight only.
+// PATCH /api/admin/products/:id — update price, discount, stock, the gift-page flags
+// and/or the homepage spotlight only.
 // Protected by middleware.ts (admin_token cookie, checked for every /api/admin/* route).
 export async function PATCH(
   request: Request,
@@ -25,6 +25,7 @@ export async function PATCH(
     // of what other fields a request body might contain.
     const data: {
       price?: number;
+      discountAmount?: number;
       stock?: number;
       isGiftMen?: boolean;
       isGiftWomen?: boolean;
@@ -40,6 +41,18 @@ export async function PATCH(
         );
       }
       data.price = Math.round(price * 100) / 100;
+    }
+
+    // Discount is in euros off the price (final price = price - discountAmount).
+    if ('discountAmount' in body) {
+      const discount = body.discountAmount;
+      if (!isFiniteNumber(discount) || discount < 0 || discount > MAX_PRICE) {
+        return NextResponse.json(
+          { error: `Discount must be a number between 0 and ${MAX_PRICE}.` },
+          { status: 400 }
+        );
+      }
+      data.discountAmount = Math.round(discount * 100) / 100;
     }
 
     if ('stock' in body) {
@@ -66,9 +79,22 @@ export async function PATCH(
       return NextResponse.json({ error: 'No fields provided.' }, { status: 400 });
     }
 
-    const existing = await prisma.product.findUnique({ where: { id }, select: { id: true } });
+    const existing = await prisma.product.findUnique({
+      where: { id },
+      select: { id: true, price: true, discountAmount: true },
+    });
     if (!existing) {
       return NextResponse.json({ error: 'Product not found.' }, { status: 404 });
+    }
+
+    // The discount can never push the final price below zero, whichever of the two changed.
+    const nextPrice = data.price ?? existing.price;
+    const nextDiscount = data.discountAmount ?? existing.discountAmount;
+    if (nextDiscount > nextPrice) {
+      return NextResponse.json(
+        { error: 'Discount cannot be larger than the price.' },
+        { status: 400 }
+      );
     }
 
     const select = {

@@ -70,6 +70,49 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* ── Discount sticker: bottom-left of the product photo, above the tape ── */
+.discountBadge {
+  position: absolute;
+  left: 5%;
+  bottom: 5%;
+  z-index: 6;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #0b0b0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: inline-size;
+  pointer-events: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.discountBadge_card {
+  width: 34%;
+}
+
+.discountBadge_detail {
+  width: 24%;
+}
+
+/* Thin white ring just inside the edge */
+.discountRing {
+  position: absolute;
+  inset: 6%;
+  border: max(1.5px, 2.2cqw) solid #ffffff;
+  border-radius: 50%;
+}
+
+.discountText {
+  position: relative;
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 27cqw;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
 /* Phones: the hero and gift panel are short and full of text, so one strip each */
 @media (max-width: 768px) {
   .hero .tape {

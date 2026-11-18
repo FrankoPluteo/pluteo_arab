@@ -7,6 +7,7 @@ import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productProps, track } from '@/lib/analytics';
 import ReviewSummary from './ReviewSummary';
+import BlackFridayDiscountBadge from './BlackFridayDiscountBadge'; // BLACK FRIDAY — remove after campaign
 import styles from '@/styles/productdetails.module.css';
 
 interface ProductDetailClientProps {
@@ -133,6 +134,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                       sizes={PRODUCT_IMAGE_SIZES}
                     />
                   </div>
+                  {/* BLACK FRIDAY — remove after campaign */}
+                  <BlackFridayDiscountBadge price={product.price} discountAmount={product.discountAmount} size="detail" />
                 </div>
               ))}
             </div>
@@ -154,6 +157,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             ) : (
               <div className={styles.noImage}>{t.product.noImageAvailable}</div>
             )}
+            {/* BLACK FRIDAY — remove after campaign */}
+            <BlackFridayDiscountBadge price={product.price} discountAmount={product.discountAmount} size="detail" />
           </div>
 
           {hasImages && images.length > 1 && (

@@ -78,22 +78,25 @@
 
 .heroCta {
   display: inline-block;
-  padding: 13px 40px;
-  /* Red of the gift ribbon, so the main CTA stands out on the photo */
-  background: #c62828;
-  border: 1px solid #c62828;
+  /* Larger, filling the space the taglines used to take under the logo */
+  padding: 22px 64px;
+  /* Black like the Black Friday tape, with its white edge line */
+  background: #0b0b0b;
+  border: 2px solid #ffffff;
+  outline: 4px solid #0b0b0b;
   color: #ffffff;
   text-decoration: none;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: background-color 250ms ease, color 250ms ease;
 }
 
 .heroCta:hover {
-  background: #9e1b1b;
-  border-color: #9e1b1b;
+  background: #ffffff;
+  color: #0b0b0b;
 }
 
 /* ── Hero gift panel (right half) ──────────────────────── */
@@ -491,7 +494,9 @@
   }
 
   .heroCta {
-    padding: 11px 32px;
+    padding: 16px 40px;
+    font-size: 12px;
+    letter-spacing: 3px;
   }
 
   .giftPanel {

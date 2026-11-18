@@ -8,6 +8,8 @@ import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes, productProps, track } from '@/lib/analytics';
 import StarRating from './StarRating';
+import BlackFridayTape from './BlackFridayTape'; // BLACK FRIDAY — remove after campaign
+import BlackFridayDiscountBadge from './BlackFridayDiscountBadge'; // BLACK FRIDAY — remove after campaign
 import styles from '@/styles/productcard.module.css';
 import giftBow from '../public/gift-bow.svg';
 
@@ -102,6 +104,11 @@ export default function ProductCard({
             </div>
           ) : (
             <div className={styles.noImage}>{t.product.noImage}</div>
+          )}
+
+          <BlackFridayTape placement="card" /> {/* BLACK FRIDAY — remove after campaign */}
+          {!outOfStock && ( /* BLACK FRIDAY — remove after campaign */
+            <BlackFridayDiscountBadge price={product.price} discountAmount={product.discountAmount} size="card" />
           )}
 
           {product.brand.logoUrl && (

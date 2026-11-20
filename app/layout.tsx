@@ -44,9 +44,10 @@ export const metadata: Metadata = {
     'max-image-preview': 'large',
     'max-snippet': -1,
   },
+  // iOS doesn't use an SVG as the home-screen icon: app/apple-icon.png is a 180×180 PNG.
   icons: {
     icon: '/icon.svg',
-    apple: '/icon.svg',
+    apple: { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
   },
 };
 

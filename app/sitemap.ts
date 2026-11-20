@@ -1,100 +1,56 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { absoluteUrl, brandPath, genderPath, productPath, shopPath } from '@/lib/urls';
 
+/**
+ * lastModified is a real date wherever there is one (a product's updatedAt, or the newest
+ * product a listing shows), and left out for static pages, rather than "now" on every
+ * request, which teaches search engines to ignore it.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://www.pluteo.shop';
-
-  // Fetch all products for dynamic URLs
   const products = await prisma.product.findMany({
-    select: { id: true, updatedAt: true },
+    select: { id: true, updatedAt: true, brand: { select: { name: true } } },
   });
 
-  // Fetch all brands for brand filter pages
-  const brands = await prisma.brand.findMany({
-    select: { name: true },
-  });
+  const newest = (dates: Date[]) =>
+    dates.length ? new Date(Math.max(...dates.map((d) => d.getTime()))) : undefined;
+  const catalogUpdated = newest(products.map((p) => p.updatedAt));
 
-  // Static pages
   const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/products`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/find-your-scent`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/poklon/za-nju`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/poklon/za-njega`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/legal`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
+    { url: absoluteUrl('/'), lastModified: catalogUpdated, changeFrequency: 'daily', priority: 1.0 },
+    { url: absoluteUrl(shopPath()), lastModified: catalogUpdated, changeFrequency: 'daily', priority: 0.9 },
+    { url: absoluteUrl('/poklon/za-nju'), lastModified: catalogUpdated, changeFrequency: 'weekly', priority: 0.8 },
+    { url: absoluteUrl('/poklon/za-njega'), lastModified: catalogUpdated, changeFrequency: 'weekly', priority: 0.8 },
+    { url: absoluteUrl('/find-your-scent'), changeFrequency: 'monthly', priority: 0.7 },
+    { url: absoluteUrl('/about'), changeFrequency: 'monthly', priority: 0.6 },
+    { url: absoluteUrl('/contact'), changeFrequency: 'monthly', priority: 0.5 },
+    { url: absoluteUrl('/legal'), changeFrequency: 'yearly', priority: 0.3 },
+    { url: absoluteUrl('/privatnost'), changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  // Brand filter pages
-  const brandPages: MetadataRoute.Sitemap = brands.map((brand) => ({
-    url: `${baseUrl}/products?brand=${encodeURIComponent(brand.name)}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
+  // One listing per brand that has products, dated by its newest product.
+  const byBrand = new Map<string, Date[]>();
+  for (const p of products) {
+    byBrand.set(p.brand.name, [...(byBrand.get(p.brand.name) ?? []), p.updatedAt]);
+  }
+  const brandPages: MetadataRoute.Sitemap = [...byBrand.entries()].map(([name, dates]) => ({
+    url: absoluteUrl(brandPath(name)),
+    lastModified: newest(dates),
+    changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
-  // Gender filter pages
-  const genderPages: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/products?gender=male`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/products?gender=female`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-  ];
+  const genderPages: MetadataRoute.Sitemap = (['male', 'female'] as const).map((gender) => ({
+    url: absoluteUrl(genderPath(gender)),
+    lastModified: catalogUpdated,
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }));
 
-  // Product pages
   const productPages: MetadataRoute.Sitemap = products.map((product) => ({
-    url: `${baseUrl}/products/${product.id}`,
+    url: absoluteUrl(productPath(product)),
     lastModified: product.updatedAt,
-    changeFrequency: 'weekly' as const,
+    changeFrequency: 'weekly',
     priority: 0.8,
   }));
 

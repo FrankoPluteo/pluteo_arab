@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { absoluteUrl } from '@/lib/urls';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/api/', '/cart', '/checkout', '/order/'],
       },
     ],
-    sitemap: 'https://www.pluteo.shop/sitemap.xml',
+    sitemap: absoluteUrl('/sitemap.xml'),
   };
 }

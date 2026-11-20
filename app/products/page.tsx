@@ -3,19 +3,16 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getCatalog, searchSuggestions } from '@/lib/catalog';
 import { searchProducts } from '@/lib/search';
+import { absoluteUrl, brandPath, genderPath, listingPagePath, shopPath } from '@/lib/urls';
 import ProductsContent from './ProductsContent';
-
-const BASE_URL = 'https://www.pluteo.shop';
 
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const params = await searchParams;
 
-  // Canonical strips sort/pagination — only brand and gender are "category" params
-  const canonicalParams = new URLSearchParams();
-  if (params.brand) canonicalParams.set('brand', params.brand);
-  if (params.gender) canonicalParams.set('gender', params.gender);
-  const canonicalSuffix = canonicalParams.toString() ? `?${canonicalParams.toString()}` : '';
-  const canonical = `${BASE_URL}/products${canonicalSuffix}`;
+  // Canonical keeps what makes a listing its own page (brand, gender, page number) and drops
+  // sorting and the other filters, which only reorder or narrow the same products.
+  const page = Math.max(1, parseInt(params.page || '1') || 1);
+  const canonical = absoluteUrl(listingPagePath({ brand: params.brand, gender: params.gender }, page));
 
   let title: string;
   let description: string;
@@ -36,6 +33,9 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
     title = 'Arapski parfemi - kupite online';
     description = 'Pregledajte našu kolekciju autentičnih arapskih parfema, oud mirisa i luksuznih orijentalnih mirisa. Lattafa, Armaf i French Avenue - brza dostava diljem Hrvatske.';
   }
+
+  // Later pages get their own title so they don't read as duplicates of page 1.
+  if (page > 1) title = `${title} - stranica ${page}`;
 
   return {
     title,
@@ -145,15 +145,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
     const breadcrumbItems: { name: string; item: string }[] = [
-      { name: 'Početna', item: BASE_URL },
-      { name: 'Parfemi', item: `${BASE_URL}/products` },
+      { name: 'Početna', item: absoluteUrl('/') },
+      { name: 'Parfemi', item: absoluteUrl(shopPath()) },
     ];
     if (params.brand) {
-      breadcrumbItems.push({ name: params.brand, item: `${BASE_URL}/products?brand=${encodeURIComponent(params.brand)}` });
+      breadcrumbItems.push({ name: params.brand, item: absoluteUrl(brandPath(params.brand)) });
     } else if (params.gender === 'male') {
-      breadcrumbItems.push({ name: 'Muški parfemi', item: `${BASE_URL}/products?gender=male` });
+      breadcrumbItems.push({ name: 'Muški parfemi', item: absoluteUrl(genderPath('male')) });
     } else if (params.gender === 'female') {
-      breadcrumbItems.push({ name: 'Ženski parfemi', item: `${BASE_URL}/products?gender=female` });
+      breadcrumbItems.push({ name: 'Ženski parfemi', item: absoluteUrl(genderPath('female')) });
     }
 
     const breadcrumbJsonLd = {

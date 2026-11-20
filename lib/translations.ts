@@ -387,11 +387,16 @@ export const translations = {
       noProductsSearchHint: 'Check the spelling or try just the brand or perfume name.',
       searchSuggestions: 'Our bestsellers',
       noProductsFilter: 'No products found. Try adjusting your filters.',
+      quickLinksLabel: 'Browse by brand',
+      allPerfumes: 'All perfumes',
+      forHim: "Men's",
+      forHer: "Women's",
     },
 
     pagination: {
       previous: 'Previous',
       next: 'Next',
+      label: 'Pages',
     },
 
     reviews: {
@@ -893,11 +898,16 @@ export const translations = {
       noProductsSearchHint: 'Provjerite pravopis ili upišite samo naziv brenda ili parfema.',
       searchSuggestions: 'Naši najprodavaniji',
       noProductsFilter: 'Nema pronađenih proizvoda. Pokušajte prilagoditi filtere.',
+      quickLinksLabel: 'Pregled po brendu',
+      allPerfumes: 'Svi parfemi',
+      forHim: 'Muški',
+      forHer: 'Ženski',
     },
 
     pagination: {
       previous: 'Prethodno',
       next: 'Sljedeće',
+      label: 'Stranice',
     },
 
     reviews: {

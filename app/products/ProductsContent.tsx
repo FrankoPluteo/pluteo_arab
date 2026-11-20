@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import Pagination from '@/components/Pagination';
@@ -10,6 +11,7 @@ import SearchBar from '@/components/SearchBar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
 import { brandList, trackSearch } from '@/lib/analytics';
+import { brandPath, genderPath, shopPath } from '@/lib/urls';
 import styles from '@/styles/products.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
 
@@ -79,14 +81,38 @@ export default function ProductsContent({
 
   return (
     <div className={styles.productsContainer}>
-      <h1 className="sr-only">{pageHeading}</h1>
       <div className={styles.logoContainer}>
-        <Image src={logoIcon} alt="Pluteo – arapski parfemi online shop" width={60} height={60} />
+        <Image src={logoIcon} alt="" width={60} height={60} />
       </div>
+      <h1 className={styles.pageTitle}>{pageHeading}</h1>
 
       <SearchBar initialValue={search || ''} />
 
-      <ProductFilters options={filterOptions} />
+      {/* Plain links to every brand and to men's/women's: the way in for search engines,
+          which don't use the filter form below. */}
+      <nav className={styles.quickLinks} aria-label={t.products.quickLinksLabel}>
+        <Link href={shopPath()} aria-current={!brandFilter && !genderFilter && !search ? 'page' : undefined}>
+          {t.products.allPerfumes}
+        </Link>
+        <Link href={genderPath('male')} aria-current={genderFilter === 'male' && !brandFilter ? 'page' : undefined}>
+          {t.products.forHim}
+        </Link>
+        <Link href={genderPath('female')} aria-current={genderFilter === 'female' && !brandFilter ? 'page' : undefined}>
+          {t.products.forHer}
+        </Link>
+        {filterOptions.brands.map((brand) => (
+          <Link
+            key={brand}
+            href={brandPath(brand)}
+            aria-current={brandFilter === brand && !genderFilter ? 'page' : undefined}
+          >
+            {brand}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Keyed on the URL so the form starts from the current filters after a link is followed */}
+      <ProductFilters key={JSON.stringify(searchParams)} options={filterOptions} />
 
       {search && (
         <p className={styles.searchInfo}>{t.products.searchInfo(search)}</p>

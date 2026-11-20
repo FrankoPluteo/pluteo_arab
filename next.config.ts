@@ -32,6 +32,12 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        // Croatian spelling of the contact page, seen as an organic landing URL (it was a 404)
+        source: '/kontakt',
+        destination: '/contact',
+        statusCode: 301,
+      },
+      {
         // Finished campaign pages: old ad and social links land on the shop.
         // Query strings (promo, utm_*) are carried over by Next.js automatically.
         // Temporary, so the paths can be reused for a future campaign.

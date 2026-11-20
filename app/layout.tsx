@@ -20,38 +20,29 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.pluteo.shop'),
   title: {
-    default: 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska',
+    // Pages without a title of their own (cart, checkout…); the home page sets its own.
+    default: 'Pluteo',
     template: '%s | Pluteo',
   },
-  description: 'Arapski parfemi i oud mirisi uz brzu dostavu diljem Hrvatske. 100% originalni Lattafa, Armaf i French Avenue parfemi - dugotrajni orijentalni mirisi za nju i njega.',
+  description: 'Arapski parfemi uz dostavu diljem Hrvatske: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs.',
   applicationName: 'Pluteo',
   authors: [{ name: 'Pluteo' }],
-  alternates: {
-    canonical: 'https://www.pluteo.shop',
-  },
+  // No canonical or og:url here: every page sets its own, and a site-wide one made pages
+  // without their own (the 404 page among them) point at the home page.
   openGraph: {
-    title: 'Pluteo - Arapski parfemi i oud mirisi',
-    description: 'Otkrijte autentične arapske parfeme Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
-    url: 'https://www.pluteo.shop',
     siteName: 'Pluteo',
     locale: 'hr_HR',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska',
-    description: 'Originalni arapski parfemi Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
   },
+  // Indexing is the default, so only the preview limits are set. A 404 then carries just
+  // Next.js's own "noindex" instead of that plus a contradicting "index, follow".
   robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+    'max-video-preview': -1,
+    'max-image-preview': 'large',
+    'max-snippet': -1,
   },
   icons: {
     icon: '/icon.svg',

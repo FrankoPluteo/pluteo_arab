@@ -1,8 +1,23 @@
+import type { Metadata } from 'next';
 import { prisma, withReviewAggregates } from '@/lib/prisma';
 import { SHOP_ORDER } from '@/lib/productOrder';
+import { absoluteUrl } from '@/lib/urls';
 import HomeContent from './HomeContent';
 
 export const revalidate = 60;
+
+const HOME_TITLE = 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska';
+const HOME_DESCRIPTION =
+  'Arapski parfemi i oud mirisi uz brzu dostavu diljem Hrvatske. 100% originalni Lattafa, Armaf i French Avenue parfemi - dugotrajni orijentalni mirisi za nju i njega.';
+
+// The home page's own canonical; it used to sit in the root layout and leak to other pages.
+export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: absoluteUrl('/') },
+  openGraph: { title: HOME_TITLE, description: HOME_DESCRIPTION, url: absoluteUrl('/') },
+  twitter: { title: HOME_TITLE, description: HOME_DESCRIPTION },
+};
 
 function HomeJsonLd() {
   const jsonLd = {

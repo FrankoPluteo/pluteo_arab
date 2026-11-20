@@ -44,7 +44,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const product = await getProduct(id);
 
   if (!product) {
-    return { title: 'Parfem nije pronađen', robots: { index: false, follow: true } };
+    // The 404 page carries Next.js's own "noindex".
+    return { title: 'Parfem nije pronađen' };
   }
 
   const title = productTitle(product);

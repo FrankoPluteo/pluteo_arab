@@ -3,7 +3,8 @@ import Footer from '@/components/Footer';
 import { getCatalog, searchSuggestions } from '@/lib/catalog';
 import { searchProducts } from '@/lib/search';
 import { absoluteUrl, brandPath, genderPath, listingPagePath, shopPath } from '@/lib/urls';
-import { normalizeGender } from '@/lib/productText';
+import { shortConcentration } from '@/lib/productText';
+import { matchesListingFilters } from '@/lib/listingFilter';
 import ProductsContent from './ProductsContent';
 
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
@@ -94,9 +95,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const currentPage = Math.max(1, parseInt(params.page || '1') || 1);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const minPrice = params.minPrice ? parseFloat(params.minPrice) : null;
-  const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : null;
-
   try {
     // One cached read of the whole catalog (lib/catalog.ts); filters run in memory.
     const { products: catalog, brandNames } = await getCatalog();
@@ -104,7 +102,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const allProfiles = new Set<string>();
     const allConcentrations = new Set<string>();
     catalog.forEach((p) => {
-      allConcentrations.add(p.concentration);
+      // "Eau de Parfum" and "EDP" are one option (scripts/normalize-product-data.ts makes
+      // the data match; this keeps the list right before and after it runs).
+      allConcentrations.add(shortConcentration(p.concentration));
       p.fragranceProfiles?.forEach((profile) => allProfiles.add(profile));
     });
 
@@ -118,23 +118,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     // back best match first.
     const search = params.search?.trim();
     const pool = search ? searchProducts(catalog, search) : catalog;
-    const filtered = pool.filter((p) => {
-      // Unisex perfumes belong under both men's and women's, however "unisex" is capitalised.
-      if (params.gender) {
-        const gender = normalizeGender(p.gender);
-        if (gender !== params.gender && gender !== 'unisex') return false;
-      }
-      if (params.brand && p.brand.name !== params.brand) return false;
-      if (params.concentration && p.concentration !== params.concentration) return false;
-      if (params.fragranceProfile && !p.fragranceProfiles.includes(params.fragranceProfile)) return false;
-      if (params.inStock === 'true' && p.stock <= 0) return false;
-      if (params.onSale === 'true' && p.discountAmount <= 0) return false;
-      // Price filters use the price after the product's own discount
-      const discounted = p.price - p.discountAmount;
-      if (minPrice !== null && discounted < minPrice) return false;
-      if (maxPrice !== null && discounted > maxPrice) return false;
-      return true;
-    });
+    // Same rules for every listing; see lib/listingFilter.ts.
+    const filtered = pool.filter((p) => matchesListingFilters(p, params));
 
     // Search results keep their relevance order unless a sort was picked
     if (!search || (params.sortBy && params.sortBy !== 'brand-order')) {

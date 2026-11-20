@@ -3,6 +3,7 @@ import { Inter, Montserrat } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import ClientProviders from '@/components/ClientProviders';
+import { organizationJsonLd } from '@/lib/company';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,7 +24,6 @@ export const metadata: Metadata = {
     template: '%s | Pluteo',
   },
   description: 'Arapski parfemi i oud mirisi uz brzu dostavu diljem Hrvatske. 100% originalni Lattafa, Armaf i French Avenue parfemi - dugotrajni orijentalni mirisi za nju i njega.',
-  keywords: 'arapski parfemi, arabski parfemi, arabijski parfemi, premium arapski parfemi, premium parfemi, oud parfemi, parfemi hrvatska, luksuzni parfemi, orijentalni parfemi, dugotrajni parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, niche parfemi, parfem za muškarce, parfem za žene, kupiti parfem online, arabian perfumes, oud perfumes',
   applicationName: 'Pluteo',
   authors: [{ name: 'Pluteo' }],
   alternates: {
@@ -73,21 +73,8 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Pluteo',
-              url: 'https://www.pluteo.shop',
-              logo: 'https://www.pluteo.shop/pluteo-logo-email.png',
-              description: 'Pluteo - premium arapski i nišni parfemi uz brzu dostavu diljem Hrvatske.',
-              contactPoint: {
-                '@type': 'ContactPoint',
-                email: 'pluteoinfo@gmail.com',
-                contactType: 'customer service',
-                areaServed: 'HR',
-                availableLanguage: 'Croatian',
-              },
-            }),
+            // The site's only Organization node (lib/company.ts); products refer to it by @id.
+            __html: JSON.stringify(organizationJsonLd()),
           }}
         />
         <ClientProviders>

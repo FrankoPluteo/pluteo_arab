@@ -2,28 +2,39 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productProps, track } from '@/lib/analytics';
 import { SHOW_REVIEWS } from '@/lib/reviews';
+import { normalizeGender, productHeading } from '@/lib/productText';
+import { brandPath, shopPath } from '@/lib/urls';
 import ReviewSummary from './ReviewSummary';
+import ProductCard from './ProductCard';
 import BlackFridayDiscountBadge from './BlackFridayDiscountBadge'; // BLACK FRIDAY — remove after campaign
 import styles from '@/styles/productdetails.module.css';
 
 interface ProductDetailClientProps {
   product: Product;
+  /** Similar perfumes in stock; for a sold-out product these are the alternatives. */
+  related?: Product[];
 }
 
-// The phone slider (image inset 15%) and the desktop main image (inset 20%) use the same
-// sizes, so the browser picks the same file for both and downloads the photo only once.
+// One gallery for every screen: a swipe row on phones, one photo plus thumbnails on wider
+// screens (see .gallery in productdetails.module.css). Each photo is in the page once.
 const PRODUCT_IMAGE_SIZES = '(max-width: 768px) 70vw, (max-width: 1024px) 60vw, 30vw';
+
+// 4 across on desktop, 2 on phones, like the other product grids.
+const RELATED_GRID_SIZES = '(max-width: 768px) 42vw, (max-width: 1200px) 22vw, 260px';
+
+const RELATED_ID = 'slicni-mirisi';
 
 // After an add the button reads "✓ Added" and stays locked this long. A customer unsure
 // whether the first tap worked added the same perfume 5 times, then tapped − 9 times.
 const ADDED_LOCK_MS = 2000;
 
-export default function ProductDetailClient({ product }: ProductDetailClientProps) {
+export default function ProductDetailClient({ product, related = [] }: ProductDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
@@ -114,22 +125,44 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     }
   }
 
+  const brandName = product.brand?.name || '';
+  const heading = productHeading({ name: product.name, brand: { name: brandName } });
+  const gender = normalizeGender(product.gender);
+  const genderText =
+    gender === 'male' ? t.product.genderMale : gender === 'female' ? t.product.genderFemale : t.product.genderUnisex;
+
   return (
     <div className={styles.productContainer}>
+      <nav className={styles.breadcrumbs} aria-label={t.product.breadcrumbLabel}>
+        <ol>
+          <li><Link href="/">{t.product.breadcrumbHome}</Link></li>
+          <li><Link href={shopPath()}>{t.product.breadcrumbShop}</Link></li>
+          {brandName && <li><Link href={brandPath(brandName)}>{brandName}</Link></li>}
+          <li aria-current="page">{product.name}</li>
+        </ol>
+      </nav>
+
       <div className={styles.productLayout}>
-        {/* Image Section */}
+        {/* Image Section: one gallery, swiped on phones, photo + thumbnails above 768px */}
         <div className={styles.imageSection}>
-          {hasImages && (
-            <div className={styles.imageSlider}>
+          {hasImages ? (
+            <div className={styles.gallery}>
               {images.map((img, index) => (
-                <div key={index} className={styles.slideImage}>
+                <div
+                  key={index}
+                  className={`${styles.slide} ${selectedImage === index ? styles.slideActive : ''}`}
+                >
                   <div className={styles.slideImageWrap}>
                     <Image
                       src={img}
-                      alt={`${product.brand?.name || ''} ${product.name} – arapski parfem, fotografija ${index + 1}`}
+                      alt={
+                        index === 0
+                          ? `${heading} ${product.concentration} ${product.size} ml`
+                          : `${heading}, fotografija ${index + 1}`
+                      }
                       fill
                       style={{ objectFit: 'contain' }}
-                      // The first photo is the largest paint on phones: fetch it right away.
+                      // Only the first photo is the page's largest paint; the rest load when shown.
                       loading={index === 0 ? 'eager' : 'lazy'}
                       fetchPriority={index === 0 ? 'high' : 'auto'}
                       sizes={PRODUCT_IMAGE_SIZES}
@@ -140,45 +173,34 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 </div>
               ))}
             </div>
-          )}
-
-          <div className={styles.mainImage}>
-            {hasImages && images[selectedImage] ? (
-              <div className={styles.mainImageWrap}>
-                <Image
-                  src={images[selectedImage]}
-                  alt={`${product.brand?.name || ''} ${product.name} – ${product.concentration} ${product.size}ml arapski parfem`}
-                  fill
-                  style={{ objectFit: 'contain' }}
-                  loading={selectedImage === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={selectedImage === 0 ? 'high' : 'auto'}
-                  sizes={PRODUCT_IMAGE_SIZES}
-                />
+          ) : (
+            <div className={styles.gallery}>
+              <div className={`${styles.slide} ${styles.slideActive}`}>
+                <div className={styles.noImage}>{t.product.noImageAvailable}</div>
               </div>
-            ) : (
-              <div className={styles.noImage}>{t.product.noImageAvailable}</div>
-            )}
-            {/* BLACK FRIDAY — remove after campaign */}
-            <BlackFridayDiscountBadge price={product.price} discountAmount={product.discountAmount} size="detail" />
-          </div>
+            </div>
+          )}
 
           {hasImages && images.length > 1 && (
             <div className={styles.thumbnails}>
               {images.map((img, index) => (
-                <div
+                <button
+                  type="button"
                   key={index}
                   className={`${styles.thumbnail} ${selectedImage === index ? styles.active : ''}`}
                   onClick={() => setSelectedImage(index)}
+                  aria-label={`${t.product.showPhoto} ${index + 1}`}
+                  aria-pressed={selectedImage === index}
                 >
                   <Image
                     src={img}
-                    alt={`${product.name} – prikaz ${index + 1}`}
+                    alt=""
                     fill
                     style={{ objectFit: 'cover' }}
                     loading="lazy"
                     sizes="80px"
                   />
-                </div>
+                </button>
               ))}
             </div>
           )}
@@ -187,21 +209,25 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         {/* Details Section */}
         <div className={styles.detailsSection}>
           <div>
-            <div className={styles.brandHeader}>
-              {product.brand?.logoUrl && (
-                <div className={styles.brandLogoContainer}>
-                  {/* Keep plain <img> — brand logo URLs may be from any domain */}
-                  <img
-                    src={product.brand.logoUrl}
-                    alt={product.brand.name}
-                    className={styles.brandLogoImage}
-                  />
-                </div>
-              )}
-              <p className={styles.brandName}>{product.brand?.name || 'Unknown Brand'}</p>
-            </div>
+            {brandName && (
+              <Link href={brandPath(brandName)} className={styles.brandHeader}>
+                {product.brand?.logoUrl && (
+                  <span className={styles.brandLogoContainer}>
+                    {/* Plain <img>: brand logos may come from any host set in the admin */}
+                    <img
+                      src={product.brand.logoUrl}
+                      alt=""
+                      width={28}
+                      height={28}
+                      className={styles.brandLogoImage}
+                    />
+                  </span>
+                )}
+                <span className={styles.brandName}>{t.product.allBrandPerfumes(brandName)}</span>
+              </Link>
+            )}
             <div className={styles.productTitleRow}>
-              <h1 className={styles.productName}>{product.name}</h1>
+              <h1 className={styles.productName}>{heading}</h1>
               {product.inspiration && (
                 <span className={styles.inspiration}>
                   {t.product.inspiration}: {product.inspiration}
@@ -209,7 +235,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               )}
             </div>
             <p className={styles.productMeta}>
-              {product.concentration} • {product.size}ml • {product.gender}
+              {product.concentration} • {product.size} ml • {genderText}
             </p>
           </div>
 
@@ -244,7 +270,17 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           )}
 
           {isOutOfStock && (
-            <div className={styles.outOfStockBanner}>{t.product.outOfStockBanner}</div>
+            <div className={styles.outOfStockBanner}>
+              {t.product.outOfStockBanner}
+              {related.length > 0 && (
+                <>
+                  {' · '}
+                  <a href={`#${RELATED_ID}`} className={styles.outOfStockLink}>
+                    {t.product.seeAlternatives}
+                  </a>
+                </>
+              )}
+            </div>
           )}
 
           {addError && (
@@ -267,44 +303,45 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           </button>
 
           {(displayTopNotes?.length || displayHeartNotes?.length || displayBaseNotes?.length) && (
-            <div className={styles.notesSection}>
+            <section className={styles.notesSection}>
+              <h2 className={styles.sectionHeading}>{t.product.notes}</h2>
               {displayTopNotes && displayTopNotes.length > 0 && (
                 <div className={styles.noteGroup}>
-                  <h4>{t.product.topNotes}</h4>
+                  <h3>{t.product.topNotes}</h3>
                   <p>{displayTopNotes.join(', ')}</p>
                 </div>
               )}
               {displayHeartNotes && displayHeartNotes.length > 0 && (
                 <div className={styles.noteGroup}>
-                  <h4>{t.product.heartNotes}</h4>
+                  <h3>{t.product.heartNotes}</h3>
                   <p>{displayHeartNotes.join(', ')}</p>
                 </div>
               )}
               {displayBaseNotes && displayBaseNotes.length > 0 && (
                 <div className={styles.noteGroup}>
-                  <h4>{t.product.baseNotes}</h4>
+                  <h3>{t.product.baseNotes}</h3>
                   <p>{displayBaseNotes.join(', ')}</p>
                 </div>
               )}
-            </div>
+            </section>
           )}
 
-          <div className={styles.description}>
-            <h3>{t.product.description}</h3>
+          <section className={styles.description}>
+            <h2 className={styles.sectionHeading}>{t.product.description}</h2>
             <p>{displayDescription}</p>
-          </div>
+          </section>
 
           {displayFragranceProfiles && displayFragranceProfiles.length > 0 && (
-            <div className={styles.description}>
-              <h3>{t.product.fragranceProfile}</h3>
+            <section className={styles.description}>
+              <h2 className={styles.sectionHeading}>{t.product.fragranceProfile}</h2>
               <p>{displayFragranceProfiles.join(', ')}</p>
-            </div>
+            </section>
           )}
 
           <div className={styles.productInfo}>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>{t.product.gender}</span>
-              <span className={styles.infoValue}>{product.gender}</span>
+              <span className={styles.infoValue}>{genderText}</span>
             </div>
           </div>
 
@@ -317,6 +354,25 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           )}
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section id={RELATED_ID} className={styles.related} aria-labelledby={`${RELATED_ID}-title`}>
+          <h2 id={`${RELATED_ID}-title`} className={styles.relatedTitle}>
+            {isOutOfStock ? t.product.alternativesTitle : t.product.similarTitle}
+          </h2>
+          <div className={styles.relatedGrid}>
+            {related.map((p, index) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                list={isOutOfStock ? 'product-alternatives' : 'product-similar'}
+                position={index}
+                sizes={RELATED_GRID_SIZES}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

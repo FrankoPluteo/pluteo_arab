@@ -40,7 +40,6 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
   return {
     title,
     description,
-    keywords: 'arapski parfemi, arabski parfemi, premium arapski parfemi, oud parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, luksuzni orijentalni mirisi, dugotrajni parfemi hrvatska, niche parfemi online',
     alternates: { canonical },
     // Search result pages are thin/duplicate content — keep them out of the index
     ...(params.search && { robots: { index: false, follow: true } }),

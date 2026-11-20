@@ -127,8 +127,10 @@ export default function ProductsContent({
                 product={product}
                 list={list}
                 position={skip + index}
-                // First row (3 across on desktop, 2 on phones) holds the largest paint
+                // First row (3 across on desktop, 2 on phones) holds the largest paint; only
+                // the first card's image gets high priority.
                 eager={index < 3}
+                priority={index === 0}
                 sizes={PRODUCTS_GRID_SIZES}
               />
             ))}

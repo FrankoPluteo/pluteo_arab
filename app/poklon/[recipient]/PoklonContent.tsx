@@ -24,7 +24,7 @@ export default function PoklonContent({ recipient, products }: PoklonContentProp
 
   return (
     <>
-      <main className={styles.page}>
+      <div className={styles.page}>
         <header className={styles.header}>
           <h1 className={styles.title}>
             {t.gift.label} {forHer ? t.gift.forHer : t.gift.forHim}
@@ -51,8 +51,10 @@ export default function PoklonContent({ recipient, products }: PoklonContentProp
                   giftBow
                   list={forHer ? 'gift-her' : 'gift-him'}
                   position={index}
-                  // The first row (4 across on desktop) holds the largest paint.
-                  eager={index < 4}
+                  // Phones show two cards above the fold: load those right away, and give the
+                  // first one (the largest paint) high priority. The rest load lazily.
+                  eager={index < 2}
+                  priority={index === 0}
                   sizes={GIFT_GRID_SIZES}
                 />
               ))}
@@ -66,7 +68,7 @@ export default function PoklonContent({ recipient, products }: PoklonContentProp
             </div>
           )}
         </section>
-      </main>
+      </div>
       <Footer />
     </>
   );

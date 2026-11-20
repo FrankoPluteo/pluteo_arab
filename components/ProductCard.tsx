@@ -24,10 +24,15 @@ interface ProductCardProps {
   /** 0-based index in that list. */
   position: number;
   /**
-   * Cards in the first visible row: load the image right away at high priority instead of
-   * lazily, since one of them is usually the page's largest paint (LCP).
+   * Cards in the first visible row: load the image right away instead of lazily, since one
+   * of them is usually the page's largest paint (LCP).
    */
   eager?: boolean;
+  /**
+   * The one card whose image gets fetchPriority="high" (the first card of a page). Only one
+   * per page, so it doesn't compete with the rest of the first row.
+   */
+  priority?: boolean;
   /** The image's rendered width per breakpoint, matching the grid the card sits in. */
   sizes?: string;
 }
@@ -41,6 +46,7 @@ export default function ProductCard({
   list,
   position,
   eager = false,
+  priority = false,
   sizes = DEFAULT_SIZES,
 }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
@@ -99,8 +105,8 @@ export default function ProductCard({
                 alt={`${product.brand.name} ${product.name} – arapski parfem`}
                 fill
                 style={{ objectFit: 'contain' }}
-                loading={eager ? 'eager' : 'lazy'}
-                fetchPriority={eager ? 'high' : 'auto'}
+                loading={eager || priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : 'auto'}
                 sizes={sizes}
               />
             </div>

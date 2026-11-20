@@ -2,7 +2,18 @@ import { Metadata } from 'next';
 import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import Navbar from '@/components/Navbar';
+import { SHOW_REVIEWS } from '@/lib/reviews';
+import { getCatalog } from '@/lib/catalog';
+import { ORGANIZATION_ID } from '@/lib/company';
+import { BOXNOW_SHIPPING_COST, FREE_SHIPPING_THRESHOLD, GLS_SHIPPING_COST } from '@/lib/shipping';
+import { absoluteUrl, brandPath, productPath, shopPath } from '@/lib/urls';
+import {
+  genderLabelHr,
+  productHeading,
+  productMetaDescription,
+  productTitle,
+  similarProducts,
+} from '@/lib/productText';
 import Footer from '@/components/Footer';
 import ProductDetailClient from '@/components/ProductDetailClient';
 
@@ -33,57 +44,51 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const product = await getProduct(id);
 
   if (!product) {
-    return {
-      title: 'Parfem nije pronađen',
-    };
+    // The 404 page carries Next.js's own "noindex".
+    return { title: 'Parfem nije pronađen' };
   }
 
-  const brandName = product.brand?.name || '';
-  const genderLabel =
-    product.gender === 'male' ? 'muški' : product.gender === 'female' ? 'ženski' : 'unisex';
-  const title = `${brandName} ${product.name} ${product.concentration} ${product.size}ml - ${genderLabel} arapski parfem`;
-  const rawDesc = product.descriptionHr || product.description || '';
-
-  const trimToWord = (text: string, limit: number): string => {
-    if (text.length <= limit) return text;
-    const cut = text.lastIndexOf(' ', limit);
-    return (cut > 0 ? text.slice(0, cut) : text.slice(0, limit)) + '…';
-  };
-
-  const prefix = `${brandName} ${product.name} ${product.concentration} ${product.size}ml - ${genderLabel} arapski parfem. `;
-  const suffix = '. Brza dostava diljem Hrvatske.';
-  const descBudget = 155 - prefix.length - suffix.length;
-  const description = `${prefix}${trimToWord(rawDesc, Math.max(descBudget, 20))}${suffix}`;
+  const title = productTitle(product);
+  const description = productMetaDescription(product);
+  const url = absoluteUrl(productPath(product));
+  const heading = productHeading(product);
 
   return {
     title,
     description,
-    keywords: `${product.name}, ${brandName}, ${brandName} ${product.name}, arapski parfem, arabski parfem, premium arapski parfem, oud parfem, ${product.concentration}, ${genderLabel} parfem, luksuzni parfem hrvatska, dugotrajni parfem, orijentalni parfem`,
-    alternates: {
-      canonical: `https://www.pluteo.shop/products/${product.id}`,
-    },
+    alternates: { canonical: url },
     openGraph: {
-      title: `${brandName} ${product.name} - originalni arapski parfem | Pluteo`,
+      title: `${title} | Pluteo`,
       description,
-      url: `https://www.pluteo.shop/products/${product.id}`,
+      url,
       siteName: 'Pluteo',
       // Without product images, the site-wide app/opengraph-image is used
       ...(product.images?.length && {
-        images: product.images.map((img) => ({
-          url: img,
-          width: 800,
-          height: 800,
-          alt: `${brandName} ${product.name} ${product.concentration} - arapski parfem`,
-        })),
+        images: product.images.map((img) => ({ url: img, alt: heading })),
       }),
       locale: 'hr_HR',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${brandName} ${product.name} - arapski parfem | Pluteo`,
-      description: `${trimToWord(rawDesc, 140)}. Kupite na Pluteo.`,
+      title: `${title} | Pluteo`,
+      description,
       ...(product.images?.length && { images: [product.images[0]] }),
+    },
+  };
+}
+
+/** Delivery from the 1–2 day handling and 2–5 day transit stated on /legal. */
+function shippingOption(rate: number, label: string) {
+  return {
+    '@type': 'OfferShippingDetails',
+    shippingLabel: label,
+    shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'HR' },
+    shippingRate: { '@type': 'MonetaryAmount', value: rate.toFixed(2), currency: 'EUR' },
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
+      transitTime: { '@type': 'QuantitativeValue', minValue: 2, maxValue: 5, unitCode: 'DAY' },
     },
   };
 }
@@ -96,33 +101,38 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const reviewStats = await prisma.review.aggregate({
-    where: { productId: product.id },
-    _avg: { rating: true },
-    _count: { rating: true },
-  });
+  // Reviews switched off (lib/reviews.ts): no query, the product reads as unrated.
+  const reviewStats = SHOW_REVIEWS
+    ? await prisma.review.aggregate({
+        where: { productId: product.id },
+        _avg: { rating: true },
+        _count: { rating: true },
+      })
+    : { _avg: { rating: null }, _count: { rating: 0 } };
+
+  // "Similar scents" and, for a sold-out perfume, the alternatives: from the cached catalog.
+  const { products: catalog } = await getCatalog();
+  const related = similarProducts(product, catalog, 4);
 
   const brandName = product.brand?.name || '';
+  const heading = productHeading(product);
   const finalPrice = product.price - product.discountAmount;
-  const hasDiscount = product.discountAmount > 0;
+  const productUrl = absoluteUrl(productPath(product));
 
-  const productUrl = `https://www.pluteo.shop/products/${product.id}`;
+  // A single perfume over the threshold already ships free to a BOX NOW locker.
+  const boxNowRate = finalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : BOXNOW_SHIPPING_COST;
 
-  // JSON-LD Product structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: `${brandName} ${product.name}`,
+    name: heading,
     description: product.descriptionHr || product.description,
     url: productUrl,
     image: product.images?.length ? product.images : undefined,
-    brand: {
-      '@type': 'Brand',
-      name: brandName,
-    },
+    brand: { '@type': 'Brand', name: brandName },
     sku: product.id,
     category: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-    ...(reviewStats._count.rating > 0 && {
+    ...(SHOW_REVIEWS && reviewStats._count.rating > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: (reviewStats._avg.rating ?? 0).toFixed(1),
@@ -136,86 +146,41 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       url: productUrl,
       priceCurrency: 'EUR',
       price: finalPrice.toFixed(2),
-      ...(hasDiscount && {
-        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      }),
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
-      seller: {
-        '@type': 'Organization',
-        name: 'Pluteo',
-      },
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingDestination: {
-          '@type': 'DefinedRegion',
-          addressCountry: 'HR',
-        },
-        shippingRate: {
-          '@type': 'MonetaryAmount',
-          value: '4.99',
-          currency: 'EUR',
-        },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 1,
-            maxValue: 2,
-            unitCode: 'DAY',
-          },
-          transitTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 2,
-            maxValue: 5,
-            unitCode: 'DAY',
-          },
-        },
-      },
+      seller: { '@id': ORGANIZATION_ID },
+      shippingDetails: [
+        shippingOption(GLS_SHIPPING_COST, 'GLS dostava na adresu'),
+        shippingOption(boxNowRate, 'BOX NOW paketomat'),
+      ],
+      // TODO(owner): hasMerchantReturnPolicy once the return policy is confirmed
+      // (SEO-AUDIT.md, question 6). Left out rather than guessed.
     },
     additionalProperty: [
-      {
-        '@type': 'PropertyValue',
-        name: 'Concentration',
-        value: product.concentration,
-      },
-      {
-        '@type': 'PropertyValue',
-        name: 'Size',
-        value: `${product.size}ml`,
-      },
-      {
-        '@type': 'PropertyValue',
-        name: 'Gender',
-        value: product.gender,
-      },
-      ...(product.topNotes?.length
-        ? [{ '@type': 'PropertyValue', name: 'Top Notes', value: product.topNotes.join(', ') }]
+      { '@type': 'PropertyValue', name: 'Koncentracija', value: product.concentration },
+      { '@type': 'PropertyValue', name: 'Volumen', value: `${product.size} ml` },
+      { '@type': 'PropertyValue', name: 'Spol', value: genderLabelHr(product.gender) },
+      ...(product.topNotesHr?.length
+        ? [{ '@type': 'PropertyValue', name: 'Prve note', value: product.topNotesHr.join(', ') }]
         : []),
-      ...(product.heartNotes?.length
-        ? [{ '@type': 'PropertyValue', name: 'Heart Notes', value: product.heartNotes.join(', ') }]
+      ...(product.heartNotesHr?.length
+        ? [{ '@type': 'PropertyValue', name: 'Srednje note', value: product.heartNotesHr.join(', ') }]
         : []),
-      ...(product.baseNotes?.length
-        ? [{ '@type': 'PropertyValue', name: 'Base Notes', value: product.baseNotes.join(', ') }]
+      ...(product.baseNotesHr?.length
+        ? [{ '@type': 'PropertyValue', name: 'Bazne note', value: product.baseNotesHr.join(', ') }]
         : []),
     ],
   };
 
-  const genderCrumb =
-    product.gender === 'male'
-      ? { name: 'Muški parfemi', item: 'https://www.pluteo.shop/products?gender=male' }
-      : product.gender === 'female'
-        ? { name: 'Ženski parfemi', item: 'https://www.pluteo.shop/products?gender=female' }
-        : null;
-
+  // Same trail as the visible breadcrumbs in ProductDetailClient.
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { name: 'Početna', item: 'https://www.pluteo.shop' },
-      { name: 'Parfemi', item: 'https://www.pluteo.shop/products' },
-      ...(genderCrumb ? [genderCrumb] : []),
-      { name: `${brandName} ${product.name}`, item: productUrl },
+      { name: 'Početna', item: absoluteUrl('/') },
+      { name: 'Parfemi', item: absoluteUrl(shopPath()) },
+      ...(brandName ? [{ name: brandName, item: absoluteUrl(brandPath(brandName)) }] : []),
+      { name: heading, item: productUrl },
     ].map((crumb, index) => ({ '@type': 'ListItem', position: index + 1, ...crumb })),
   };
 
@@ -231,7 +196,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <div>
-      <Navbar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -240,7 +204,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <ProductDetailClient product={serializedProduct} />
+      <ProductDetailClient product={serializedProduct} related={JSON.parse(JSON.stringify(related))} />
       <Footer />
     </div>
   );

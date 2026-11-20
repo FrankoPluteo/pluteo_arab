@@ -7,6 +7,8 @@ import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes, productProps, track } from '@/lib/analytics';
+import { SHOW_REVIEWS } from '@/lib/reviews';
+import { productPath } from '@/lib/urls';
 import StarRating from './StarRating';
 import BlackFridayTape from './BlackFridayTape'; // BLACK FRIDAY — remove after campaign
 import BlackFridayDiscountBadge from './BlackFridayDiscountBadge'; // BLACK FRIDAY — remove after campaign
@@ -22,10 +24,15 @@ interface ProductCardProps {
   /** 0-based index in that list. */
   position: number;
   /**
-   * Cards in the first visible row: load the image right away at high priority instead of
-   * lazily, since one of them is usually the page's largest paint (LCP).
+   * Cards in the first visible row: load the image right away instead of lazily, since one
+   * of them is usually the page's largest paint (LCP).
    */
   eager?: boolean;
+  /**
+   * The one card whose image gets fetchPriority="high" (the first card of a page). Only one
+   * per page, so it doesn't compete with the rest of the first row.
+   */
+  priority?: boolean;
   /** The image's rendered width per breakpoint, matching the grid the card sits in. */
   sizes?: string;
 }
@@ -39,6 +46,7 @@ export default function ProductCard({
   list,
   position,
   eager = false,
+  priority = false,
   sizes = DEFAULT_SIZES,
 }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
@@ -88,7 +96,7 @@ export default function ProductCard({
         <Image src={giftBow} alt="" aria-hidden="true" className={styles.giftBow} />
       )}
 
-      <Link href={`/products/${product.id}`} className={styles.productLink}>
+      <Link href={productPath(product)} className={styles.productLink}>
         <div className={styles.productImage}>
           {product.images[0] ? (
             <div className={styles.productImageWrap}>
@@ -97,8 +105,8 @@ export default function ProductCard({
                 alt={`${product.brand.name} ${product.name} – arapski parfem`}
                 fill
                 style={{ objectFit: 'contain' }}
-                loading={eager ? 'eager' : 'lazy'}
-                fetchPriority={eager ? 'high' : 'auto'}
+                loading={eager || priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : 'auto'}
                 sizes={sizes}
               />
             </div>
@@ -136,7 +144,7 @@ export default function ProductCard({
             {product.concentration} - {product.size}ml
           </p>
 
-          {(product.reviewCount ?? 0) > 0 && (
+          {SHOW_REVIEWS && (product.reviewCount ?? 0) > 0 && (
             <div className={styles.productRating}>
               <StarRating rating={product.averageRating ?? 0} size="small" />
               <span className={styles.reviewCount}>({product.reviewCount})</span>

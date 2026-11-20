@@ -1,7 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useLanguage } from '@/lib/languageContext';
+import { listingPagePath } from '@/lib/urls';
 import styles from '@/styles/products.module.css';
 
 interface PaginationProps {
@@ -10,23 +11,13 @@ interface PaginationProps {
   searchParams: Record<string, string | undefined>;
 }
 
+/**
+ * Real links, not buttons: search engines follow them to every page of a listing, and
+ * the pages work without JavaScript. The ends ("previous" on page 1, "next" on the last
+ * page) are plain text, since there is nowhere to go.
+ */
 export default function Pagination({ currentPage, totalPages, searchParams }: PaginationProps) {
-  const router = useRouter();
   const { t } = useLanguage();
-
-  const buildUrl = (page: number) => {
-    const params = new URLSearchParams();
-    params.set('page', page.toString());
-    Object.entries(searchParams).forEach(([key, value]) => {
-      if (key !== 'page' && value) params.set(key, value);
-    });
-    return `/products?${params.toString()}`;
-  };
-
-  const goToPage = (page: number) => {
-    if (page < 1 || page > totalPages) return;
-    router.push(buildUrl(page));
-  };
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -47,26 +38,31 @@ export default function Pagination({ currentPage, totalPages, searchParams }: Pa
     return pages;
   };
 
+  const href = (page: number) => listingPagePath(searchParams, page);
+
   return (
-    <div className={styles.pagination}>
-      <button
-        className={styles.pageButton}
-        onClick={() => goToPage(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        {t.pagination.previous}
-      </button>
+    <nav className={styles.pagination} aria-label={t.pagination.label}>
+      {currentPage > 1 ? (
+        <Link className={styles.pageButton} href={href(currentPage - 1)} rel="prev">
+          {t.pagination.previous}
+        </Link>
+      ) : (
+        <span className={`${styles.pageButton} ${styles.pageButtonDisabled}`} aria-disabled="true">
+          {t.pagination.previous}
+        </span>
+      )}
 
       <div className={styles.pageNumbers}>
         {getPageNumbers().map((page, index) =>
           typeof page === 'number' ? (
-            <button
+            <Link
               key={index}
+              href={href(page)}
               className={`${styles.pageNumber} ${currentPage === page ? styles.active : ''}`}
-              onClick={() => goToPage(page)}
+              aria-current={currentPage === page ? 'page' : undefined}
             >
               {page}
-            </button>
+            </Link>
           ) : (
             <span key={index} className={styles.pageNumber} style={{ cursor: 'default', border: 'none' }}>
               {page}
@@ -75,13 +71,15 @@ export default function Pagination({ currentPage, totalPages, searchParams }: Pa
         )}
       </div>
 
-      <button
-        className={styles.pageButton}
-        onClick={() => goToPage(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        {t.pagination.next}
-      </button>
-    </div>
+      {currentPage < totalPages ? (
+        <Link className={styles.pageButton} href={href(currentPage + 1)} rel="next">
+          {t.pagination.next}
+        </Link>
+      ) : (
+        <span className={`${styles.pageButton} ${styles.pageButtonDisabled}`} aria-disabled="true">
+          {t.pagination.next}
+        </span>
+      )}
+    </nav>
   );
 }

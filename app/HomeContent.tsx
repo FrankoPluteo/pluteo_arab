@@ -46,8 +46,6 @@ export default function HomeContent({ featuredProducts, bestSellers, logoBrands 
     <div>
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className={styles.hero}>
-        <h1 className="sr-only">Pluteo - arapski parfemi i oud mirisi u Hrvatskoj</h1>
-
         <div className={styles.heroMedia}>
           <div className={styles.heroImage}>
             <Image
@@ -65,14 +63,17 @@ export default function HomeContent({ featuredProducts, bestSellers, logoBrands 
           <BlackFridayTape placement="hero" /> {/* BLACK FRIDAY — remove after campaign */}
 
           <div className={styles.heroContent}>
-            <Image
-              className={styles.heroLogo}
-              src={logolong}
-              alt="Pluteo - arapska parfumerija, Hrvatska"
-              width={493}
-              height={310}
-              priority
-            />
+            {/* The visible logo is the page's H1; its alt text is the heading's text. */}
+            <h1 className={styles.heroHeading}>
+              <Image
+                className={styles.heroLogo}
+                src={logolong}
+                alt="Pluteo - arapski parfemi i oud mirisi u Hrvatskoj"
+                width={493}
+                height={310}
+                priority
+              />
+            </h1>
             <div className={styles.heroRule} />
             <Link href="/products" className={styles.heroCta}>{t.home.shop}</Link>
           </div>
@@ -122,7 +123,7 @@ export default function HomeContent({ featuredProducts, bestSellers, logoBrands 
       {bestSellers.length > 0 && (
         <section className={styles.section} data-fade>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionLabel}>{t.home.bestSellers}</span>
+            <h2 className={styles.sectionLabel}>{t.home.bestSellers}</h2>
             <Link href="/products" className={styles.sectionViewAll}>{t.home.viewAll}</Link>
           </div>
           <div className={styles.productsGrid}>
@@ -137,7 +138,7 @@ export default function HomeContent({ featuredProducts, bestSellers, logoBrands 
       {featuredProducts.length > 0 && (
         <section className={styles.section} data-fade>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionLabel}>{t.home.featuredTitle}</span>
+            <h2 className={styles.sectionLabel}>{t.home.featuredTitle}</h2>
             <Link href="/products" className={styles.sectionViewAll}>{t.home.viewAll}</Link>
           </div>
           <div className={styles.productsGrid}>

@@ -24,12 +24,33 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Basic hardening on every response. No Content-Security-Policy on purpose: a wrong
+  // policy can break Stripe, PostHog or the Meta Pixel. X-Frame-Options stops other sites
+  // from framing the shop (clickjacking); framing by our own pages still works.
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
         source: '/preporuka',
         destination: '/find-your-scent',
         permanent: true,
+      },
+      {
+        // Croatian spelling of the contact page, seen as an organic landing URL (it was a 404)
+        source: '/kontakt',
+        destination: '/contact',
+        statusCode: 301,
       },
       {
         // Finished campaign pages: old ad and social links land on the shop.

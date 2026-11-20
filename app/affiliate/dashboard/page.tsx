@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/affiliate.module.css';
 
@@ -71,7 +70,6 @@ export default function AffiliateDashboardPage() {
 
   return (
     <>
-      <Navbar />
       <div className={`${styles.dashPage} ph-mask`}>
         <div className={styles.dashContainer}>
           <h1 className={styles.title} style={{ textAlign: 'left', marginBottom: '32px' }}>

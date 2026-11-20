@@ -1,8 +1,26 @@
+import type { Metadata } from 'next';
 import { prisma, withReviewAggregates } from '@/lib/prisma';
 import { SHOP_ORDER } from '@/lib/productOrder';
+import { absoluteUrl } from '@/lib/urls';
 import HomeContent from './HomeContent';
 
 export const revalidate = 60;
+
+// The home page targets the shop's name plus the main term; /products takes the buying
+// queries (prices, ordering online), so the two don't compete for the same searches.
+// "oud" stays until the owner decides on SEO-AUDIT.md question 13 (only 3 perfumes have oud).
+const HOME_TITLE = 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska';
+const HOME_DESCRIPTION =
+  'Arapski parfemi i oud mirisi uz dostavu diljem Hrvatske: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs. Mirisi za nju i njega.';
+
+// The home page's own canonical; it used to sit in the root layout and leak to other pages.
+export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: absoluteUrl('/') },
+  openGraph: { title: HOME_TITLE, description: HOME_DESCRIPTION, url: absoluteUrl('/') },
+  twitter: { title: HOME_TITLE, description: HOME_DESCRIPTION },
+};
 
 function HomeJsonLd() {
   const jsonLd = {
@@ -10,7 +28,7 @@ function HomeJsonLd() {
     '@type': 'WebSite',
     name: 'Pluteo',
     url: 'https://www.pluteo.shop',
-    description: 'Premium arapski parfemi i oud mirisi uz brzu dostavu diljem Hrvatske. Originalni Lattafa, Armaf i French Avenue parfemi.',
+    description: HOME_DESCRIPTION,
     inLanguage: 'hr-HR',
     potentialAction: {
       '@type': 'SearchAction',

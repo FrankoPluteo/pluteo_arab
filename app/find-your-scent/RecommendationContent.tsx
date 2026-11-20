@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes } from '@/lib/analytics';
 import styles from '@/styles/recommendation.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
+import { productPath } from '@/lib/urls';
 
 interface ResultProduct {
   id: string;
@@ -188,7 +188,6 @@ export default function RecommendationContent() {
 
   return (
     <div>
-      <Navbar />
 
       <div className={styles.pageContainer}>
         <div className={styles.logoContainer}>
@@ -441,7 +440,7 @@ export default function RecommendationContent() {
                           <p className={styles.reasonText}>{reason}</p>
                         </div>
 
-                        <Link href={`/products/${product.id}`} className={styles.viewBtn}>
+                        <Link href={productPath(product)} className={styles.viewBtn}>
                           {q.viewProduct}
                         </Link>
                       </div>

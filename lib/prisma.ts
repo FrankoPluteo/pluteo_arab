@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { SHOW_REVIEWS } from '@/lib/reviews';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -26,7 +27,10 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({ datasourceUrl
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export async function withReviewAggregates<T extends { id: string }>(products: T[]) {
-  if (products.length === 0) return products.map((p) => ({ ...p, reviewCount: 0, averageRating: 0 }));
+  // With reviews switched off every product reads as unrated, so no card shows stars.
+  if (products.length === 0 || !SHOW_REVIEWS) {
+    return products.map((p) => ({ ...p, reviewCount: 0, averageRating: 0 }));
+  }
 
   const ids = products.map((p) => p.id);
   const aggregates = await prisma.review.groupBy({

@@ -92,9 +92,51 @@
   border-color: #111111;
 }
 
-.pageButton:disabled {
+.pageButton:disabled,
+.pageButtonDisabled {
   opacity: 0.25;
   cursor: not-allowed;
+}
+
+.pageButtonDisabled:hover {
+  background: #ffffff;
+  color: #111111;
+  border-color: #E5E5E5;
+}
+
+/* The pagination items are links now: keep them looking like the old buttons */
+.pageButton,
+.pageNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* Brand and men/women links above the grid: crawlable entry points to each listing */
+.quickLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px 18px;
+  margin: 0 auto 24px;
+  max-width: 900px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.quickLinks a {
+  color: #888888;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+}
+
+.quickLinks a:hover,
+.quickLinks a[aria-current='page'] {
+  color: #111111;
+  border-bottom-color: #111111;
 }
 
 .pageButton.active {

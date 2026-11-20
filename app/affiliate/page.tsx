@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/affiliate.module.css';
 import { validateIBAN } from '@/lib/iban';
@@ -164,7 +163,6 @@ export default function AffiliatePage() {
 
   return (
     <>
-      <Navbar />
       <div className={styles.page}>
         <div className={styles.container}>
           <h1 className={styles.title}>BECOME AN AFFILIATE</h1>

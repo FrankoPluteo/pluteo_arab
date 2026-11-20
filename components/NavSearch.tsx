@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes, trackSearch } from '@/lib/analytics';
 import styles from '@/styles/navsearch.module.css';
+import { productPath } from '@/lib/urls';
 
 // search_performed fires once per search, with the final query: when the customer opens a
 // result, closes the dropdown or leaves the page, or after this long without typing.
@@ -138,7 +139,7 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
   }, [open, closeDropdown]);
 
   function goToProduct(id: string) {
-    router.push(`/products/${id}`);
+    router.push(productPath({ id }));
     clearQuery();
     closeDropdown();
   }
@@ -212,7 +213,7 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
                     {suggestions.map((p, i) => (
                       <Link
                         key={p.id}
-                        href={`/products/${p.id}`}
+                        href={productPath(p)}
                         className={styles.result}
                         onClick={() => { clearQuery(); closeDropdown(); }}
                         {...productCaptureAttributes(p, 'nav-search-suggestions', i)}
@@ -237,7 +238,7 @@ export default function NavSearch({ inverted }: { inverted: boolean }) {
                   return (
                     <Link
                       key={p.id}
-                      href={`/products/${p.id}`}
+                      href={productPath(p)}
                       className={`${styles.result} ${i === activeIndex ? styles.resultActive : ''}`}
                       onClick={() => { clearQuery(); closeDropdown(); }}
                       onMouseEnter={() => setActiveIndex(i)}

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/staticpage.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
@@ -50,7 +49,6 @@ export default function ContactContent() {
 
   return (
     <div>
-      <Navbar />
 
       <div className={styles.pageContainer}>
         <div className={styles.logoContainer}>

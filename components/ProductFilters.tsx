@@ -1,8 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useLanguage } from '@/lib/languageContext';
+import { shopPath } from '@/lib/urls';
 import styles from '@/styles/filters.module.css';
 
 interface FilterOptions {
@@ -32,27 +34,16 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
     sortBy: searchParams.get('sortBy') || 'brand-order',
   });
 
-  const applyFilters = () => {
+  // A real GET form (works without JavaScript); with JavaScript the empty fields are left
+  // out of the URL and the page changes without a full reload.
+  const applyFilters = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
+      if (value && !(key === 'sortBy' && value === 'brand-order')) params.set(key, value);
     });
-    router.push(`/products?${params.toString()}`);
-    setIsOpen(false);
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      gender: '',
-      brand: '',
-      concentration: '',
-      fragranceProfile: '',
-      minPrice: '',
-      maxPrice: '',
-      inStock: '',
-      sortBy: 'brand-order',
-    });
-    router.push('/products');
+    const qs = params.toString();
+    router.push(qs ? `${shopPath()}?${qs}` : shopPath());
     setIsOpen(false);
   };
 
@@ -67,8 +58,10 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
   return (
     <div className={styles.filtersWrapper}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={styles.toggleButton}
+        aria-expanded={isOpen}
       >
         <span>
           {t.filters.filtersAndSort}
@@ -82,18 +75,19 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
       </button>
 
       {isOpen && (
-        <div className={styles.filtersContainer}>
+        <form className={styles.filtersContainer} action={shopPath()} method="get" onSubmit={applyFilters}>
           <div className={styles.filtersHeader}>
-            <h3>{t.filters.filtersAndSort}</h3>
-            <button onClick={clearFilters} className={styles.clearButton}>
+            <p className={styles.filtersTitle}>{t.filters.filtersAndSort}</p>
+            <Link href={shopPath()} onClick={() => setIsOpen(false)} className={styles.clearButton}>
               {t.filters.clearAll}
-            </button>
+            </Link>
           </div>
 
           <div className={styles.filtersGrid}>
             <div className={styles.filterGroup}>
               <label>{t.filters.sortBy}</label>
               <select
+                name="sortBy"
                 value={filters.sortBy}
                 onChange={(e) => handleChange('sortBy', e.target.value)}
               >
@@ -110,6 +104,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
             <div className={styles.filterGroup}>
               <label>{t.filters.gender}</label>
               <select
+                name="gender"
                 value={filters.gender}
                 onChange={(e) => handleChange('gender', e.target.value)}
               >
@@ -122,6 +117,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
             <div className={styles.filterGroup}>
               <label>{t.filters.brand}</label>
               <select
+                name="brand"
                 value={filters.brand}
                 onChange={(e) => handleChange('brand', e.target.value)}
               >
@@ -135,6 +131,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
             <div className={styles.filterGroup}>
               <label>{t.filters.fragranceProfile}</label>
               <select
+                name="fragranceProfile"
                 value={filters.fragranceProfile}
                 onChange={(e) => handleChange('fragranceProfile', e.target.value)}
               >
@@ -149,6 +146,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
               <label>{t.filters.minPrice}</label>
               <input
                 type="number"
+                name="minPrice"
                 value={filters.minPrice}
                 onChange={(e) => handleChange('minPrice', e.target.value)}
                 placeholder="0"
@@ -160,6 +158,7 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
               <label>{t.filters.maxPrice}</label>
               <input
                 type="number"
+                name="maxPrice"
                 value={filters.maxPrice}
                 onChange={(e) => handleChange('maxPrice', e.target.value)}
                 placeholder="1000"
@@ -171,6 +170,8 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
               <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
+                  name="inStock"
+                  value="true"
                   checked={filters.inStock === 'true'}
                   onChange={(e) => handleChange('inStock', e.target.checked ? 'true' : '')}
                 />
@@ -179,10 +180,10 @@ export default function ProductFilters({ options }: ProductFiltersProps) {
             </div>
           </div>
 
-          <button onClick={applyFilters} className={styles.applyButton}>
+          <button type="submit" className={styles.applyButton}>
             {t.filters.applyFilters}
           </button>
-        </div>
+        </form>
       )}
     </div>
   );

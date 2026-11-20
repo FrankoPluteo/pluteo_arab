@@ -69,7 +69,7 @@ export default function BrandLogoTrack({ brands }: { brands: TrackBrand[] }) {
     // No data-fade: on phones only the top of the track peeks above the fold,
     // too little to trip the fade-in observer, so it would stay invisible.
     <section className={styles.brandTrack} aria-label={t.home.brandsLabel}>
-      <p className={styles.label}>{t.home.brandsLabel}</p>
+      <h2 className={styles.label}>{t.home.brandsLabel}</h2>
 
       <div className={styles.viewport}>
         <button

@@ -6,8 +6,20 @@ import Navbar from '@/components/Navbar';
 import ImageUpload from '@/components/ImageUpload';
 import s from '@/styles/admin.module.css';
 
-const CONCENTRATIONS = ['Eau de Parfum', 'Eau de Toilette', 'Parfum', 'Eau de Cologne', 'Extrait de Parfum'];
-const GENDERS = ['Unisex', 'Men', 'Women'];
+// Stored values match the rest of the catalog ("EDP", "male"…): the shop's filters, titles
+// and gender pages compare against exactly these. The labels are what the admin sees.
+const CONCENTRATIONS = [
+  { value: 'EDP', label: 'Eau de Parfum (EDP)' },
+  { value: 'EDT', label: 'Eau de Toilette (EDT)' },
+  { value: 'Parfum', label: 'Parfum' },
+  { value: 'EDC', label: 'Eau de Cologne (EDC)' },
+  { value: 'Extrait de Parfum', label: 'Extrait de Parfum' },
+];
+const GENDERS = [
+  { value: 'unisex', label: 'Unisex' },
+  { value: 'male', label: 'Men' },
+  { value: 'female', label: 'Women' },
+];
 
 const EMPTY = {
   name: '',
@@ -16,8 +28,8 @@ const EMPTY = {
   price: '',
   discountAmount: '0',
   stock: '0',
-  concentration: 'Eau de Parfum',
-  gender: 'Unisex',
+  concentration: 'EDP',
+  gender: 'unisex',
   description: '',
   descriptionHr: '',
   isFeatured: false,
@@ -148,13 +160,13 @@ export default function AddProductPage() {
               <div className={s.field}>
                 <label className={s.label}>Concentration *</label>
                 <select className={s.select} name="concentration" value={form.concentration} onChange={set}>
-                  {CONCENTRATIONS.map((c) => <option key={c}>{c}</option>)}
+                  {CONCENTRATIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
               <div className={s.field}>
                 <label className={s.label}>Gender *</label>
                 <select className={s.select} name="gender" value={form.gender} onChange={set}>
-                  {GENDERS.map((g) => <option key={g}>{g}</option>)}
+                  {GENDERS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
                 </select>
               </div>
               <div className={s.field}>

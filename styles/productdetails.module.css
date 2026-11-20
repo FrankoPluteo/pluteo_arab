@@ -18,11 +18,49 @@
   height: fit-content;
 }
 
-.imageSlider {
-  display: none;
+/* Breadcrumbs: Početna › Parfemi › Brand › Product */
+.breadcrumbs {
+  max-width: 1200px;
+  margin: 0 auto 32px;
 }
 
-.mainImage {
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: #888888;
+  letter-spacing: 0.3px;
+}
+
+.breadcrumbs li + li::before {
+  content: '›';
+  margin-right: 6px;
+  color: #BBBBBB;
+}
+
+.breadcrumbs a {
+  color: #888888;
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  color: #111111;
+  text-decoration: underline;
+}
+
+.breadcrumbs li[aria-current='page'] {
+  color: #111111;
+}
+
+/* One gallery for all screens. Above 768px: a square showing the selected photo, with
+   thumbnails below. On phones: every photo in a horizontal swipe row (media query below).
+   The square box reserves the space before any photo loads, so nothing shifts. */
+.gallery {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
@@ -32,13 +70,23 @@
   margin-bottom: 12px;
 }
 
-.mainImageWrap {
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.slideActive {
+  display: block;
+}
+
+.slideImageWrap {
   position: absolute;
   inset: 20%;
   transition: transform 300ms ease;
 }
 
-.mainImage:hover .mainImageWrap {
+.gallery:hover .slideActive .slideImageWrap {
   transform: scale(1.03);
 }
 
@@ -61,6 +109,7 @@
   position: relative;
   width: 72px;
   height: 72px;
+  padding: 0;
   background: #ffffff;
   border: 1px solid #E5E5E5;
   cursor: pointer;
@@ -80,9 +129,15 @@
 }
 
 .brandHeader {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 10px;
+  text-decoration: none;
+}
+
+.brandHeader:hover .brandName {
+  color: #111111;
 }
 
 .brandLogoContainer {
@@ -210,6 +265,35 @@
   text-align: center;
 }
 
+.outOfStockLink {
+  color: #111111;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* "Similar scents" / sold-out alternatives, full width below the product */
+.related {
+  max-width: 1200px;
+  margin: 80px auto 0;
+  padding-top: 48px;
+  border-top: 1px solid #E5E5E5;
+}
+
+.relatedTitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #111111;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 0 0 28px;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
 /* Discount promo line — plain grey strip, like the promo notes on Net-a-Porter / Mytheresa */
 .discountBanner {
   display: flex;
@@ -290,6 +374,7 @@
   border-top: 1px solid #E5E5E5;
 }
 
+.sectionHeading,
 .description h3 {
   font-size: 9px;
   font-weight: 500;
@@ -314,7 +399,7 @@
   border: 1px solid #F0F0F0;
 }
 
-.noteGroup h4 {
+.noteGroup h3 {
   font-size: 9px;
   font-weight: 500;
   color: #888888;
@@ -384,32 +469,33 @@
     font-size: 24px;
   }
 
-  /* Hide desktop image view on mobile */
-  .mainImage {
-    display: none;
+  .breadcrumbs {
+    margin-bottom: 20px;
   }
 
   .thumbnails {
     display: none;
   }
 
-  /* Show mobile slider */
-  .imageSlider {
+  /* The same gallery becomes a swipe row: every photo shown, one per screen width */
+  .gallery {
     display: flex;
+    aspect-ratio: auto;
+    margin-bottom: 0;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    background: #ffffff;
-    border: 1px solid #F0F0F0;
   }
 
-  .imageSlider::-webkit-scrollbar {
+  .gallery::-webkit-scrollbar {
     display: none;
   }
 
-  .slideImage {
+  .slide {
     position: relative;
+    inset: auto;
+    display: block;
     flex: 0 0 100%;
     scroll-snap-align: center;
     aspect-ratio: 1;
@@ -417,13 +503,22 @@
   }
 
   .slideImageWrap {
-    position: absolute;
     inset: 15%;
+  }
+
+  .related {
+    padding-top: 40px;
+    margin-top: 48px;
+  }
+
+  .relatedGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mainImageWrap {
+  .slideImageWrap {
     animation: none;
     transition: none;
   }

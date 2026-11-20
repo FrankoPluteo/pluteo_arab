@@ -3,6 +3,7 @@ import { Inter, Montserrat } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import ClientProviders from '@/components/ClientProviders';
+import { organizationJsonLd } from '@/lib/company';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,43 +20,34 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.pluteo.shop'),
   title: {
-    default: 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska',
+    // Pages without a title of their own (cart, checkout…); the home page sets its own.
+    default: 'Pluteo',
     template: '%s | Pluteo',
   },
-  description: 'Arapski parfemi i oud mirisi uz brzu dostavu diljem Hrvatske. 100% originalni Lattafa, Armaf i French Avenue parfemi - dugotrajni orijentalni mirisi za nju i njega.',
-  keywords: 'arapski parfemi, arabski parfemi, arabijski parfemi, premium arapski parfemi, premium parfemi, oud parfemi, parfemi hrvatska, luksuzni parfemi, orijentalni parfemi, dugotrajni parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, niche parfemi, parfem za muškarce, parfem za žene, kupiti parfem online, arabian perfumes, oud perfumes',
+  description: 'Arapski parfemi uz dostavu diljem Hrvatske: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs.',
   applicationName: 'Pluteo',
   authors: [{ name: 'Pluteo' }],
-  alternates: {
-    canonical: 'https://www.pluteo.shop',
-  },
+  // No canonical or og:url here: every page sets its own, and a site-wide one made pages
+  // without their own (the 404 page among them) point at the home page.
   openGraph: {
-    title: 'Pluteo - Arapski parfemi i oud mirisi',
-    description: 'Otkrijte autentične arapske parfeme Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
-    url: 'https://www.pluteo.shop',
     siteName: 'Pluteo',
     locale: 'hr_HR',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pluteo - Arapski parfemi i oud mirisi | Hrvatska',
-    description: 'Originalni arapski parfemi Lattafa, Armaf i French Avenue. Dugotrajni luksuzni mirisi s brzom dostavom diljem Hrvatske.',
   },
+  // Indexing is the default, so only the preview limits are set. A 404 then carries just
+  // Next.js's own "noindex" instead of that plus a contradicting "index, follow".
   robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+    'max-video-preview': -1,
+    'max-image-preview': 'large',
+    'max-snippet': -1,
   },
+  // iOS doesn't use an SVG as the home-screen icon: app/apple-icon.png is a 180×180 PNG.
   icons: {
     icon: '/icon.svg',
-    apple: '/icon.svg',
+    apple: { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
   },
 };
 
@@ -73,21 +65,8 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Pluteo',
-              url: 'https://www.pluteo.shop',
-              logo: 'https://www.pluteo.shop/pluteo-logo-email.png',
-              description: 'Pluteo - premium arapski i nišni parfemi uz brzu dostavu diljem Hrvatske.',
-              contactPoint: {
-                '@type': 'ContactPoint',
-                email: 'pluteoinfo@gmail.com',
-                contactType: 'customer service',
-                areaServed: 'HR',
-                availableLanguage: 'Croatian',
-              },
-            }),
+            // The site's only Organization node (lib/company.ts); products refer to it by @id.
+            __html: JSON.stringify(organizationJsonLd()),
           }}
         />
         <ClientProviders>

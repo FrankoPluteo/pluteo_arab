@@ -1,46 +1,46 @@
 import { Metadata } from 'next';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getCatalog, searchSuggestions } from '@/lib/catalog';
 import { searchProducts } from '@/lib/search';
+import { absoluteUrl, brandPath, genderPath, listingPagePath, shopPath } from '@/lib/urls';
+import { shortConcentration } from '@/lib/productText';
+import { matchesListingFilters } from '@/lib/listingFilter';
 import ProductsContent from './ProductsContent';
-
-const BASE_URL = 'https://www.pluteo.shop';
 
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const params = await searchParams;
 
-  // Canonical strips sort/pagination — only brand and gender are "category" params
-  const canonicalParams = new URLSearchParams();
-  if (params.brand) canonicalParams.set('brand', params.brand);
-  if (params.gender) canonicalParams.set('gender', params.gender);
-  const canonicalSuffix = canonicalParams.toString() ? `?${canonicalParams.toString()}` : '';
-  const canonical = `${BASE_URL}/products${canonicalSuffix}`;
+  // Canonical keeps what makes a listing its own page (brand, gender, page number) and drops
+  // sorting and the other filters, which only reorder or narrow the same products.
+  const page = Math.max(1, parseInt(params.page || '1') || 1);
+  const canonical = absoluteUrl(listingPagePath({ brand: params.brand, gender: params.gender }, page));
 
   let title: string;
   let description: string;
 
   if (params.brand && !params.gender) {
-    title = `${params.brand} parfemi - kupite online`;
-    description = `Otkrijte kolekciju ${params.brand} parfema. Originalni arapski i orijentalni mirisi uz brzu dostavu diljem Hrvatske.`;
+    title = `${params.brand} parfemi - cijene i kupnja online`;
+    description = `${params.brand} parfemi: cijene i ponuda. Naručite online uz dostavu diljem Hrvatske, GLS-om na adresu ili u BOX NOW paketomat.`;
   } else if (params.gender === 'male' && !params.brand) {
-    title = 'Muški arapski parfemi - kupite online';
-    description = 'Istražite našu ponudu muških arapskih parfema. Originalni orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+    title = 'Muški arapski parfemi - cijene i kupnja online';
+    description = 'Muški i unisex arapski parfemi s cijenama: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs. Naručite online uz dostavu diljem Hrvatske.';
   } else if (params.gender === 'female' && !params.brand) {
-    title = 'Ženski arapski parfemi - kupite online';
-    description = 'Istražite našu ponudu ženskih arapskih parfema. Originalni orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+    title = 'Ženski arapski parfemi - cijene i kupnja online';
+    description = 'Ženski i unisex arapski parfemi s cijenama: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs. Naručite online uz dostavu diljem Hrvatske.';
   } else if (params.search) {
     title = `Rezultati pretrage: "${params.search}"`;
     description = `Rezultati pretrage arapskih parfema za "${params.search}". Pronađite savršeni miris uz brzu dostavu diljem Hrvatske.`;
   } else {
-    title = 'Arapski parfemi - kupite online';
-    description = 'Pregledajte našu kolekciju autentičnih arapskih parfema, oud mirisa i luksuznih orijentalnih mirisa. Lattafa, Armaf i French Avenue - brza dostava diljem Hrvatske.';
+    title = 'Svi parfemi - cijene i kupnja online';
+    description = 'Svi parfemi u ponudi s cijenama: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs. Naručite online uz GLS dostavu ili BOX NOW paketomat.';
   }
+
+  // Later pages get their own title so they don't read as duplicates of page 1.
+  if (page > 1) title = `${title} - stranica ${page}`;
 
   return {
     title,
     description,
-    keywords: 'arapski parfemi, arabski parfemi, premium arapski parfemi, oud parfemi, Lattafa parfemi, Armaf parfemi, French Avenue parfemi, luksuzni orijentalni mirisi, dugotrajni parfemi hrvatska, niche parfemi online',
     alternates: { canonical },
     // Search result pages are thin/duplicate content — keep them out of the index
     ...(params.search && { robots: { index: false, follow: true } }),
@@ -95,9 +95,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const currentPage = Math.max(1, parseInt(params.page || '1') || 1);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const minPrice = params.minPrice ? parseFloat(params.minPrice) : null;
-  const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : null;
-
   try {
     // One cached read of the whole catalog (lib/catalog.ts); filters run in memory.
     const { products: catalog, brandNames } = await getCatalog();
@@ -105,7 +102,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const allProfiles = new Set<string>();
     const allConcentrations = new Set<string>();
     catalog.forEach((p) => {
-      allConcentrations.add(p.concentration);
+      // "Eau de Parfum" and "EDP" are one option (scripts/normalize-product-data.ts makes
+      // the data match; this keeps the list right before and after it runs).
+      allConcentrations.add(shortConcentration(p.concentration));
       p.fragranceProfiles?.forEach((profile) => allProfiles.add(profile));
     });
 
@@ -119,19 +118,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     // back best match first.
     const search = params.search?.trim();
     const pool = search ? searchProducts(catalog, search) : catalog;
-    const filtered = pool.filter((p) => {
-      if (params.gender && p.gender !== params.gender && p.gender !== 'unisex') return false;
-      if (params.brand && p.brand.name !== params.brand) return false;
-      if (params.concentration && p.concentration !== params.concentration) return false;
-      if (params.fragranceProfile && !p.fragranceProfiles.includes(params.fragranceProfile)) return false;
-      if (params.inStock === 'true' && p.stock <= 0) return false;
-      if (params.onSale === 'true' && p.discountAmount <= 0) return false;
-      // Price filters use the price after the product's own discount
-      const discounted = p.price - p.discountAmount;
-      if (minPrice !== null && discounted < minPrice) return false;
-      if (maxPrice !== null && discounted > maxPrice) return false;
-      return true;
-    });
+    // Same rules for every listing; see lib/listingFilter.ts.
+    const filtered = pool.filter((p) => matchesListingFilters(p, params));
 
     // Search results keep their relevance order unless a sort was picked
     if (!search || (params.sortBy && params.sortBy !== 'brand-order')) {
@@ -146,15 +134,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
     const breadcrumbItems: { name: string; item: string }[] = [
-      { name: 'Početna', item: BASE_URL },
-      { name: 'Parfemi', item: `${BASE_URL}/products` },
+      { name: 'Početna', item: absoluteUrl('/') },
+      { name: 'Parfemi', item: absoluteUrl(shopPath()) },
     ];
     if (params.brand) {
-      breadcrumbItems.push({ name: params.brand, item: `${BASE_URL}/products?brand=${encodeURIComponent(params.brand)}` });
+      breadcrumbItems.push({ name: params.brand, item: absoluteUrl(brandPath(params.brand)) });
     } else if (params.gender === 'male') {
-      breadcrumbItems.push({ name: 'Muški parfemi', item: `${BASE_URL}/products?gender=male` });
+      breadcrumbItems.push({ name: 'Muški parfemi', item: absoluteUrl(genderPath('male')) });
     } else if (params.gender === 'female') {
-      breadcrumbItems.push({ name: 'Ženski parfemi', item: `${BASE_URL}/products?gender=female` });
+      breadcrumbItems.push({ name: 'Ženski parfemi', item: absoluteUrl(genderPath('female')) });
     }
 
     const breadcrumbJsonLd = {
@@ -170,7 +158,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
     return (
       <div>
-        <Navbar />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
@@ -193,7 +180,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     console.error('Error loading products:', error);
     return (
       <div>
-        <Navbar />
         <div style={{ padding: '120px 40px' }}>
           <p>Error loading products. Please try again later.</p>
         </div>

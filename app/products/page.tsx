@@ -3,6 +3,7 @@ import Footer from '@/components/Footer';
 import { getCatalog, searchSuggestions } from '@/lib/catalog';
 import { searchProducts } from '@/lib/search';
 import { absoluteUrl, brandPath, genderPath, listingPagePath, shopPath } from '@/lib/urls';
+import { normalizeGender } from '@/lib/productText';
 import ProductsContent from './ProductsContent';
 
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
@@ -118,7 +119,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const search = params.search?.trim();
     const pool = search ? searchProducts(catalog, search) : catalog;
     const filtered = pool.filter((p) => {
-      if (params.gender && p.gender !== params.gender && p.gender !== 'unisex') return false;
+      // Unisex perfumes belong under both men's and women's, however "unisex" is capitalised.
+      if (params.gender) {
+        const gender = normalizeGender(p.gender);
+        if (gender !== params.gender && gender !== 'unisex') return false;
+      }
       if (params.brand && p.brand.name !== params.brand) return false;
       if (params.concentration && p.concentration !== params.concentration) return false;
       if (params.fragranceProfile && !p.fragranceProfiles.includes(params.fragranceProfile)) return false;

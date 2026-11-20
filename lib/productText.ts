@@ -15,10 +15,15 @@ const DESCRIPTION_TAIL = 'Dostava diljem Hrvatske.';
 
 type Gender = 'male' | 'female' | 'unisex';
 
-/** Gender as stored, made consistent ("Unisex" and "unisex" are the same thing). */
+/**
+ * Gender as stored, made consistent: "unisex"/"Unisex", and "Men"/"Women" as the old admin
+ * form saved them, all map onto male / female / unisex.
+ */
 export function normalizeGender(gender: string): Gender {
   const g = gender.trim().toLowerCase();
-  return g === 'male' || g === 'female' ? g : 'unisex';
+  if (g === 'male' || g === 'men' || g === 'man') return 'male';
+  if (g === 'female' || g === 'women' || g === 'woman') return 'female';
+  return 'unisex';
 }
 
 /** Croatian label, e.g. for the product meta line and JSON-LD. */

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes } from '@/lib/analytics';
@@ -189,7 +188,6 @@ export default function RecommendationContent() {
 
   return (
     <div>
-      <Navbar />
 
       <div className={styles.pageContainer}>
         <div className={styles.logoContainer}>

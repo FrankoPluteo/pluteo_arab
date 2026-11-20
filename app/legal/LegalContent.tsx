@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/languageContext';
 import styles from '@/styles/staticpage.module.css';
@@ -13,7 +12,6 @@ export default function LegalContent() {
 
   return (
     <div>
-      <Navbar />
 
       <div className={styles.pageContainer}>
         <div className={styles.logoContainer}>

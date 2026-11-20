@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getCatalog, searchSuggestions } from '@/lib/catalog';
 import { searchProducts } from '@/lib/search';
@@ -169,7 +168,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
     return (
       <div>
-        <Navbar />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
@@ -192,7 +190,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     console.error('Error loading products:', error);
     return (
       <div>
-        <Navbar />
         <div style={{ padding: '120px 40px' }}>
           <p>Error loading products. Please try again later.</p>
         </div>

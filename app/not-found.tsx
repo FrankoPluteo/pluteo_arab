@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getCatalog, searchSuggestions } from '@/lib/catalog';
 import { brandPath, genderPath, shopPath } from '@/lib/urls';
-import ProductCard from '@/components/ProductCard';
 import Footer from '@/components/Footer';
 import styles from '@/styles/staticpage.module.css';
-import homeStyles from '@/styles/home.module.css';
 
 // No canonical (the home page's is no longer inherited) and no robots setting: Next.js adds
 // "noindex" to every 404 itself, so that stays the only robots tag.
@@ -14,14 +11,18 @@ export const metadata: Metadata = {
 };
 
 /**
- * Any unknown URL and every notFound() (e.g. a product id that doesn't exist) lands here,
- * with a 404 status. Instead of a dead end it offers the brands and the bestsellers.
+ * The brands we sell. Kept in code on purpose: the 404 page must not read the database.
+ * Next.js renders this page as the fallback of every route, so any cached data read here
+ * gives every static page (cart and checkout included) a revalidation timer.
+ * Add a brand here when one is added in the admin.
  */
-export default async function NotFound() {
-  const { products, brandNames } = await getCatalog();
-  const bestsellers = products.filter((p) => p.isBestSeller && p.stock > 0).slice(0, 4);
-  const shown = bestsellers.length > 0 ? bestsellers : searchSuggestions(products, 4);
+const BRANDS = ['Lattafa', 'Armaf', 'French Avenue', 'Ahmed Al Maghribi', 'Riiffs'];
 
+/**
+ * Any unknown URL and every notFound() (e.g. a product id that doesn't exist) lands here,
+ * with a 404 status. Instead of a dead end it offers every brand and the main listings.
+ */
+export default function NotFound() {
   return (
     <>
       <div className={styles.pageContainer}>
@@ -34,11 +35,18 @@ export default async function NotFound() {
 
           <h2 className={styles.sectionTitle}>Brendovi</h2>
           <ul className={styles.featureList}>
-            {brandNames.map((brand) => (
+            {BRANDS.map((brand) => (
               <li key={brand}>
                 <Link href={brandPath(brand)}>{brand} parfemi</Link>
               </li>
             ))}
+          </ul>
+
+          <h2 className={styles.sectionTitle}>Parfemi</h2>
+          <ul className={styles.featureList}>
+            <li>
+              <Link href={shopPath()}>Svi parfemi</Link>
+            </li>
             <li>
               <Link href={genderPath('male')}>Muški parfemi</Link>
             </li>
@@ -46,21 +54,13 @@ export default async function NotFound() {
               <Link href={genderPath('female')}>Ženski parfemi</Link>
             </li>
             <li>
-              <Link href={shopPath()}>Svi parfemi</Link>
+              <Link href="/poklon/za-nju">Poklon za nju</Link>
+            </li>
+            <li>
+              <Link href="/poklon/za-njega">Poklon za njega</Link>
             </li>
           </ul>
         </div>
-
-        {shown.length > 0 && (
-          <section className={homeStyles.section}>
-            <h2 className={styles.sectionTitle}>Najprodavaniji</h2>
-            <div className={homeStyles.productsGrid}>
-              {shown.map((product, index) => (
-                <ProductCard key={product.id} product={product} list="not-found" position={index} />
-              ))}
-            </div>
-          </section>
-        )}
       </div>
       <Footer />
     </>

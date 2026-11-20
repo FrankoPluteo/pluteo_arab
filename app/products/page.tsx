@@ -18,20 +18,20 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
   let description: string;
 
   if (params.brand && !params.gender) {
-    title = `${params.brand} parfemi - kupite online`;
-    description = `Otkrijte kolekciju ${params.brand} parfema. Originalni arapski i orijentalni mirisi uz brzu dostavu diljem Hrvatske.`;
+    title = `${params.brand} parfemi - cijene i kupnja online`;
+    description = `${params.brand} parfemi: cijene i ponuda. Naručite online uz dostavu diljem Hrvatske, GLS-om na adresu ili u BOX NOW paketomat.`;
   } else if (params.gender === 'male' && !params.brand) {
-    title = 'Muški arapski parfemi - kupite online';
-    description = 'Istražite našu ponudu muških arapskih parfema. Originalni orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+    title = 'Muški arapski parfemi - cijene i kupnja online';
+    description = 'Muški i unisex arapski parfemi s cijenama: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs. Naručite online uz dostavu diljem Hrvatske.';
   } else if (params.gender === 'female' && !params.brand) {
-    title = 'Ženski arapski parfemi - kupite online';
-    description = 'Istražite našu ponudu ženskih arapskih parfema. Originalni orijentalni mirisi uz brzu dostavu diljem Hrvatske.';
+    title = 'Ženski arapski parfemi - cijene i kupnja online';
+    description = 'Ženski i unisex arapski parfemi s cijenama: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs. Naručite online uz dostavu diljem Hrvatske.';
   } else if (params.search) {
     title = `Rezultati pretrage: "${params.search}"`;
     description = `Rezultati pretrage arapskih parfema za "${params.search}". Pronađite savršeni miris uz brzu dostavu diljem Hrvatske.`;
   } else {
-    title = 'Arapski parfemi - kupite online';
-    description = 'Pregledajte našu kolekciju autentičnih arapskih parfema, oud mirisa i luksuznih orijentalnih mirisa. Lattafa, Armaf i French Avenue - brza dostava diljem Hrvatske.';
+    title = 'Svi parfemi - cijene i kupnja online';
+    description = 'Svi parfemi u ponudi s cijenama: Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs. Naručite online uz GLS dostavu ili BOX NOW paketomat.';
   }
 
   // Later pages get their own title so they don't read as duplicates of page 1.

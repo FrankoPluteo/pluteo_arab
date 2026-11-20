@@ -408,7 +408,13 @@
   margin-bottom: 48px;
 }
 
+/* Wraps the hero logo so it is the page's H1 without changing the hero layout */
+.heroHeading {
+  display: contents;
+}
+
 .sectionLabel {
+  margin: 0;
   font-size: 10px;
   font-weight: 400;
   letter-spacing: 3px;

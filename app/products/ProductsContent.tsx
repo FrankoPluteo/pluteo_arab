@@ -67,7 +67,7 @@ export default function ProductsContent({
   } else if (genderFilter === 'female' && !brandFilter) {
     pageHeading = 'Ženski arapski parfemi';
   } else {
-    pageHeading = 'Arapski parfemi';
+    pageHeading = 'Svi parfemi';
   }
 
   // Analytics list name; a search wins over filters, then brand, then gender.

@@ -4,14 +4,14 @@ import { ORGANIZATION_ID } from '@/lib/company';
 import { absoluteUrl } from '@/lib/urls';
 
 export const metadata: Metadata = {
-  title: 'O nama - Arapski parfemi i oud mirisi u Hrvatskoj',
-  description: 'Pluteo - vaša destinacija za autentične arapske parfeme i oud mirise u Hrvatskoj. Nudimo 100% originalne parfeme Lattafa, Armaf i French Avenue s brzom dostavom.',
+  title: 'O nama - online parfumerija arapskih parfema',
+  description: 'Tko stoji iza Pluteo parfumerije: arapski parfemi Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs uz dostavu diljem Hrvatske.',
   alternates: {
     canonical: 'https://www.pluteo.shop/about',
   },
   openGraph: {
-    title: 'O nama - Arapski parfemi i oud mirisi u Hrvatskoj',
-    description: 'Saznajte zašto je Pluteo povjerljiv izvor autentičnih arapskih parfema, oud mirisa i dugotrajnih luksuznih mirisa u Hrvatskoj.',
+    title: 'O nama - online parfumerija arapskih parfema | Pluteo',
+    description: 'Tko stoji iza Pluteo parfumerije: arapski parfemi Lattafa, Armaf, French Avenue, Ahmed Al Maghribi i Riiffs uz dostavu diljem Hrvatske.',
     url: 'https://www.pluteo.shop/about',
   },
 };

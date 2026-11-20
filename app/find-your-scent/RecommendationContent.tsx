@@ -9,6 +9,7 @@ import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes } from '@/lib/analytics';
 import styles from '@/styles/recommendation.module.css';
 import logoIcon from '@/public/Pluteo Logo Icon.svg';
+import { productPath } from '@/lib/urls';
 
 interface ResultProduct {
   id: string;
@@ -441,7 +442,7 @@ export default function RecommendationContent() {
                           <p className={styles.reasonText}>{reason}</p>
                         </div>
 
-                        <Link href={`/products/${product.id}`} className={styles.viewBtn}>
+                        <Link href={productPath(product)} className={styles.viewBtn}>
                           {q.viewProduct}
                         </Link>
                       </div>

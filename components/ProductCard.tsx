@@ -8,6 +8,7 @@ import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes, productProps, track } from '@/lib/analytics';
 import { SHOW_REVIEWS } from '@/lib/reviews';
+import { productPath } from '@/lib/urls';
 import StarRating from './StarRating';
 import BlackFridayTape from './BlackFridayTape'; // BLACK FRIDAY — remove after campaign
 import BlackFridayDiscountBadge from './BlackFridayDiscountBadge'; // BLACK FRIDAY — remove after campaign
@@ -89,7 +90,7 @@ export default function ProductCard({
         <Image src={giftBow} alt="" aria-hidden="true" className={styles.giftBow} />
       )}
 
-      <Link href={`/products/${product.id}`} className={styles.productLink}>
+      <Link href={productPath(product)} className={styles.productLink}>
         <div className={styles.productImage}>
           {product.images[0] ? (
             <div className={styles.productImageWrap}>

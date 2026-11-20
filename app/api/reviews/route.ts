@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { SHOW_REVIEWS } from '@/lib/reviews';
 
 // GET /api/reviews?productId=xxx — returns only aggregates (no individual reviews)
 export async function GET(req: NextRequest) {
@@ -7,6 +8,11 @@ export async function GET(req: NextRequest) {
 
   if (!productId) {
     return NextResponse.json({ error: 'productId is required' }, { status: 400 });
+  }
+
+  // Reviews are switched off on the storefront (lib/reviews.ts): report every product as unrated.
+  if (!SHOW_REVIEWS) {
+    return NextResponse.json({ averageRating: 0, reviewCount: 0 });
   }
 
   try {

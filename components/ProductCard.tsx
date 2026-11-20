@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productCaptureAttributes, productProps, track } from '@/lib/analytics';
+import { SHOW_REVIEWS } from '@/lib/reviews';
 import StarRating from './StarRating';
 import BlackFridayTape from './BlackFridayTape'; // BLACK FRIDAY — remove after campaign
 import BlackFridayDiscountBadge from './BlackFridayDiscountBadge'; // BLACK FRIDAY — remove after campaign
@@ -136,7 +137,7 @@ export default function ProductCard({
             {product.concentration} - {product.size}ml
           </p>
 
-          {(product.reviewCount ?? 0) > 0 && (
+          {SHOW_REVIEWS && (product.reviewCount ?? 0) > 0 && (
             <div className={styles.productRating}>
               <StarRating rating={product.averageRating ?? 0} size="small" />
               <span className={styles.reviewCount}>({product.reviewCount})</span>

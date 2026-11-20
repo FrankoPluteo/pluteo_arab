@@ -6,6 +6,7 @@ import { Product } from '@/types';
 import { useCart } from '@/lib/store';
 import { useLanguage } from '@/lib/languageContext';
 import { productProps, track } from '@/lib/analytics';
+import { SHOW_REVIEWS } from '@/lib/reviews';
 import ReviewSummary from './ReviewSummary';
 import BlackFridayDiscountBadge from './BlackFridayDiscountBadge'; // BLACK FRIDAY — remove after campaign
 import styles from '@/styles/productdetails.module.css';
@@ -307,11 +308,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             </div>
           </div>
 
-          <ReviewSummary
-            productId={product.id}
-            initialAverage={product.averageRating}
-            initialCount={product.reviewCount}
-          />
+          {SHOW_REVIEWS && (
+            <ReviewSummary
+              productId={product.id}
+              initialAverage={product.averageRating}
+              initialCount={product.reviewCount}
+            />
+          )}
         </div>
       </div>
     </div>

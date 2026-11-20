@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { SHOW_REVIEWS } from '@/lib/reviews';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductDetailClient from '@/components/ProductDetailClient';
@@ -96,11 +97,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const reviewStats = await prisma.review.aggregate({
-    where: { productId: product.id },
-    _avg: { rating: true },
-    _count: { rating: true },
-  });
+  // Reviews switched off (lib/reviews.ts): no query, the product reads as unrated.
+  const reviewStats = SHOW_REVIEWS
+    ? await prisma.review.aggregate({
+        where: { productId: product.id },
+        _avg: { rating: true },
+        _count: { rating: true },
+      })
+    : { _avg: { rating: null }, _count: { rating: 0 } };
 
   const brandName = product.brand?.name || '';
   const finalPrice = product.price - product.discountAmount;
@@ -122,7 +126,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     },
     sku: product.id,
     category: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-    ...(reviewStats._count.rating > 0 && {
+    ...(SHOW_REVIEWS && reviewStats._count.rating > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: (reviewStats._avg.rating ?? 0).toFixed(1),

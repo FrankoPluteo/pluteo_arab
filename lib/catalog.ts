@@ -25,7 +25,7 @@ const readCatalog = unstable_cache(
       brandNames: brands.map((brand) => brand.name),
     };
   },
-  ['catalog-v3'],
+  ['catalog-v4'],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ['catalog'] }
 );
 
